@@ -10,4 +10,9 @@ public class HealthController {
     public String health() {
         return "ok";
     }
+
+    @GetMapping("/health/deploy")
+    public String deploy() {
+        return "deploy success";
+    }
 }
