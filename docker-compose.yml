@@ -14,14 +14,13 @@ services:
     volumes:
       - db-data:/var/lib/mysql
     restart: always
-
-  # MySQL 헬스체크 추가
-  healthcheck:
-    test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-    interval: 10s
-    timeout: 5s
-    retries: 5
-    start_period: 10s
+    # MySQL 헬스체크 추가
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   app:
     image: jooeonlee/graydang:latest
