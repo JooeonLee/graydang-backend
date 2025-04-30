@@ -41,7 +41,12 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            docker stop graydang || true
-            docker rm graydang || true
-            docker pull ${{ secrets.DOCKER_USERNAME }}/graydang:latest
-            docker run -d --name graydang -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/graydang:latest
+            cd /home/ec2-user/graydang  # 또는 docker-compose.yml이 있는 디렉토리로 이동
+            echo "SPRING_DATASOURCE_URL=${{ secrets.DATASOURCE_URL_PROD }}" > .env
+            echo "SPRING_DATASOURCE_USERNAME=${{ secrets.DATASOURCE_USERNAME_PROD }}" >> .env
+            echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.DATASOURCE_PASSWORD_PROD }}" >> .env
+            echo "SPRING_PROFILES_ACTIVE=prod" >> .env
+
+            docker compose down
+            docker compose pull
+            docker compose up -d --build
