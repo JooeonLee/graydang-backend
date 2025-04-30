@@ -34,6 +34,11 @@ jobs:
       - name: Push image to DockerHub
         run: docker push ${{ secrets.DOCKER_USERNAME }}/graydang:latest
 
+      - name: Debug file existence
+        run: |
+          ls -al
+          ls -al src/main/resources/
+
       - name: Copy config files to EC2
         uses: appleboy/scp-action@v0.1.4
         with:
