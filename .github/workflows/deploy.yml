@@ -34,6 +34,14 @@ jobs:
       - name: Push image to DockerHub
         run: docker push ${{ secrets.DOCKER_USERNAME }}/graydang:latest
 
+      - name: Upload backend to EC2 via rsync
+        run: |
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ec2-key.pem
+          chmod 600 ec2-key.pem
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no -i ec2-key.pem" \
+          ./ \
+          ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/home/ec2-user/graydang/
+
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v0.1.6
         with:
@@ -41,7 +49,13 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            docker stop graydang || true
-            docker rm graydang || true
-            docker pull ${{ secrets.DOCKER_USERNAME }}/graydang:latest
-            docker run -d --name graydang -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/graydang:latest
+            cd /home/ec2-user/graydang  # 또는 docker-compose.yml이 있는 디렉토리로 이동
+            echo "DATASOURCE_URL_PROD=${{ secrets.DATASOURCE_URL_PROD }}" > .env
+            echo "DATASOURCE_USERNAME_PROD=${{ secrets.DATASOURCE_USERNAME_PROD }}" >> .env
+            echo "DATASOURCE_PASSWORD_PROD=${{ secrets.DATASOURCE_PASSWORD_PROD }}" >> .env
+            echo "SPRING_PROFILES_ACTIVE=prod" >> .env
+
+            docker compose down || true
+            sleep 5
+            docker compose pull
+            docker compose up -d --build
