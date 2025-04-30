@@ -34,14 +34,13 @@ jobs:
       - name: Push image to DockerHub
         run: docker push ${{ secrets.DOCKER_USERNAME }}/graydang:latest
 
-      - name: Copy config files to EC2
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          source: backend
-          target: /home/ec2-user/graydang
+      - name: Upload backend to EC2 via rsync
+        run: |
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ec2-key.pem
+          chmod 600 ec2-key.pem
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no -i ec2-key.pem" \
+          backend/ \
+          ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/home/ec2-user/graydang/
 
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v0.1.6
