@@ -42,9 +42,9 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd /home/ec2-user/graydang  # 또는 docker-compose.yml이 있는 디렉토리로 이동
-            echo "SPRING_DATASOURCE_URL=${{ secrets.DATASOURCE_URL_PROD }}" > .env
-            echo "SPRING_DATASOURCE_USERNAME=${{ secrets.DATASOURCE_USERNAME_PROD }}" >> .env
-            echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.DATASOURCE_PASSWORD_PROD }}" >> .env
+            echo "DATASOURCE_URL_PROD=${{ secrets.DATASOURCE_URL_PROD }}" > .env
+            echo "DATASOURCE_USERNAME_PROD=${{ secrets.DATASOURCE_USERNAME_PROD }}" >> .env
+            echo "DATASOURCE_PASSWORD_PROD=${{ secrets.DATASOURCE_PASSWORD_PROD }}" >> .env
             echo "SPRING_PROFILES_ACTIVE=prod" >> .env
 
             docker compose down
