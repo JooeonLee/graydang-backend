@@ -55,7 +55,7 @@ jobs:
             echo "DATASOURCE_PASSWORD_PROD=${{ secrets.DATASOURCE_PASSWORD_PROD }}" >> .env
             echo "SPRING_PROFILES_ACTIVE=prod" >> .env
 
-            docker compose down
+            docker compose down || true
             sleep 5
             docker compose pull
             docker compose up -d --build
