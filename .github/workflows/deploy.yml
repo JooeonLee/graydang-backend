@@ -39,7 +39,7 @@ jobs:
           echo "${{ secrets.SERVER_SSH_KEY }}" > ec2-key.pem
           chmod 600 ec2-key.pem
           rsync -avz -e "ssh -o StrictHostKeyChecking=no -i ec2-key.pem" \
-          backend/ \
+          ./ \
           ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/home/ec2-user/graydang/
 
       - name: Deploy to EC2 via SSH
