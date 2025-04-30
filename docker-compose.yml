@@ -1,20 +1,6 @@
 version: '3.8'
 
 services:
-  app:
-    image: jooeonlee/graydang:latest
-    container_name: graydang-app
-    ports:
-      - "8080:8080"
-    environment:
-      SPRING_DATASOURCE_URL: ${DATASOURCE_URL_PROD}
-      SPRING_DATASOURCE_USERNAME: ${DATASOURCE_USERNAME_PROD}
-      SPRING_DATASOURCE_PASSWORD: ${DATASOURCE_PASSWORD_PROD}
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
-    depends_on:
-      - db
-    restart: always
-
   db:
     image: mysql:8
     container_name: graydang-mysql
@@ -27,6 +13,28 @@ services:
       - "3307:3306"
     volumes:
       - db-data:/var/lib/mysql
+    restart: always
+    # MySQL 헬스체크 추가
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  app:
+    image: jooeonlee/graydang:latest
+    container_name: graydang-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: ${DATASOURCE_URL_PROD}
+      SPRING_DATASOURCE_USERNAME: ${DATASOURCE_USERNAME_PROD}
+      SPRING_DATASOURCE_PASSWORD: ${DATASOURCE_PASSWORD_PROD}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
     restart: always
 
 volumes:
