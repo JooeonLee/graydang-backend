@@ -29,7 +29,7 @@ services:
       - "8080:8080"
     depends_on:
       db:
-        condition: service_healty # DB가 healthy 상태일 때만 실행
+        condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: ${DATASOURCE_URL_PROD}
       SPRING_DATASOURCE_USERNAME: ${DATASOURCE_USERNAME_PROD}
