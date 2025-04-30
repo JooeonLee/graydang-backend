@@ -56,5 +56,6 @@ jobs:
             echo "SPRING_PROFILES_ACTIVE=prod" >> .env
 
             docker compose down
+            sleep 5
             docker compose pull
             docker compose up -d --build
