@@ -1,3 +1,7 @@
+openapi:
+  bill:
+    service-key: ${BILL_API_KEY}
+
 spring:
   profiles:
     active: local
