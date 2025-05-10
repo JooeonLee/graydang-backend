@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -28,9 +29,29 @@ public class BillStatusHistory extends BaseEntity {
     @Column(name = "step_result", length = 255)
     private String stepResult;
 
+    @Column(name = "step_order")
+    private Integer stepOrder;
+
     @Column(name = "step_date")
     private LocalDate stepDate;
 
     @Column(nullable = false, length = 255)
     private String status;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void update(LocalDate stepDate, String stepResult, String status) {
+        this.stepDate = stepDate;
+        this.stepResult = stepResult;
+        this.status = status;
+    }
 }

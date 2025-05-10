@@ -3,6 +3,11 @@ openapi:
     service-key: ${BILL_API_KEY}
 
 spring:
+  batch:
+    jdbc:
+      initialize-schema: never
+    job:
+      name: billPlenaryProcessingJob
   profiles:
     active: local
 

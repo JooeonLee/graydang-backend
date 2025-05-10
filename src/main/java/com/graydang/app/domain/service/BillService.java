@@ -1,5 +1,6 @@
 package com.graydang.app.domain.service;
 
+import com.graydang.app.batch.bill.dto.BillCommissionResponseDto;
 import com.graydang.app.batch.bill.dto.BillInfoResponseDto;
 import com.graydang.app.domain.bill.Bill;
 import com.graydang.app.domain.repository.BillRepository;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -17,7 +19,7 @@ public class BillService {
 
     private final BillRepository billRepository;
 
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.BASIC_ISO_DATE; // yyyyMMdd
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE; // yyyy-MM-dd
 
     @Transactional
     public void saveOrUpdate(BillInfoResponseDto.ItemDto dto) {
@@ -36,38 +38,42 @@ public class BillService {
                 .billId(dto.getBillId())
                 .title(dto.getBillName())
                 .proposeDate(parseDate(dto.getProposeDt()))
-                .committeeName(dto.getCommitteeName())
                 .processResult(dto.getGeneralResult())
-                .billStatus(dto.getProcStageCn())
+                .billStatus(dto.getProcStageCd())
                 .summary(dto.getSummary())
-                .representativeName(parseRepresentativeName(dto.getProposer()))
+                .representativeName(parseRepresentativeName(dto.getProposerKind()))
                 .status("ACTIVE")
                 .build();
     }
 
     private void update(Bill bill, BillInfoResponseDto.ItemDto dto) {
-        // 업데이트할 필드만 갱신 (여기서는 간단하게 전체 갱신)
         bill.update(
                 dto.getBillName(),
                 parseDate(dto.getProposeDt()),
-                dto.getCommitteeName(),
+                null, // committeeName: 현재 DTO에는 없음
                 dto.getGeneralResult(),
-                dto.getProcStageCn(),
-                dto.getSummary(),
-                parseRepresentativeName(dto.getProposer())
+                dto.getProcStageCd(),
+                null, // summary: 현재 DTO에는 없음
+                parseRepresentativeName(dto.getProposerKind())
         );
     }
 
-    private String parseRepresentativeName(String proposer) {
-        if (proposer == null || proposer.isBlank()) return null;
-        return proposer.split(" ")[0].replace("의원", "").trim();
+    private String parseRepresentativeName(String proposerKind) {
+        if (proposerKind == null || proposerKind.isBlank()) return null;
+        return proposerKind.replace("의원", "").trim();
     }
 
     private LocalDate parseDate(String yyyymmdd) {
         try {
-            return LocalDate.parse(yyyymmdd, DATE_FORMAT);
+            return LocalDate.parse(yyyymmdd); // yyyy-MM-dd 형식으로 전달된다고 가정
         } catch (Exception e) {
-            return null; // 또는 로깅 후 예외 throw
+            return null;
         }
+    }
+
+    @Transactional
+    public void updateCommitteeName(String billId, String committeeName) {
+        Optional<Bill> optional = billRepository.findByBillId(billId);
+        optional.ifPresent(bill -> bill.updateCommitteeName(committeeName));
     }
 }

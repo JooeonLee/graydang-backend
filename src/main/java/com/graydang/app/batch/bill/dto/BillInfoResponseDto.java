@@ -27,18 +27,29 @@ public class BillInfoResponseDto {
         @JacksonXmlElementWrapper(localName = "items")
         @JacksonXmlProperty(localName = "item")
         private List<ItemDto> items;
+
+        @JacksonXmlProperty(localName = "numOfRows")
+        private int numOfRows;
+
+        @JacksonXmlProperty(localName = "pageNo")
+        private int pageNo;
+
+        @JacksonXmlProperty(localName = "totalCount")
+        private int totalCount;
     }
 
     @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class ItemDto {
         private String billId;
         private String billName;
-        private String proposeDt;
-        private String proposer;
-        private String committeeName;
+        private String billNo;
         private String generalResult;
+        private String passGubn;
+        private String procDt;
         private String procStageCd;
-        private String procStageCn;
+        private String proposeDt;
+        private String proposerKind;
         private String summary;
     }
 }
