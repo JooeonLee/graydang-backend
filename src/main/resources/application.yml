@@ -1,4 +1,15 @@
+openapi:
+  bill:
+    service-key: ${BILL_API_KEY}
+    service-key-v2: ${BILL_API_KEY_V2}
+
 spring:
+  batch:
+    jdbc:
+      initialize-schema: never
+    job:
+      #name: billVoteResultJob
+      enabled: false
   profiles:
     active: local
 
@@ -10,7 +21,7 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
