@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "bill")
 @Getter
@@ -60,4 +63,34 @@ public class Bill extends BaseEntity {
     @Column(nullable = false, length = 255)
     @Comment("시스템 관리 상태")
     private String status;
+
+    // 연관관계 Mapping
+    @OneToOne(mappedBy = "bill", cascade = CascadeType.ALL)
+    private BillVoteResult billVoteResult; // nullable 허용
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void update(String title, LocalDate proposeDate, String committeeName,
+                       String processResult, String billStatus, String summary, String representativeName) {
+        this.title = title;
+        this.proposeDate = proposeDate;
+        this.committeeName = committeeName;
+        this.processResult = processResult;
+        this.billStatus = billStatus;
+        this.summary = summary;
+        this.representativeName = representativeName;
+    }
+
+    public void updateCommitteeName(String committeeName) {
+        this.committeeName = committeeName;
+    }
 }
