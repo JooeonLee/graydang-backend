@@ -1,9 +1,8 @@
 package com.graydang.app.batch.bill.client;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.graydang.app.batch.bill.dto.BillCommissionResponseDto;
-import com.graydang.app.batch.bill.dto.BillDeliverateInfoResponseDto;
-import com.graydang.app.batch.bill.dto.BillInfoResponseDto;
+import com.graydang.app.batch.bill.dto.*;
+import com.graydang.app.domain.bill.BillVoteResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,8 +27,11 @@ public class BillApiClient {
 
     @Value("${openapi.bill.service-key}")
     private String serviceKey;
+    @Value("${openapi.bill.service-key-v2}")
+    private String serviceKeyV2;
 
     private final String API_BASE_URL = "https://apis.data.go.kr/9710000/BillInfoService2/";
+    private final String API_BASE_URL_V2 = "https://open.assembly.go.kr/portal/openapi/ncocpgfiaoituanbr/";
 
     public List<BillInfoResponseDto.ItemDto> getBillInfoList(int numOfRows, int pageNo) {
 //        String url = API_BASE_URL + "getBillInfoList"
@@ -94,8 +96,6 @@ public class BillApiClient {
 
         try {
             String xml = restTemplate.getForObject(URI.create(url), String.class);
-//            log.info("[DEBUG] REQUEST URL:\n{}", uri);
-//            log.info("[DEBUG] XML <UNK>:\n{}", xml);
             return Optional.ofNullable(xmlMapper.readValue(xml, BillCommissionResponseDto.class));
         } catch (Exception e) {
             throw new RuntimeException("[API 오류] 위원회 정보 조회 실패 - billId: {}, error: {}" + billId, e);
@@ -116,4 +116,69 @@ public class BillApiClient {
         }
     }
 
+    public Optional<BillTransferredInfoResponseDto> getBillTransferredInfo(String billId) {
+        String url = API_BASE_URL + "getBillTransferredInfo"
+                + "?serviceKey=" + serviceKey
+                + "&bill_id=" + billId;
+
+        try {
+            String xml = restTemplate.getForObject(URI.create(url), String.class);
+            BillTransferredInfoResponseDto dto = xmlMapper.readValue(xml, BillTransferredInfoResponseDto.class);
+            return Optional.of(dto);
+        } catch (Exception e) {
+            log.warn("❌ 정부 이송 정보 조회 실패 - billId: {}", billId, e);
+            return Optional.empty();
+        }
+    }
+
+    public Optional<BillPromulgationInfoResponseDto> getBillPromulgationInfo(String billId) {
+        String url = API_BASE_URL + "getBillPromulgationInfo"
+                + "?serviceKey=" + serviceKey
+                + "&bill_id=" + billId;
+
+        URI uri = URI.create(url);
+
+        try {
+            String xml = restTemplate.getForObject(uri, String.class);
+            BillPromulgationInfoResponseDto response = xmlMapper.readValue(xml, BillPromulgationInfoResponseDto.class);
+            return Optional.ofNullable(response);
+        } catch (Exception e) {
+            log.warn("❌ 공포 정보 조회 실패 - billId: {}", billId, e);
+            return Optional.empty();
+        }
+    }
+
+    public Optional<BillVoteResultResponseDto> getBillVoteResultInfo(String billId) {
+        String url = API_BASE_URL_V2
+                + "?KEY=" + serviceKeyV2
+                + "&Type=xml&pIndex=1&pSize=1&AGE=22"
+                + "&BILL_ID=" + billId;
+
+        URI uri = URI.create(url);
+
+        try {
+            String xml = restTemplate.getForObject(URI.create(url), String.class);
+            log.warn("응답 XML:\n{}", xml);
+
+            // 빠르게 판별: <RESULT>로 시작하면 오류 응답
+            if (xml.contains("<RESULT>") && !xml.contains("<row>")) {
+                ResultOnlyResponseDto result = xmlMapper.readValue(xml, ResultOnlyResponseDto.class);
+                if ("INFO-200".equals(result.getCode())) {
+                    log.info("📭 표결 데이터 없음 (INFO-200) - billId: {}", billId);
+                    return Optional.empty();
+                } else {
+                    log.warn("⚠️ 예기치 않은 코드: {} - billId: {}", result.getCode(), billId);
+                    return Optional.empty();
+                }
+            }
+
+            // 정상 응답 처리
+            BillVoteResultResponseDto response = xmlMapper.readValue(xml, BillVoteResultResponseDto.class);
+            return Optional.of(response);
+
+        } catch (Exception e) {
+            log.warn("❌ 표결 결과 조회 실패 - billId: {}", billId, e);
+            return Optional.empty();
+        }
+    }
 }
