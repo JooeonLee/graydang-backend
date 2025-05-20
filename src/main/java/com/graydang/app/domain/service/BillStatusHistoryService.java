@@ -3,6 +3,8 @@ package com.graydang.app.domain.service;
 import com.graydang.app.batch.bill.client.BillApiClient;
 import com.graydang.app.batch.bill.dto.BillCommissionResponseDto;
 import com.graydang.app.batch.bill.dto.BillDeliverateInfoResponseDto;
+import com.graydang.app.batch.bill.dto.BillPromulgationInfoResponseDto;
+import com.graydang.app.batch.bill.dto.BillTransferredInfoResponseDto;
 import com.graydang.app.domain.bill.Bill;
 import com.graydang.app.domain.bill.BillStatusHistory;
 import com.graydang.app.domain.repository.BillRepository;
@@ -23,7 +25,6 @@ public class BillStatusHistoryService {
 
     private final BillRepository billRepository;
     private final BillStatusHistoryRepository billStatusHistoryRepository;
-    private final BillApiClient billApiClient;
 
     private static final String STEP_NAME = "위원회 회부";
     private static final String STATUS_ACTIVE = "ACTIVE";
@@ -104,6 +105,73 @@ public class BillStatusHistoryService {
                             billStatusHistoryRepository.save(history);
                             log.info("본회의 심의 이력 저장 완료 - billId: {}", billId);
                         });
+    }
+
+    @Transactional
+    public void saveGovTransfer(String billId, BillTransferredInfoResponseDto.TransferredItem item) {
+        if (item.getTransDt() == null || item.getTransDt().isBlank()) {
+            log.debug("정부 이송일자 없음 - billId: {}", billId);
+            return;
+        }
+
+        Bill bill = billRepository.findByBillId(billId)
+                .orElseThrow(() -> new IllegalArgumentException("해당하는 billId를 찾을 수 없습니다: " + billId));
+
+        String stepName = "정부 이송";
+        LocalDate stepDate = parseDate(item.getTransDt());
+
+        billStatusHistoryRepository.findByBillAndStepName(bill, stepName)
+                .ifPresentOrElse(
+                        existing -> {
+                            existing.update(stepDate, null, "ACTIVE");
+                            log.info("정부 이송 이력 업데이트 - billId: {}, date: {}", billId, stepDate);
+                        },
+                        () -> {
+                            BillStatusHistory history = BillStatusHistory.builder()
+                                    .bill(bill)
+                                    .stepOrder(3)
+                                    .stepName(stepName)
+                                    .stepDate(stepDate)
+                                    .stepResult(stepName)
+                                    .status("ACTIVE")
+                                    .build();
+                            billStatusHistoryRepository.save(history);
+                            log.info("정부 이송 이력 저장 - billId: {}, date: {}", billId, stepDate);
+                        }
+                );
+    }
+
+    @Transactional
+    public void savePromulgation(String billId, BillPromulgationInfoResponseDto.PromulgationItem item) {
+        if (item.getAnounceDt() == null || item.getAnounceDt().isBlank()) {
+            log.debug("ℹ️ 공포일자 없음 - billId: {}", billId);
+            return;
+        }
+
+        Bill bill = billRepository.findByBillId(billId)
+                .orElseThrow(() -> new IllegalArgumentException("해당하는 billId를 찾을 수 없습니다: " + billId));
+
+        String stepName = "공포";
+        LocalDate stepDate = parseDate(item.getAnounceDt());
+        String stepResult = item.getLawTitle(); // 또는 별도로 저장하지 않을 수도 있음
+
+        Optional<BillStatusHistory> existingOpt = billStatusHistoryRepository.findByBillAndStepName(bill, stepName);
+
+        if (existingOpt.isPresent()) {
+            existingOpt.get().update(stepDate, stepResult, STATUS_ACTIVE);
+            log.info("🔁 공포 이력 업데이트 - billId: {}, 공포일자: {}", billId, item.getAnounceDt());
+        } else {
+            BillStatusHistory history = BillStatusHistory.builder()
+                    .bill(bill)
+                    .stepOrder(4)
+                    .stepName(stepName)
+                    .stepDate(stepDate)
+                    .stepResult(stepResult)
+                    .status(STATUS_ACTIVE)
+                    .build();
+            billStatusHistoryRepository.save(history);
+            log.info("✅ 공포 이력 저장 완료 - billId: {}, 공포일자: {}", billId, item.getAnounceDt());
+        }
     }
 
     private LocalDate parseDate(String date) {

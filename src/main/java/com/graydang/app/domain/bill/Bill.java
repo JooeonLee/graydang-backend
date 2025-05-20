@@ -64,6 +64,10 @@ public class Bill extends BaseEntity {
     @Comment("시스템 관리 상태")
     private String status;
 
+    // 연관관계 Mapping
+    @OneToOne(mappedBy = "bill", cascade = CascadeType.ALL)
+    private BillVoteResult billVoteResult; // nullable 허용
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
