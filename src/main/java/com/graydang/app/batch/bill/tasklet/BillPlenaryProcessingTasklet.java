@@ -2,9 +2,9 @@ package com.graydang.app.batch.bill.tasklet;
 
 import com.graydang.app.batch.bill.client.BillApiClient;
 import com.graydang.app.batch.bill.dto.BillDeliverateInfoResponseDto;
-import com.graydang.app.domain.repository.BillRepository;
-import com.graydang.app.domain.service.BillService;
-import com.graydang.app.domain.service.BillStatusHistoryService;
+import com.graydang.app.domain.bill.repository.BillRepository;
+import com.graydang.app.domain.bill.service.BillService;
+import com.graydang.app.domain.bill.service.BillStatusHistoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.StepContribution;

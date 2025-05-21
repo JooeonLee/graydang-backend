@@ -1,10 +1,10 @@
-package com.graydang.app.domain.service;
+package com.graydang.app.domain.bill.service;
 
 import com.graydang.app.batch.bill.dto.BillVoteResultResponseDto;
-import com.graydang.app.domain.bill.Bill;
-import com.graydang.app.domain.bill.BillVoteResult;
-import com.graydang.app.domain.repository.BillRepository;
-import com.graydang.app.domain.repository.BillVoteResultRepository;
+import com.graydang.app.domain.bill.model.Bill;
+import com.graydang.app.domain.bill.model.BillVoteResult;
+import com.graydang.app.domain.bill.repository.BillRepository;
+import com.graydang.app.domain.bill.repository.BillVoteResultRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

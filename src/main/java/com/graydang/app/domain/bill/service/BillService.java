@@ -1,16 +1,14 @@
-package com.graydang.app.domain.service;
+package com.graydang.app.domain.bill.service;
 
-import com.graydang.app.batch.bill.dto.BillCommissionResponseDto;
 import com.graydang.app.batch.bill.dto.BillInfoResponseDto;
-import com.graydang.app.domain.bill.Bill;
-import com.graydang.app.domain.repository.BillRepository;
+import com.graydang.app.domain.bill.model.Bill;
+import com.graydang.app.domain.bill.repository.BillRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
