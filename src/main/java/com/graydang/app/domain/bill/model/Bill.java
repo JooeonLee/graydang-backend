@@ -1,4 +1,4 @@
-package com.graydang.app.domain.bill;
+package com.graydang.app.domain.bill.model;
 
 import com.graydang.app.global.common.model.entity.BaseEntity;
 import jakarta.persistence.*;
