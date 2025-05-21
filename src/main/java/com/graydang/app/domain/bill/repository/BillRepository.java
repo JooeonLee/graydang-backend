@@ -1,6 +1,6 @@
-package com.graydang.app.domain.repository;
+package com.graydang.app.domain.bill.repository;
 
-import com.graydang.app.domain.bill.Bill;
+import com.graydang.app.domain.bill.model.Bill;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

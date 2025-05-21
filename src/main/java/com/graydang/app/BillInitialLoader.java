@@ -1,15 +1,5 @@
 package com.graydang.app;
 
-import com.graydang.app.batch.bill.client.BillApiClient;
-import com.graydang.app.batch.bill.dto.BillInfoResponseDto;
-import com.graydang.app.domain.service.BillService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
-
 //@Component
 //@RequiredArgsConstructor
 //public class BillInitialLoader implements CommandLineRunner {

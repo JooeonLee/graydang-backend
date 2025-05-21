@@ -1,14 +1,13 @@
-package com.graydang.app.domain.service;
+package com.graydang.app.domain.bill.service;
 
-import com.graydang.app.batch.bill.client.BillApiClient;
 import com.graydang.app.batch.bill.dto.BillCommissionResponseDto;
 import com.graydang.app.batch.bill.dto.BillDeliverateInfoResponseDto;
 import com.graydang.app.batch.bill.dto.BillPromulgationInfoResponseDto;
 import com.graydang.app.batch.bill.dto.BillTransferredInfoResponseDto;
-import com.graydang.app.domain.bill.Bill;
-import com.graydang.app.domain.bill.BillStatusHistory;
-import com.graydang.app.domain.repository.BillRepository;
-import com.graydang.app.domain.repository.BillStatusHistoryRepository;
+import com.graydang.app.domain.bill.model.Bill;
+import com.graydang.app.domain.bill.model.BillStatusHistory;
+import com.graydang.app.domain.bill.repository.BillRepository;
+import com.graydang.app.domain.bill.repository.BillStatusHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

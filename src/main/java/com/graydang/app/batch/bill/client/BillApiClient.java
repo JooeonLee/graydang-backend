@@ -2,14 +2,11 @@ package com.graydang.app.batch.bill.client;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.graydang.app.batch.bill.dto.*;
-import com.graydang.app.domain.bill.BillVoteResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.util.UriUtils;
 
 import java.net.URI;
 import java.net.URLEncoder;
