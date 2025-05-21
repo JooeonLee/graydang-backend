@@ -39,6 +39,9 @@ dependencies {
 
     // jackson-dataformat-xml
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.15.2'
+
+    // json
+    implementation 'org.json:json:20240303'
 }
 
 tasks.named('test') {
