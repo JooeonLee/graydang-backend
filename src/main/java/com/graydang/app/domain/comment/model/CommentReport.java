@@ -1,4 +1,4 @@
-package com.graydang.app.domain.comment;
+package com.graydang.app.domain.comment.model;
 
 import com.graydang.app.domain.user.model.User;
 import com.graydang.app.global.common.model.entity.BaseEntity;
