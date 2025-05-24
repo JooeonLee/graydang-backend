@@ -2,6 +2,7 @@ package com.graydang.app.domain.bill.repository;
 
 import com.graydang.app.domain.bill.model.Bill;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -20,4 +21,8 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
 
     @Query("SELECT b.billId FROM Bill b ORDER BY b.proposeDate DESC")
     Page<String> findLatestBillIds(Pageable pageable);
+
+    Page<Bill> findByAiProcessedFalse(PageRequest pageRequest);
+
+    Optional<Bill> findFirstByAiProcessedFalseOrderByIdAsc();
 }

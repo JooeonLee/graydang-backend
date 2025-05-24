@@ -3,12 +3,18 @@ openapi:
     service-key: ${BILL_API_KEY}
     service-key-v2: ${BILL_API_KEY_V2}
 
+openai:
+  api:
+    key: ${OPENAI_API_KEY}
+    model: gpt-4o-mini
+    url: https://api.openai.com/v1/chat/completions
+
 spring:
   batch:
     jdbc:
       initialize-schema: never
     job:
-      #name: billVoteResultJob
+#      name: billGptSummaryJob
       enabled: false
   profiles:
     active: local
