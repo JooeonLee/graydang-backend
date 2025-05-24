@@ -42,6 +42,9 @@ dependencies {
 
     // json
     implementation 'org.json:json:20240303'
+
+    // JSON 처리
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 }
 
 tasks.named('test') {
