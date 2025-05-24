@@ -60,6 +60,10 @@ public class Bill extends BaseEntity {
     @Comment("AI 요약")
     private String aiSummary;
 
+    @Column(name = "ai_processed")
+    @Comment("AI 처리 여부")
+    private boolean aiProcessed;
+
     @Column(nullable = false, length = 255)
     @Comment("시스템 관리 상태")
     private String status;
@@ -92,5 +96,11 @@ public class Bill extends BaseEntity {
 
     public void updateCommitteeName(String committeeName) {
         this.committeeName = committeeName;
+    }
+
+    public void updateAiSummary(String aiTitle, String aiSummary) {
+        this.aiTitle = aiTitle;
+        this.aiSummary = aiSummary;
+        this.aiProcessed = true;
     }
 }
