@@ -103,4 +103,15 @@ public class Bill extends BaseEntity {
         this.aiSummary = aiSummary;
         this.aiProcessed = true;
     }
+
+    public void registerRepresentative(String representativeName) {
+        if (this.representativeName != null && !this.representativeName.isBlank()) return;
+        if (representativeName == null || representativeName.isBlank()) return;
+
+        this.representativeName = representativeName;
+    }
+
+    public void updateBillStatus(String status) {
+        this.billStatus = status;
+    }
 }

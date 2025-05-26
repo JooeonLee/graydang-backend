@@ -14,7 +14,7 @@ spring:
     jdbc:
       initialize-schema: never
     job:
-#      name: billGptSummaryJob
+#      name: billStatusUpdateJob
       enabled: false
   profiles:
     active: local

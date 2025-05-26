@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface BillStatusHistoryRepository extends JpaRepository<BillStatusHistory, Long> {
 
     Optional<BillStatusHistory> findByBillAndStepName(Bill bill, String stepName);
+
+    Optional<BillStatusHistory> findTopByBillOrderByStepOrderDesc(Bill bill);
 }
