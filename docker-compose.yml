@@ -1,27 +1,6 @@
 version: '3.8'
 
 services:
-  db:
-    image: mysql:8
-    container_name: graydang-mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: root1234
-      MYSQL_DATABASE: graydang
-      MYSQL_USER: user
-      MYSQL_PASSWORD: pass1234
-    ports:
-      - "3307:3306"
-    volumes:
-      - db-data:/var/lib/mysql
-    restart: always
-    # MySQL 헬스체크 추가
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
   app:
     image: jooeonlee/graydang:latest
     container_name: graydang-app
@@ -35,6 +14,9 @@ services:
       SPRING_DATASOURCE_USERNAME: ${DATASOURCE_USERNAME_PROD}
       SPRING_DATASOURCE_PASSWORD: ${DATASOURCE_PASSWORD_PROD}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      BILL_API_KEY: ${BILL_API_KEY}
+      BILL_API_KEY_V2: ${BILL_API_KEY_V2}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
     restart: always
 
 volumes:
