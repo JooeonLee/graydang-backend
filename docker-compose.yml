@@ -6,9 +6,9 @@ services:
     container_name: graydang-app
     ports:
       - "8080:8080"
-    depends_on:
-      db:
-        condition: service_healthy
+#    depends_on:
+#      db:
+#        condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: ${DATASOURCE_URL_PROD}
       SPRING_DATASOURCE_USERNAME: ${DATASOURCE_USERNAME_PROD}
