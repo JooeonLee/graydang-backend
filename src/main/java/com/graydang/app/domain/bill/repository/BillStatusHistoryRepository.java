@@ -5,6 +5,7 @@ import com.graydang.app.domain.bill.model.BillStatusHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -13,4 +14,7 @@ public interface BillStatusHistoryRepository extends JpaRepository<BillStatusHis
     Optional<BillStatusHistory> findByBillAndStepName(Bill bill, String stepName);
 
     Optional<BillStatusHistory> findTopByBillOrderByStepOrderDesc(Bill bill);
+
+    List<BillStatusHistory> findByBillOrderByStepOrderAsc(Bill bill);
+
 }
