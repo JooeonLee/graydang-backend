@@ -106,6 +106,15 @@ public class BillService {
         history.add(BillStatusHistoryResponseDto.buildZeroOrder(bill.getId(), bill.getProposeDate().toString()));
         history.sort(Comparator.comparing(BillStatusHistoryResponseDto::getStepOrder));
 
-        return BillDetailResponseDto.of(bill, reactionCount, commentCount, history);
+        // todo : 유저 로그인 이후 판단 필요 -> 메서드 오버로딩 필요
+        return BillDetailResponseDto.of(bill, reactionCount, commentCount, false, history);
+    }
+
+    @Transactional
+    public void increaseViewCount(Long id) {
+        Bill bill = billRepository.findById(id)
+                .orElseThrow(() -> new BillException(BaseResponseStatus.NONE_BILL));
+
+        bill.increaseViewCount();
     }
 }

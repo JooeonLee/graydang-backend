@@ -28,6 +28,7 @@ public class BillController {
         log.info("=== Bill Controller getBillDetail 진입 ===");
 
         BillDetailResponseDto responseDto = billService.getBillDetail(billId);
+        billService.increaseViewCount(billId);
 
         return new BaseResponse<>(responseDto);
     }
