@@ -18,6 +18,13 @@ spring:
       enabled: false
   profiles:
     active: local
+  config:
+    import: application-oauth.yml
+
+jwt:
+  secret: ${JWT_SECRET:mySecretKeyForJWTForProduction}
+  access-token-validity: 3600000 # 1 hour
+  refresh-token-validity: 604800000 # 7 days
 
 # Swagger springdoc-ui Configuration
 springdoc:
@@ -48,7 +55,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
 ---
 spring:
   config:
@@ -57,7 +63,7 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update  # 운영 시에는 보통 validate 또는 none 사용
+      ddl-auto: update # 운영 시에는 보통 validate 또는 none 사용
     properties:
       hibernate:
         format_sql: true
