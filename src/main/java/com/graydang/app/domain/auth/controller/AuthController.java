@@ -4,6 +4,9 @@ import com.graydang.app.domain.user.model.User;
 import com.graydang.app.global.security.CustomUserDetails;
 import com.graydang.app.global.security.jwt.JwtTokenProvider;
 import com.graydang.app.global.security.oauth2.OAuth2Service;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,14 +21,18 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(name = "Auth-Controller", description = "OAuth2.0 인증 및 JWT 관련 API 엔드포인트")
 public class AuthController {
 
     private final OAuth2Service oAuth2Service;
     private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/oauth/{provider}")
+    @Operation(summary = "소셜 로그인", description = "Authorization Code로 소셜 로그인 처리 및 JWT 토큰 발급")
     public ResponseEntity<Map<String, Object>> oauthLogin(
-            @PathVariable String provider,
+            @Parameter(description = "소셜 로그인 제공자 (e.g. kakao, google)", example = "kakao")
+            @PathVariable
+            String provider,
             @RequestBody Map<String, String> request) {
         
         try {
@@ -69,6 +76,7 @@ public class AuthController {
     }
     
     @PostMapping("/refresh")
+    @Operation(summary = "JWT 재발급", description = "Refresh 토큰을 사용해 새로운 Access 토큰 발급")
     public ResponseEntity<Map<String, Object>> refreshToken(@RequestBody Map<String, String> request) {
         try {
             String refreshToken = request.get("refreshToken");
@@ -128,6 +136,7 @@ public class AuthController {
     }
     
     @PostMapping("/logout")
+    @Operation(summary = "로그아웃", description = "프론트엔드에서 토큰 삭제만 하면 됨")
     public ResponseEntity<Map<String, Object>> logout() {
         
         Map<String, Object> response = new HashMap<>();
