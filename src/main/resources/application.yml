@@ -18,6 +18,8 @@ spring:
       enabled: false
   profiles:
     active: local
+  config:
+    import: application-oauth.yml
 
 jwt:
   secret: ${JWT_SECRET:mySecretKeyForJWTForProduction}
