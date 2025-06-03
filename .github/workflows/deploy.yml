@@ -57,6 +57,11 @@ jobs:
             echo "BILL_API_KEY=${{ secrets.BILL_API_KEY }}" >> .env
             echo "BILL_API_KEY_V2=${{ secrets.BILL_API_KEY_V2 }}" >> .env
             echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
+            echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+            echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+            echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
+            echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
+            echo "BASE_URL=${{ secrets.BASE_URL }}" >> .env
 
             docker compose down || true
             sleep 5

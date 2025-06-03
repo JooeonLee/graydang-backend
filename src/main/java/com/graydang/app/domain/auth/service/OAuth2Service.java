@@ -1,14 +1,13 @@
-package com.graydang.app.global.security.oauth2;
+package com.graydang.app.domain.auth.service;
 
 import com.graydang.app.domain.user.model.User;
 import com.graydang.app.domain.user.model.UserCredential;
-import com.graydang.app.domain.user.model.UserProfile;
 import com.graydang.app.domain.user.repository.UserRepository;
 import com.graydang.app.domain.user.repository.UserCredentialRepository;
 import com.graydang.app.domain.user.repository.UserProfileRepository;
-import com.graydang.app.global.security.CustomUserDetails;
-import com.graydang.app.global.security.OAuth2UserInfo;
-import com.graydang.app.global.security.OAuth2UserInfoFactory;
+import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
+import com.graydang.app.domain.auth.oauth2.OAuth2UserInfo;
+import com.graydang.app.domain.auth.oauth2.OAuth2UserInfoFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
