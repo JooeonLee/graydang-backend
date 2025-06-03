@@ -64,6 +64,10 @@ public class Bill extends BaseEntity {
     @Comment("AI 처리 여부")
     private boolean aiProcessed;
 
+    @Column(name = "view_count")
+    @Comment("의안 조회수")
+    private Long viewCount;
+
     @Column(nullable = false, length = 255)
     @Comment("시스템 관리 상태")
     private String status;
@@ -102,5 +106,20 @@ public class Bill extends BaseEntity {
         this.aiTitle = aiTitle;
         this.aiSummary = aiSummary;
         this.aiProcessed = true;
+    }
+
+    public void registerRepresentative(String representativeName) {
+        if (this.representativeName != null && !this.representativeName.isBlank()) return;
+        if (representativeName == null || representativeName.isBlank()) return;
+
+        this.representativeName = representativeName;
+    }
+
+    public void updateBillStatus(String status) {
+        this.billStatus = status;
+    }
+
+    public void increaseViewCount() {
+        this.viewCount++;
     }
 }

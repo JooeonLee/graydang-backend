@@ -70,4 +70,8 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
     public User getUser() {
         return user;
     }
+
+    public Long getId() {
+        return user.getId();
+    }
 } 
