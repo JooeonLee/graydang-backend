@@ -1,12 +1,17 @@
-package com.graydang.app.controller;
+package com.graydang.app.domain.auth.controller;
 
+import com.graydang.app.domain.auth.dto.LoginRequestDto;
+import com.graydang.app.domain.auth.dto.LoginResponseDto;
 import com.graydang.app.domain.user.model.User;
-import com.graydang.app.global.security.CustomUserDetails;
+import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
+import com.graydang.app.domain.user.repository.UserProfileRepository;
+import com.graydang.app.global.common.model.dto.BaseResponse;
 import com.graydang.app.global.security.jwt.JwtTokenProvider;
-import com.graydang.app.global.security.oauth2.OAuth2Service;
+import com.graydang.app.domain.auth.service.OAuth2Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -26,53 +31,31 @@ public class AuthController {
 
     private final OAuth2Service oAuth2Service;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserProfileRepository userProfileRepository;
 
     @PostMapping("/oauth/{provider}")
     @Operation(summary = "소셜 로그인", description = "Authorization Code로 소셜 로그인 처리 및 JWT 토큰 발급")
-    public ResponseEntity<Map<String, Object>> oauthLogin(
+    public BaseResponse<LoginResponseDto> oauthLogin(
             @Parameter(description = "소셜 로그인 제공자 (e.g. kakao, google)", example = "kakao")
             @PathVariable
             String provider,
-            @RequestBody Map<String, String> request) {
-        
-        try {
-            String authorizationCode = request.get("code");
-            String redirectUri = request.get("redirectUri");
+            @Valid @RequestBody LoginRequestDto request) {
             
-            if (authorizationCode == null || redirectUri == null) {
-                return ResponseEntity.badRequest().body(Map.of(
-                    "success", false,
-                    "message", "인증 코드와 리다이렉트 URI가 필요합니다"
-                ));
-            }
+        Authentication authentication = oAuth2Service.processOAuth2Login(provider, request.getCode(), request.getRedirectUri());
+
+        String accessToken = jwtTokenProvider.createAccessToken(authentication);
+        String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
             
-            Authentication authentication = oAuth2Service.processOAuth2Login(provider, authorizationCode, redirectUri);
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long userId = userDetails.getId();
+
+        boolean onboarded = userProfileRepository.findByUserIdAndStatus(userId, "ACTIVE").isPresent();
+
+        LoginResponseDto responseDto = new LoginResponseDto(accessToken, refreshToken, userId, onboarded);
+
+        log.info("OAuth2 login successful for user: {} via provider: {}", userDetails.getUsername(), provider);
             
-            String accessToken = jwtTokenProvider.createAccessToken(authentication);
-            String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
-            
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "로그인 성공");
-            response.put("accessToken", accessToken);
-            response.put("refreshToken", refreshToken);
-            response.put("user", createUserResponse(userDetails.getUser()));
-            
-            log.info("OAuth2 login successful for user: {} via provider: {}", userDetails.getUsername(), provider);
-            
-            return ResponseEntity.ok(response);
-            
-        } catch (Exception e) {
-            log.error("OAuth2 login failed for provider: {}", provider, e);
-            
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "로그인 실패: " + e.getMessage());
-            
-            return ResponseEntity.badRequest().body(response);
-        }
+        return new BaseResponse<>(responseDto);
     }
     
     @PostMapping("/refresh")
