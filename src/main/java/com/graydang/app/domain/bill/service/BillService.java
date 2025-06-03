@@ -8,9 +8,11 @@ import com.graydang.app.domain.bill.model.dto.BillDetailResponseDto;
 import com.graydang.app.domain.bill.model.dto.BillStatusHistoryResponseDto;
 import com.graydang.app.domain.bill.repository.BillReactionRepository;
 import com.graydang.app.domain.bill.repository.BillRepository;
+import com.graydang.app.domain.bill.repository.BillScrapeRepository;
 import com.graydang.app.domain.bill.repository.BillStatusHistoryRepository;
 import com.graydang.app.domain.comment.repository.CommentRepository;
 import com.graydang.app.global.common.model.enums.BaseResponseStatus;
+import com.graydang.app.global.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +31,7 @@ public class BillService {
     private final BillRepository billRepository;
     private final BillReactionRepository billReactionRepository;
     private final BillStatusHistoryRepository billStatusHistoryRepository;
+    private final BillScrapeRepository billScrapeRepository;
     private final CommentRepository commentRepository;
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE; // yyyy-MM-dd
@@ -89,7 +92,7 @@ public class BillService {
         optional.ifPresent(bill -> bill.updateCommitteeName(committeeName));
     }
 
-    public BillDetailResponseDto getBillDetail(Long id) {
+    public BillDetailResponseDto getBillDetail(Long id, CustomUserDetails userDetails) {
         Bill bill = billRepository.findById(id)
                 .orElseThrow(() -> new BillException(BaseResponseStatus.NONE_BILL));
 
@@ -106,8 +109,13 @@ public class BillService {
         history.add(BillStatusHistoryResponseDto.buildZeroOrder(bill.getId(), bill.getProposeDate().toString()));
         history.sort(Comparator.comparing(BillStatusHistoryResponseDto::getStepOrder));
 
+        boolean isScrapped = false;
+        if (userDetails != null) {
+            Long memberId = userDetails.getId();
+            isScrapped = billScrapeRepository.existsByUserIdAndBillId(memberId, id);
+        }
         // todo : 유저 로그인 이후 판단 필요 -> 메서드 오버로딩 필요
-        return BillDetailResponseDto.of(bill, reactionCount, commentCount, false, history);
+        return BillDetailResponseDto.of(bill, reactionCount, commentCount, isScrapped, history);
     }
 
     @Transactional

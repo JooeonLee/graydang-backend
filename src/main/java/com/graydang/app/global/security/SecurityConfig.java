@@ -4,6 +4,7 @@ import com.graydang.app.global.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -30,10 +31,12 @@ public class SecurityConfig {
             .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // For H2 console
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/", "/error", "/favicon.ico", "/h2-console/**", "/health/**").permitAll()
-                .requestMatchers("/api/auth/oauth/**", "/api/auth/refresh").permitAll()
-                .requestMatchers("/api/public/**", "/api/test/public").permitAll()
-                .anyRequest().authenticated()
+                    .requestMatchers("/", "/error", "/favicon.ico", "/h2-console/**", "/health/**").permitAll()
+                    .requestMatchers("/api/auth/oauth/**", "/api/auth/refresh").permitAll()
+                    .requestMatchers("/api/public/**", "/api/test/public").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/bills/*").permitAll()
+                    .requestMatchers("/swagger-ui/**", "/swagger-ui.html/**", "/v3/api-docs/**").permitAll()
+                    .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
