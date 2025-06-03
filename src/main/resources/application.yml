@@ -23,8 +23,8 @@ spring:
 
 jwt:
   secret: ${JWT_SECRET:mySecretKeyForJWTForProduction}
-  access-token-validity: 3600000 # 1 hour
-  refresh-token-validity: 604800000 # 7 days
+  access-token-validity: 604800000 # 7 days
+  refresh-token-validity: 2592000000 # 30 days
 
 # Swagger springdoc-ui Configuration
 springdoc:

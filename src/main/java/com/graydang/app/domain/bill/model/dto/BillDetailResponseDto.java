@@ -38,7 +38,7 @@ public class BillDetailResponseDto {
     @Schema(description = "댓글 수", example = "5")
     private long commentCount;
     @Schema(description = "북마크 여부", example = "true")
-    private boolean isScrapped;
+    private boolean scrapped;
 
     @Schema(description = "처리 이력")
     private List<BillStatusHistoryResponseDto> history;
@@ -46,7 +46,7 @@ public class BillDetailResponseDto {
     @Builder
     public BillDetailResponseDto(Long id, String billAiTitle, String representativeName, String billStatus,
                                  String committeeName, String billAiSummary, String billSummary, String proposeDate,
-                                 long viewCount, long reactionCount, long commentCount, boolean isScrapped,
+                                 long viewCount, long reactionCount, long commentCount, boolean scrapped,
                                  List<BillStatusHistoryResponseDto> history) {
         this.id = id;
         this.billAiTitle = billAiTitle;
@@ -60,12 +60,12 @@ public class BillDetailResponseDto {
 
         this.reactionCount = reactionCount;
         this.commentCount = commentCount;
-        this.isScrapped = isScrapped;
+        this.scrapped = scrapped;
 
         this.history = history;
     }
 
-    public static BillDetailResponseDto of(Bill bill, long reactionCount, long commentCount, boolean isScrapped,
+    public static BillDetailResponseDto of(Bill bill, long reactionCount, long commentCount, boolean scrapped,
                                            List<BillStatusHistoryResponseDto> history) {
         return BillDetailResponseDto.builder()
                 .id(bill.getId())
@@ -80,7 +80,7 @@ public class BillDetailResponseDto {
 
                 .reactionCount(reactionCount)
                 .commentCount(commentCount)
-                .isScrapped(isScrapped)
+                .scrapped(scrapped)
 
                 .history(history)
                 .build();
