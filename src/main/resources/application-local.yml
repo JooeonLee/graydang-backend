@@ -4,3 +4,6 @@ spring:
     url: ${DATASOURCE_URL_LOCAL}
     username: ${DATASOURCE_USERNAME_LOCAL}
     password: ${DATASOURCE_PASSWORD_LOCAL}
+
+BASE_URL:
+  http://localhost:8080

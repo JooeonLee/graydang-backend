@@ -40,11 +40,17 @@ public class OAuth2Service {
     @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String googleClientSecret;
 
-    @Value("${spring.security.oauth2.client.registration.naver.client-id}")
-    private String naverClientId;
+    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
+    private String kakaoClientId;
 
-    @Value("${spring.security.oauth2.client.registration.naver.client-secret}")
-    private String naverClientSecret;
+    @Value("${spring.security.oauth2.client.registration.kakao.client-secret}")
+    private String kakaoClientSecret;
+
+//    @Value("${spring.security.oauth2.client.registration.naver.client-id}")
+//    private String naverClientId;
+//
+//    @Value("${spring.security.oauth2.client.registration.naver.client-secret}")
+//    private String naverClientSecret;
 
     @Transactional
     public Authentication processOAuth2Login(String provider, String authorizationCode, String redirectUri) {
@@ -79,15 +85,24 @@ public class OAuth2Service {
                 params.add("grant_type", "authorization_code");
                 params.add("redirect_uri", redirectUri);
                 break;
-                
-            case "naver":
-                tokenUrl = "https://nid.naver.com/oauth2.0/token";
-                params.add("client_id", naverClientId);
-                params.add("client_secret", naverClientSecret);
+
+            case "kakao":
+                tokenUrl = "https://kauth.kakao.com/oauth/token";
+                params.add("client_id", kakaoClientId);         // 아래에서 @Value 추가해야 함
+                params.add("client_secret", kakaoClientSecret); // 아래에서 @Value 추가해야 함
                 params.add("code", authorizationCode);
                 params.add("grant_type", "authorization_code");
-                params.add("state", "STATE_STRING");
+                params.add("redirect_uri", redirectUri);
                 break;
+                
+//            case "naver":
+//                tokenUrl = "https://nid.naver.com/oauth2.0/token";
+//                params.add("client_id", naverClientId);
+//                params.add("client_secret", naverClientSecret);
+//                params.add("code", authorizationCode);
+//                params.add("grant_type", "authorization_code");
+//                params.add("state", "STATE_STRING");
+//                break;
                 
             default:
                 throw new IllegalArgumentException("Unsupported provider: " + provider);
@@ -124,8 +139,11 @@ public class OAuth2Service {
             case "google":
                 userInfoUrl = "https://www.googleapis.com/oauth2/v2/userinfo";
                 break;
-            case "naver":
-                userInfoUrl = "https://openapi.naver.com/v1/nid/me";
+//            case "naver":
+//                userInfoUrl = "https://openapi.naver.com/v1/nid/me";
+//                break;
+            case "kakao":
+                userInfoUrl = "https://kapi.kakao.com/v2/user/me";
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported provider: " + provider);
@@ -171,23 +189,24 @@ public class OAuth2Service {
         User user = User.builder()
                 .username(username)
                 .role("USER")
+                .status("ACTIVE")
                 .build();
         
         User savedUser = userRepository.save(user);
         
-        UserProfile userProfile = UserProfile.builder()
-                .profileImage(userInfo.getImageUrl())
-                .nickname(userInfo.getName() != null ? userInfo.getName() : "User")
-                .keyword1("정치")
-                .keyword2("경제")
-                .keyword3("사회")
-                .keyword4("문화")
-                .keyword5("스포츠")
-                .status("ACTIVE")
-                .user(savedUser)
-                .build();
-        
-        userProfileRepository.save(userProfile);
+//        UserProfile userProfile = UserProfile.builder()
+//                .profileImage(userInfo.getImageUrl())
+//                .nickname(userInfo.getName() != null ? userInfo.getName() : "User")
+//                .keyword1("정치")
+//                .keyword2("경제")
+//                .keyword3("사회")
+//                .keyword4("문화")
+//                .keyword5("스포츠")
+//                .status("ACTIVE")
+//                .user(savedUser)
+//                .build();
+//
+//        userProfileRepository.save(userProfile);
         
         addCredentialToUser(savedUser, provider, userInfo.getId());
         
