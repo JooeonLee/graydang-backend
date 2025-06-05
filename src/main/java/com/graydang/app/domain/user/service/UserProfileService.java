@@ -48,4 +48,10 @@ public class UserProfileService {
 
         userProfileRepository.save(userProfile);
     }
+
+    public String getNicknameByUserId(Long userId) {
+        return userProfileRepository.findByUserIdAndStatus(userId, "ACTIVE")
+                .map(UserProfile::getNickname)
+                .orElse(null);
+    }
 }

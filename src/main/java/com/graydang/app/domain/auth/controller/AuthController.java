@@ -5,6 +5,7 @@ import com.graydang.app.domain.auth.dto.LoginResponseDto;
 import com.graydang.app.domain.user.model.User;
 import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
 import com.graydang.app.domain.user.repository.UserProfileRepository;
+import com.graydang.app.domain.user.service.UserProfileService;
 import com.graydang.app.global.common.model.dto.BaseResponse;
 import com.graydang.app.global.security.jwt.JwtTokenProvider;
 import com.graydang.app.domain.auth.service.OAuth2Service;
@@ -32,6 +33,7 @@ public class AuthController {
     private final OAuth2Service oAuth2Service;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserProfileRepository userProfileRepository;
+    private final UserProfileService userProfileService;
 
     @PostMapping("/oauth/{provider}")
     @Operation(summary = "소셜 로그인", description = "Authorization Code로 소셜 로그인 처리 및 JWT 토큰 발급")
@@ -49,9 +51,10 @@ public class AuthController {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long userId = userDetails.getId();
 
+        String nickname = userProfileService.getNicknameByUserId(userId);
         boolean onboarded = userProfileRepository.findByUserIdAndStatus(userId, "ACTIVE").isPresent();
 
-        LoginResponseDto responseDto = new LoginResponseDto(accessToken, refreshToken, userId, onboarded);
+        LoginResponseDto responseDto = new LoginResponseDto(accessToken, refreshToken, userId, nickname, onboarded);
 
         log.info("OAuth2 login successful for user: {} via provider: {}", userDetails.getUsername(), provider);
             
