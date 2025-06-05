@@ -17,7 +17,7 @@ public enum BaseResponseStatus {
     /**
      * 2000 : RequestParam exception
      */
-    METHOD_ARGUMENT_TYPE_MISMATCH(false, HttpStatus.UNAUTHORIZED, 2001, "Request Parameter나 Path Variable의 유형이 불일치합니다."),
+    METHOD_ARGUMENT_TYPE_MISMATCH(false, HttpStatus.BAD_REQUEST, 2001, "요청 파라미터 타입이 올바르지 않습니다."),
     HTTP_METHOD_TYPE_MISMATCH(false, HttpStatus.METHOD_NOT_ALLOWED, 2002, "지원되지 않는 Http Method입니다."),
 
 
