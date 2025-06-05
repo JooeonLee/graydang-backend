@@ -29,8 +29,8 @@ public enum BaseResponseStatus {
     /**
      * 2600 : User exception
      */
-    NONE_USER(false, HttpStatus.NOT_FOUND, 2601, "존재하지 않는 사용자입니다.");
-
+    NONE_USER(false, HttpStatus.NOT_FOUND, 2601, "존재하지 않는 사용자입니다."),
+    INVALID_USER_KEYWORD(false, HttpStatus.NOT_FOUND, 2602, "유효하지 않은 사용자 키워드입니다.");
 
     private final boolean isSuccess;
     @JsonIgnore

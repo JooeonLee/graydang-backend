@@ -1,11 +1,12 @@
 package com.graydang.app.domain.user.controller;
 
+import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
 import com.graydang.app.domain.user.model.UserProfile;
 import com.graydang.app.domain.user.model.dto.NicknameCheckRequestDto;
+import com.graydang.app.domain.user.model.dto.OnboardingRequestDto;
 import com.graydang.app.domain.user.service.UserProfileService;
 import com.graydang.app.domain.user.service.UserService;
 import com.graydang.app.global.common.model.dto.BaseResponse;
-import com.graydang.app.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,5 +35,14 @@ public class UserController {
 
         boolean response = userProfileService.checkNickname(requestDto.nickname());
         return ResponseEntity.ok(BaseResponse.success(response));
+    }
+
+    @PostMapping("/me/onboarding")
+    public ResponseEntity<BaseResponse<Void>> onboarding(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody OnboardingRequestDto requestDto) {
+
+        userProfileService.onboarding(userDetails.getId(), requestDto);
+        return ResponseEntity.ok(BaseResponse.success(null));
     }
 }
