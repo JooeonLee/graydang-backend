@@ -2,7 +2,7 @@ package com.graydang.app.global.security.jwt;
 
 import com.graydang.app.domain.user.model.User;
 import com.graydang.app.domain.user.repository.UserRepository;
-import com.graydang.app.global.security.CustomUserDetails;
+import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

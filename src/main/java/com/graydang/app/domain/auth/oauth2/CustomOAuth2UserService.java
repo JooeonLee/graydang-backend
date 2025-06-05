@@ -1,4 +1,4 @@
-package com.graydang.app.global.security;
+package com.graydang.app.domain.auth.oauth2;
 
 import com.graydang.app.domain.user.model.User;
 import com.graydang.app.domain.user.model.UserCredential;

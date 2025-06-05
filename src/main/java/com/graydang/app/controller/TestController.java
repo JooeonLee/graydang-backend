@@ -1,6 +1,6 @@
 package com.graydang.app.controller;
 
-import com.graydang.app.global.security.CustomUserDetails;
+import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -3,7 +3,7 @@ package com.graydang.app.domain.bill.controller;
 import com.graydang.app.domain.bill.model.dto.BillDetailResponseDto;
 import com.graydang.app.domain.bill.service.BillService;
 import com.graydang.app.global.common.model.dto.BaseResponse;
-import com.graydang.app.global.security.CustomUserDetails;
+import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
