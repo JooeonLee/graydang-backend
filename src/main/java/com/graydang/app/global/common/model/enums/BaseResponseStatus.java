@@ -24,7 +24,13 @@ public enum BaseResponseStatus {
     /**
      * 2500 : Bill exception
      */
-    NONE_BILL(false, HttpStatus.BAD_REQUEST, 2501, "존재하지 않는 의안입니다.");
+    NONE_BILL(false, HttpStatus.NOT_FOUND, 2501, "존재하지 않는 의안입니다."),
+
+    /**
+     * 2600 : User exception
+     */
+    NONE_USER(false, HttpStatus.NOT_FOUND, 2601, "존재하지 않는 사용자입니다.");
+
 
     private final boolean isSuccess;
     @JsonIgnore

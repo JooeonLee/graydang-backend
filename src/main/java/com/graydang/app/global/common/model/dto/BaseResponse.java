@@ -44,4 +44,16 @@ public class BaseResponse<T> {
         this.responseCode = status.getResponseCode();
         this.result = result;
     }
+
+    public static <T> BaseResponse<T> success(T result) {
+        return new BaseResponse<>(result);
+    }
+
+    public static <T> BaseResponse<T> failure(BaseResponseStatus status) {
+        return new BaseResponse<>(status);
+    }
+
+    public static <T> BaseResponse<T> failure(BaseResponseStatus status, T result) {
+        return new BaseResponse<>(status, result);
+    }
 }
