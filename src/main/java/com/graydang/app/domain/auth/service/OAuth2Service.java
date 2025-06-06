@@ -57,6 +57,7 @@ public class OAuth2Service {
             String accessToken = exchangeCodeForToken(provider, authorizationCode, redirectUri);
             
             Map<String, Object> userAttributes = getUserInfo(provider, accessToken);
+            log.info("User attributes: {}", userAttributes);
             
             OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(provider, userAttributes);
             
@@ -136,7 +137,8 @@ public class OAuth2Service {
         
         switch (provider.toLowerCase()) {
             case "google":
-                userInfoUrl = "https://www.googleapis.com/oauth2/v2/userinfo";
+                //userInfoUrl = "https://www.googleapis.com/oauth2/v2/userinfo";
+                userInfoUrl = "https://openidconnect.googleapis.com/v1/userinfo";
                 break;
 //            case "naver":
 //                userInfoUrl = "https://openapi.naver.com/v1/nid/me";
