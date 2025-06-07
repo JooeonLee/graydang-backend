@@ -19,6 +19,9 @@ public class LoginResponseDto {
     @Schema(description = "로그인한 사용자의 User ID", example = "1")
     private Long userid;
 
+    @Schema(description = "로그인한 사용자의 nickname", example = "graypick")
+    private String nickname;
+
     @Schema(description = "로그인한 사용자의 온보딩 진행 여부", example = "false")
     private boolean onboarded;
 }

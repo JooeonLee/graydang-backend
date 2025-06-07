@@ -49,6 +49,14 @@ public class BaseResponse<T> {
         return new BaseResponse<>(result);
     }
 
+    public static <T> BaseResponse<T> failure(BaseResponseStatus status) {
+        return new BaseResponse<>(status);
+    }
+
+    public static <T> BaseResponse<T> failure(BaseResponseStatus status, T result) {
+        return new BaseResponse<>(status, result);
+    }
+
     public static <T> BaseResponse<T> error(BaseResponseStatus status) {
         return new BaseResponse<>(status);
     }
