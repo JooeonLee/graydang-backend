@@ -30,7 +30,21 @@ public enum BaseResponseStatus {
      * 2600 : User exception
      */
     NONE_USER(false, HttpStatus.NOT_FOUND, 2601, "존재하지 않는 사용자입니다."),
-    INVALID_USER_KEYWORD(false, HttpStatus.NOT_FOUND, 2602, "유효하지 않은 사용자 키워드입니다.");
+    INVALID_USER_KEYWORD(false, HttpStatus.NOT_FOUND, 2602, "유효하지 않은 사용자 키워드입니다."),
+
+    /**
+     * 2700 : File exception
+     */
+    INVALID_FILE_TYPE(false, HttpStatus.BAD_REQUEST, 2701, "지원하지 않는 파일 확장자입니다."),
+    MALFORMED_UPLOAD_FILE(false, HttpStatus.BAD_REQUEST, 2702, "손상된 upload 파일입니다."),
+
+    /**
+     * 2800 : S3 exception
+     */
+    S3_UPLOAD_FAILED(false, HttpStatus.INTERNAL_SERVER_ERROR, 2801, "S3 파일 업로드에 실패했습니다."),
+    S3_URL_GENERATION_FAILED(false, HttpStatus.INTERNAL_SERVER_ERROR, 2802, "S3 파일 URL 생성에 실패했습니다."),
+    S3_FILE_DELETE_FAILED(false, HttpStatus.INTERNAL_SERVER_ERROR, 2803, "S3 파일 삭제에 실패했습니다."),
+    INVALID_S3_URI(false, HttpStatus.BAD_REQUEST, 2804, "S3 파일 정보를 확인할 수 없습니다.");
 
     private final boolean isSuccess;
     @JsonIgnore
