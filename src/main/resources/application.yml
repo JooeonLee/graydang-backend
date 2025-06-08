@@ -43,6 +43,18 @@ springdoc:
     tags-sorter: alpha          # alpha: 알파벳 순 태그 정렬, method: HTTP Method 순 정렬
     operations-sorter: alpha    # alpha: 알파벳 순 태그 정렬, method: HTTP Method 순 정렬
 
+# AWS S3 Access, Secret Key 설정
+aws:
+  region: ap-northeast-2
+  s3:
+    bucket: graydang-bucket
+  credentials:
+    access-key: ${AWS_S3_ACCESS_KEY}
+    secret-key: ${AWS_S3_SECRET_KEY}
+
+user:
+  default-profile-image-url: ${DEFAULT_PROFILE_IMAGE_URL}
+
 ---
 spring:
   config:
