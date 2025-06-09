@@ -63,7 +63,7 @@ public class OAuth2Service {
             
             User user = findOrCreateUser(userInfo, provider);
             
-            CustomUserDetails userDetails = new CustomUserDetails(user, userAttributes);
+            CustomUserDetails userDetails = new CustomUserDetails(user, provider, userInfo.getId(), userAttributes);
             return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             
         } catch (Exception e) {

@@ -44,7 +44,15 @@ public enum BaseResponseStatus {
     S3_UPLOAD_FAILED(false, HttpStatus.INTERNAL_SERVER_ERROR, 2801, "S3 파일 업로드에 실패했습니다."),
     S3_URL_GENERATION_FAILED(false, HttpStatus.INTERNAL_SERVER_ERROR, 2802, "S3 파일 URL 생성에 실패했습니다."),
     S3_FILE_DELETE_FAILED(false, HttpStatus.INTERNAL_SERVER_ERROR, 2803, "S3 파일 삭제에 실패했습니다."),
-    INVALID_S3_URI(false, HttpStatus.BAD_REQUEST, 2804, "S3 파일 정보를 확인할 수 없습니다.");
+    INVALID_S3_URI(false, HttpStatus.BAD_REQUEST, 2804, "S3 파일 정보를 확인할 수 없습니다."),
+
+    /**
+     * 2900 : JWT & 인증 관련 exception
+     */
+    INVALID_TOKEN(false, HttpStatus.UNAUTHORIZED, 2901, "유효하지 않은 JWT 토큰입니다."),
+    EXPIRED_TOKEN(false, HttpStatus.UNAUTHORIZED, 2902, "만료된 JWT 토큰입니다."),
+    BLACKLISTED_REFRESH_TOKEN(false, HttpStatus.UNAUTHORIZED, 2903, "사용이 중지된 리프레시 토큰입니다."),
+    NOT_REFRESH_TOKEN(false, HttpStatus.BAD_REQUEST, 2904, "리프레시 토큰이 아닙니다.");
 
     private final boolean isSuccess;
     @JsonIgnore

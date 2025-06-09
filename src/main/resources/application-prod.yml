@@ -12,3 +12,8 @@ spring:
       hibernate:
         format_sql: true
     show-sql: true
+
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST}
+      port: ${SPRING_REDIS_PORT}
