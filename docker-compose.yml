@@ -40,3 +40,4 @@ services:
     restart: always
 volumes:
   db-data:
+  redis-data:
