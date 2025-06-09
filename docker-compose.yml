@@ -39,5 +39,4 @@ services:
     command: redis-server --appendonly yes
     restart: always
 volumes:
-  db-data:
   redis-data:
