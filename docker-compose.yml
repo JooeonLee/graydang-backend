@@ -6,9 +6,6 @@ services:
     container_name: graydang-app
     ports:
       - "8080:8080"
-#    depends_on:
-#      db:
-#        condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: ${DATASOURCE_URL_PROD}
       SPRING_DATASOURCE_USERNAME: ${DATASOURCE_USERNAME_PROD}
@@ -25,7 +22,21 @@ services:
       AWS_S3_ACCESS_KEY: ${AWS_S3_ACCESS_KEY}
       AWS_S3_SECRET_KEY: ${AWS_S3_SECRET_KEY}
       DEFAULT_PROFILE_IMAGE_URL: ${DEFAULT_PROFILE_IMAGE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      ACCESS_TOKEN_EXPIRED_IN: ${ACCESS_TOKEN_EXPIRED_IN}
+      REFRESH_TOKEN_EXPIRED_IN: ${REFRESH_TOKEN_EXPIRED_IN}
+      SPRING_REDIS_HOST: ${SPRING_REDIS_HOST}
+      SPRING_REDIS_PORT: ${SPRING_REDIS_PORT}
     restart: always
 
+  redis:
+    image: redis:7.2
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    restart: always
 volumes:
   db-data:
