@@ -1,6 +1,7 @@
 package com.graydang.app.domain.auth.oauth2;
 
 import com.graydang.app.domain.user.model.User;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -11,14 +12,19 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+@Getter
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails, OAuth2User {
     
     private final User user;
+    private final String provider;
+    private final String providerId;
     private Map<String, Object> attributes;
     
-    public CustomUserDetails(User user, Map<String, Object> attributes) {
+    public CustomUserDetails(User user, String provider, String providerId, Map<String, Object> attributes) {
         this.user = user;
+        this.provider = provider;
+        this.providerId = providerId;
         this.attributes = attributes;
     }
 
@@ -73,5 +79,9 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
 
     public Long getId() {
         return user.getId();
+    }
+
+    public String getRole() {
+        return user.getRole();
     }
 } 

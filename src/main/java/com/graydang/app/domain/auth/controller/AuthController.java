@@ -2,11 +2,16 @@ package com.graydang.app.domain.auth.controller;
 
 import com.graydang.app.domain.auth.dto.LoginRequestDto;
 import com.graydang.app.domain.auth.dto.LoginResponseDto;
+import com.graydang.app.domain.auth.dto.ReissueTokenRequestDto;
+import com.graydang.app.domain.auth.dto.ReissueTokenResponseDto;
+import com.graydang.app.domain.auth.exception.InvalidTokenException;
+import com.graydang.app.domain.auth.service.JwtService;
 import com.graydang.app.domain.user.model.User;
 import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
 import com.graydang.app.domain.user.repository.UserProfileRepository;
 import com.graydang.app.domain.user.service.UserProfileService;
 import com.graydang.app.global.common.model.dto.BaseResponse;
+import com.graydang.app.global.common.model.enums.BaseResponseStatus;
 import com.graydang.app.global.security.jwt.JwtTokenProvider;
 import com.graydang.app.domain.auth.service.OAuth2Service;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -31,127 +37,62 @@ import java.util.Map;
 public class AuthController {
 
     private final OAuth2Service oAuth2Service;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtService jwtService;
     private final UserProfileRepository userProfileRepository;
     private final UserProfileService userProfileService;
 
     @PostMapping("/oauth/{provider}")
     @Operation(summary = "소셜 로그인", description = "Authorization Code로 소셜 로그인 처리 및 JWT 토큰 발급")
     public BaseResponse<LoginResponseDto> oauthLogin(
-            @Parameter(description = "소셜 로그인 제공자 (e.g. kakao, google)", example = "kakao")
-            @PathVariable
-            String provider,
-            @Valid @RequestBody LoginRequestDto request) {
-            
-        Authentication authentication = oAuth2Service.processOAuth2Login(provider, request.getCode(), request.getRedirectUri());
+            @Parameter(description = "소셜 로그인 제공자", example = "kakao") @PathVariable String provider,
+            @Valid @RequestBody LoginRequestDto request
+    ) {
+        var authentication = oAuth2Service.processOAuth2Login(provider, request.getCode(), request.getRedirectUri());
+        var userDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        String accessToken = jwtTokenProvider.createAccessToken(authentication);
-        String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
-            
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Long userId = userDetails.getId();
+        var tokens = jwtService.issueToken(
+                userDetails.getId(),
+                userDetails.getUsername(),
+                userDetails.getRole(),
+                userDetails.getProvider(),
+                userDetails.getProviderId()
+        );
 
-        String nickname = userProfileService.getNicknameByUserId(userId);
-        boolean onboarded = userProfileRepository.findByUserIdAndStatus(userId, "ACTIVE").isPresent();
+        var nickname = userProfileService.getNicknameByUserId(userDetails.getId());
+        var onboarded = userProfileRepository.findByUserIdAndStatus(userDetails.getId(), "ACTIVE").isPresent();
 
-        LoginResponseDto responseDto = new LoginResponseDto(accessToken, refreshToken, userId, nickname, onboarded);
+        var responseDto = new LoginResponseDto(
+                tokens.get("accessToken"),
+                tokens.get("refreshToken"),
+                userDetails.getId(),
+                nickname,
+                onboarded
+        );
 
         log.info("OAuth2 login successful for user: {} via provider: {}", userDetails.getUsername(), provider);
-            
         return new BaseResponse<>(responseDto);
     }
-    
-    @PostMapping("/refresh")
-    @Operation(summary = "JWT 재발급", description = "Refresh 토큰을 사용해 새로운 Access 토큰 발급")
-    public ResponseEntity<Map<String, Object>> refreshToken(@RequestBody Map<String, String> request) {
-        try {
-            String refreshToken = request.get("refreshToken");
-            
-            if (refreshToken == null) {
-                return ResponseEntity.badRequest().body(Map.of(
-                    "success", false,
-                    "message", "리프레시 토큰이 필요합니다"
-                ));
-            }
-            
-            if (!jwtTokenProvider.validateToken(refreshToken) || !jwtTokenProvider.isRefreshToken(refreshToken)) {
-                return ResponseEntity.badRequest().body(Map.of(
-                    "success", false,
-                    "message", "유효하지 않은 리프레시 토큰입니다"
-                ));
-            }
-            
-            String username = jwtTokenProvider.getUsernameFromToken(refreshToken);
-            
-            Authentication authentication = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
-                username, null, java.util.Collections.singletonList(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_USER"))
-            );
-            
-            String newAccessToken = jwtTokenProvider.createAccessToken(authentication);
-            
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("accessToken", newAccessToken);
-            
-            return ResponseEntity.ok(response);
-            
-        } catch (Exception e) {
-            log.error("Token refresh failed", e);
-            
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "토큰 갱신 실패");
-            
-            return ResponseEntity.badRequest().body(response);
-        }
+
+    @PostMapping("/reissue")
+    @Operation(summary = "JWT 재발급", description = "Refresh 토큰을 사용해 새로운 Access/Refresh 토큰 재발급")
+    public BaseResponse<ReissueTokenResponseDto> refreshToken(@RequestBody ReissueTokenRequestDto request) {
+
+        var newTokens = jwtService.reissueTokens(request.refreshToken());
+        ReissueTokenResponseDto responseDto = new ReissueTokenResponseDto(newTokens.get("accessToken"),
+                newTokens.get("refreshToken") );
+        return new BaseResponse<>(responseDto);
     }
-    
-    @GetMapping("/user")
-    public ResponseEntity<Map<String, Object>> getCurrentUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        if (userDetails == null) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("authenticated", false);
-            return ResponseEntity.ok(response);
-        }
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("authenticated", true);
-        response.put("user", createUserResponse(userDetails.getUser()));
-        
-        return ResponseEntity.ok(response);
-    }
-    
+
     @PostMapping("/logout")
-    @Operation(summary = "로그아웃", description = "프론트엔드에서 토큰 삭제만 하면 됨")
-    public ResponseEntity<Map<String, Object>> logout() {
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("message", "로그아웃 성공");
-        
-        return ResponseEntity.ok(response);
-    }
-    
-    private Map<String, Object> createUserResponse(User user) {
-        Map<String, Object> userResponse = new HashMap<>();
-        userResponse.put("id", user.getId());
-        userResponse.put("username", user.getUsername());
-        userResponse.put("role", user.getRole());
-        
-        if (user.getProfile() != null) {
-            Map<String, Object> profile = new HashMap<>();
-            profile.put("nickname", user.getProfile().getNickname());
-            profile.put("profileImage", user.getProfile().getProfileImage());
-            profile.put("keywords", new String[]{
-                user.getProfile().getKeyword1(),
-                user.getProfile().getKeyword2(),
-                user.getProfile().getKeyword3(),
-                user.getProfile().getKeyword4(),
-                user.getProfile().getKeyword5()
-            });
-            userResponse.put("profile", profile);
+    @Operation(summary = "로그아웃", description = "Access Token을 블랙리스트에 등록")
+    public BaseResponse<String> logout(@RequestHeader("Authorization") String accessToken) {
+        if (!StringUtils.hasText(accessToken) || !accessToken.startsWith("Bearer ")) {
+            throw new InvalidTokenException(BaseResponseStatus.INVALID_TOKEN);
         }
-        
-        return userResponse;
+
+        String token = accessToken.substring(7);
+        jwtService.addToBlackList(token);
+        return BaseResponse.success(BaseResponseStatus.SUCCESS);
     }
+
 } 
