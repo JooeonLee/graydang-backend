@@ -105,6 +105,11 @@ public class JwtUtil {
         return (exp.getTime() - System.currentTimeMillis()) / 1000;
     }
 
+    public boolean isExpired(String token) {
+        Date exp = parseClaims(token).getExpiration();
+        return exp.before(new Date());
+    }
+
     private <T> T getClaim(String token, String key, Class<T> type) {
         return parseClaims(token).get(key, type);
     }
