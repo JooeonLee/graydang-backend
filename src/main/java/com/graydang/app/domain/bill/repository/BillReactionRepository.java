@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface BillReactionRepository extends JpaRepository<BillReaction, Long> {
 
     long countByBill(Bill bill);
+
+    long countByUserId(Long userId);
 }

@@ -4,10 +4,12 @@ import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
 import com.graydang.app.domain.user.model.UserProfile;
 import com.graydang.app.domain.user.model.dto.NicknameCheckRequestDto;
 import com.graydang.app.domain.user.model.dto.OnboardingRequestDto;
+import com.graydang.app.domain.user.model.dto.UserInfoResponseDto;
 import com.graydang.app.domain.user.service.UserProfileService;
 import com.graydang.app.domain.user.service.UserService;
 import com.graydang.app.global.common.model.dto.BaseResponse;
 import com.graydang.app.global.common.model.dto.ValidationErrorResponse;
+import com.graydang.app.global.common.model.enums.BaseResponseStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,12 +19,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -65,6 +65,14 @@ public class UserController {
             @Valid @RequestBody OnboardingRequestDto requestDto) {
 
         userProfileService.onboarding(userDetails.getId(), requestDto);
-        return ResponseEntity.ok(BaseResponse.success(null));
+        return ResponseEntity.ok(BaseResponse.success(BaseResponseStatus.SUCCESS));
+    }
+
+    @Operation(summary = "마이페이지 유저 기본 정보")
+    @GetMapping("/me/info")
+    public ResponseEntity<BaseResponse<UserInfoResponseDto>> getUserProfileInfo(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        UserInfoResponseDto responseDto = userProfileService.getUserProfileInfo(userDetails.getId());
+        return ResponseEntity.ok(BaseResponse.success(responseDto));
     }
 }

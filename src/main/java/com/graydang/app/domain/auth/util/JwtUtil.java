@@ -45,15 +45,15 @@ public class JwtUtil {
         return buildToken(userId, username, role, provider, providerId, TOKEN_TYPE_REFRESH, refreshTokenValidityInMillis);
     }
 
-    private String buildToken(Long userId, String username, String role, String tokenType, String provider, String providerId, long validityInMillis) {
+    private String buildToken(Long userId, String username, String role, String provider, String providerId, String tokenType, long validityInMillis) {
         Instant now = Instant.now();
         Instant expiry = now.plusMillis(validityInMillis);
 
         return Jwts.builder()
-                .claim("tokenType", tokenType)
                 .claim("userId", userId)
                 .claim("username", username)
                 .claim("role", role)
+                .claim("tokenType", tokenType)
                 .claim("provider", provider)
                 .claim("providerId", providerId)
                 .issuedAt(Date.from(now))
