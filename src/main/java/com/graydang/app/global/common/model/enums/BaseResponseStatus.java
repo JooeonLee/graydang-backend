@@ -52,7 +52,9 @@ public enum BaseResponseStatus {
     INVALID_TOKEN(false, HttpStatus.UNAUTHORIZED, 2901, "유효하지 않은 JWT 토큰입니다."),
     EXPIRED_TOKEN(false, HttpStatus.UNAUTHORIZED, 2902, "만료된 JWT 토큰입니다."),
     BLACKLISTED_REFRESH_TOKEN(false, HttpStatus.UNAUTHORIZED, 2903, "사용이 중지된 리프레시 토큰입니다."),
-    NOT_REFRESH_TOKEN(false, HttpStatus.BAD_REQUEST, 2904, "리프레시 토큰이 아닙니다.");
+    NOT_REFRESH_TOKEN(false, HttpStatus.BAD_REQUEST, 2904, "리프레시 토큰이 아닙니다."),
+    INVALID_ACCESS_TOKEN(false, HttpStatus.UNAUTHORIZED, 2108, "잘못된 access token 입니다."),
+    INVALID_TOKEN_TYPE(false, HttpStatus.UNAUTHORIZED, 2107, "잘못된 토큰 타입입니다.");
 
     private final boolean isSuccess;
     @JsonIgnore

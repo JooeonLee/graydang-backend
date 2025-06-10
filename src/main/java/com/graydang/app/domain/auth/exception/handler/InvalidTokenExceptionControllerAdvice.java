@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class InvalidTokenExceptionControllerAdvice {
 
     @ExceptionHandler(InvalidTokenException.class)
-    public ResponseEntity<BaseResponse<Void>> handleUserException(InvalidTokenException e) {
+    public ResponseEntity<BaseResponse<Void>> handleInvalidTokenException(InvalidTokenException e) {
         log.warn("InvalidTokenException 발생: {}", e.getMessage());
         BaseResponseStatus status = e.getBaseResponseStatus();
 
