@@ -56,6 +56,12 @@ public enum BaseResponseStatus {
     INVALID_ACCESS_TOKEN(false, HttpStatus.UNAUTHORIZED, 2108, "잘못된 access token 입니다."),
     INVALID_TOKEN_TYPE(false, HttpStatus.UNAUTHORIZED, 2107, "잘못된 토큰 타입입니다."),
 
+    // 권한 부족
+    ACCESS_DENIED(false, HttpStatus.FORBIDDEN, 2951, "권한이 없는 유저의 접근입니다."),
+
+    // 인증 실패
+    UNAUTHORIZED_ACCESS(false, HttpStatus.UNAUTHORIZED, 2053, "로그인이 필요합니다."),
+
     /**
      * 3000 : User Profile Exception
      */

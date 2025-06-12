@@ -3,7 +3,9 @@ package com.graydang.app.domain.bill.service;
 import com.graydang.app.batch.bill.dto.BillInfoResponseDto;
 import com.graydang.app.domain.bill.exception.BillException;
 import com.graydang.app.domain.bill.model.Bill;
+import com.graydang.app.domain.bill.model.BillStatusHistory;
 import com.graydang.app.domain.bill.model.dto.BillDetailResponseDto;
+import com.graydang.app.domain.bill.model.dto.BillSimpleResponseDto;
 import com.graydang.app.domain.bill.model.dto.BillStatusHistoryResponseDto;
 import com.graydang.app.domain.bill.repository.BillReactionRepository;
 import com.graydang.app.domain.bill.repository.BillRepository;
@@ -113,8 +115,38 @@ public class BillService {
             Long memberId = userDetails.getId();
             isScrapped = billScrapeRepository.existsByUserIdAndBillId(memberId, id);
         }
-        // todo : 유저 로그인 이후 판단 필요 -> 메서드 오버로딩 필요
+
         return BillDetailResponseDto.of(bill, reactionCount, commentCount, isScrapped, history);
+    }
+
+    public BillSimpleResponseDto getBillSimple(Long id, CustomUserDetails userDetails) {
+        Bill bill = billRepository.findById(id)
+                .orElseThrow(() -> new BillException(BaseResponseStatus.NONE_BILL));
+
+        long reactionCount = billReactionRepository.countByBill(bill);
+        long commentCount = commentRepository.countByBill(bill);
+
+        List<BillStatusHistoryResponseDto> history = new ArrayList<>(
+                billStatusHistoryRepository.findByBillOrderByStepOrderAsc(bill)
+                        .stream()
+                        .map(BillStatusHistoryResponseDto::from)
+                        .toList()
+        );
+        history.add(BillStatusHistoryResponseDto.buildZeroOrder(bill.getId(), bill.getProposeDate().toString()));
+        history.sort(Comparator.comparing(BillStatusHistoryResponseDto::getStepOrder));
+        String billHistoryStatus = history.stream()
+                .skip(history.size() - 1)
+                .map(BillStatusHistoryResponseDto::getStepName)
+                .findFirst()
+                .orElse(null);
+
+        boolean isScrapped = false;
+        if (userDetails != null) {
+            Long memberId = userDetails.getId();
+            isScrapped = billScrapeRepository.existsByUserIdAndBillId(memberId, id);
+        }
+
+        return  BillSimpleResponseDto.of(bill, billHistoryStatus, reactionCount, commentCount, isScrapped);
     }
 
     @Transactional
