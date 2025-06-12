@@ -3,6 +3,7 @@ package com.graydang.app.domain.auth.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graydang.app.domain.auth.exception.InvalidTokenException;
 import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
+import com.graydang.app.domain.auth.service.JwtService;
 import com.graydang.app.domain.auth.util.JwtUtil;
 import com.graydang.app.domain.user.exception.UserException;
 import com.graydang.app.domain.user.model.User;
@@ -35,6 +36,7 @@ import java.util.Optional;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
     private final UserRepository userRepository;
     private final AntPathMatcher antPathMatcher =  new AntPathMatcher();
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -42,7 +44,7 @@ public class JwtFilter extends OncePerRequestFilter {
     public final static List<String> PASS_URIS = Arrays.asList(
             "/api/auth/oauth/**",
             "/api/auth/reissue",
-            "/api/auth/logout",
+            //"/api/auth/logout",
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/swagger-resources/**",
@@ -80,6 +82,12 @@ public class JwtFilter extends OncePerRequestFilter {
             if (!JwtUtil.TOKEN_TYPE_ACCESS.equals(jwtUtil.getTokenType(accessToken))) {
                 log.warn("[JWT Filter] Invalid token type.");
                 throw new InvalidTokenException(BaseResponseStatus.INVALID_TOKEN_TYPE);
+            }
+
+            // 블랙 리스크 검사
+            if(jwtService.isBlacklisted(accessToken)) {
+                log.warn("[JWT Filter] Blacklisted access token.");
+                throw new InvalidTokenException(BaseResponseStatus.INVALID_TOKEN);
             }
 
             // 사용자 정보 추출
