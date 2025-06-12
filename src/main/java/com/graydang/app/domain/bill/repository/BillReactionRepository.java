@@ -8,5 +8,9 @@ public interface BillReactionRepository extends JpaRepository<BillReaction, Long
 
     long countByBill(Bill bill);
 
+    long countByBillId(Long billId);
+
     long countByUserId(Long userId);
+
+
 }
