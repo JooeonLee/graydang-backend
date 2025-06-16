@@ -54,5 +54,18 @@ services:
       - app
     restart: always
 
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./nginx/ssl:/etc/letsencrypt
+      - ./nginx/www:/var/www/certbot
+    entrypoint: >
+      sh -c "certbot certonly --webroot -w /var/www/certbot \
+      --email cacophony0609@gmail.com \
+      --agree-tos \
+      --no-eff-email \
+      -d api.graypick.co.kr"
+
 volumes:
   redis-data:
