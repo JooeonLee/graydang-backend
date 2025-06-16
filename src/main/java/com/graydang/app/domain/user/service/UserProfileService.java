@@ -1,5 +1,6 @@
 package com.graydang.app.domain.user.service;
 
+import com.graydang.app.domain.bill.model.dto.BillSimpleResponseDto;
 import com.graydang.app.domain.bill.service.BillReactionService;
 import com.graydang.app.domain.bill.service.BillScrapeService;
 import com.graydang.app.domain.comment.service.CommentService;
@@ -10,6 +11,7 @@ import com.graydang.app.domain.user.model.UserProfile;
 import com.graydang.app.domain.user.model.dto.OnboardingRequestDto;
 import com.graydang.app.domain.user.model.dto.UserInfoResponseDto;
 import com.graydang.app.domain.user.repository.UserProfileRepository;
+import com.graydang.app.global.common.model.dto.SliceResponse;
 import com.graydang.app.global.common.model.enums.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -77,6 +79,11 @@ public class UserProfileService {
 
         return UserInfoResponseDto.of(userProfile, scrapeCount, reactionCount, commentCount);
     }
+
+//    public SliceResponse<BillSimpleResponseDto> getBillScrapeByUserId(Long userId) {
+//
+//
+//    }
 
     public UserProfile getUserProfileByUserId(Long userId) {
         return userProfileRepository.findByUserIdAndStatus(userId, "ACTIVE")
