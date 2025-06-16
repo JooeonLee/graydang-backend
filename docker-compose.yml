@@ -38,5 +38,21 @@ services:
       - redis-data:/data
     command: redis-server --appendonly yes
     restart: always
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/letsencrypt
+      - ./nginx/ssl:/var/lib/letsencrypt
+      - ./nginx/www:/var/www/certbot
+    depends_on:
+      - app
+    restart: always
+
 volumes:
   redis-data:
