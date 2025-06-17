@@ -156,4 +156,8 @@ public class BillService {
 
         bill.increaseViewCount();
     }
+
+    public Bill findByIdOrThrow(Long id) {
+        return billRepository.findById(id).orElseThrow(() -> new BillException(BaseResponseStatus.NONE_BILL));
+    }
 }

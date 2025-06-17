@@ -43,8 +43,8 @@ public class BillStatusHistoryResponseDto {
     public static BillStatusHistoryResponseDto buildZeroOrder(Long id, String stepDate) {
         return buildDto(id,
                 0,
-                "접수",
-                "접수",
+                "발의",
+                "발의",
                 stepDate);
     }
 
