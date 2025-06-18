@@ -65,7 +65,12 @@ public enum BaseResponseStatus {
     /**
      * 3000 : User Profile Exception
      */
-    NONE_USER_PROFILE(false, HttpStatus.NOT_FOUND, 3001, "사용자의 프로필이 존재하지 않습니다.");
+    NONE_USER_PROFILE(false, HttpStatus.BAD_REQUEST, 3001, "사용자의 프로필이 존재하지 않습니다."),
+
+    /**
+     * 3100 : Bill Reaction Exception
+     */
+    INVALID_REACTION_TYPE(false, HttpStatus.BAD_REQUEST, 3101, "존재하지 않는 반응 타입입니다.");
 
     private final boolean isSuccess;
     @JsonIgnore

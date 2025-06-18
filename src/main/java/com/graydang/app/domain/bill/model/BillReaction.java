@@ -17,8 +17,9 @@ public class BillReaction extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 255)
-    private String reactionType;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ReactionType reactionType;
 
     @Column(nullable = false, length = 255)
     private String status;
@@ -31,4 +32,21 @@ public class BillReaction extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public void softDelete() {
+        this.status = "DELETED";
+    }
+
+    public void restore() {
+        this.status = "ACTIVE";
+    }
+
+    public boolean isActive() {
+        return "ACTIVE".equals(this.status);
+    }
+
+    public void changeReactionType(ReactionType reactionType) {
+        this.reactionType = reactionType;
+        this.status = "ACTIVE";
+    }
 }
