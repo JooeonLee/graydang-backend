@@ -1,0 +1,37 @@
+package com.graydang.app.domain.bill.controller;
+
+import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
+import com.graydang.app.domain.bill.model.Bill;
+import com.graydang.app.domain.bill.model.dto.BillReactionRequestDto;
+import com.graydang.app.domain.bill.model.dto.BillReactionResponseDto;
+import com.graydang.app.domain.bill.service.BillReactionService;
+import com.graydang.app.domain.bill.service.BillService;
+import com.graydang.app.global.common.model.dto.BaseResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+@Slf4j
+@RestController
+@RequestMapping("/api")
+@RequiredArgsConstructor
+public class BillReactionController {
+
+    private final BillReactionService billReactionService;
+    private final BillService billService;
+
+    @PostMapping("/bills/{billId}/reactions")
+    public ResponseEntity<BaseResponse<BillReactionResponseDto>> toggleBillReaction(
+            @PathVariable("billId") Long billId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody BillReactionRequestDto requestDto) {
+
+        Long userId = customUserDetails.getUser().getId();
+        Bill bill = billService.findByIdOrThrow(billId);
+        BillReactionResponseDto responseDto = billReactionService.toggleReaction(userId, bill, requestDto);
+
+        return ResponseEntity.ok(BaseResponse.success(responseDto));
+    }
+}
