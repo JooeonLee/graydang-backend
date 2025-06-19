@@ -1,18 +1,20 @@
 package com.graydang.app.domain.bill.controller;
 
 import com.graydang.app.domain.bill.model.dto.BillDetailResponseDto;
+import com.graydang.app.domain.bill.model.dto.BillSimpleResponseDto;
 import com.graydang.app.domain.bill.service.BillService;
 import com.graydang.app.global.common.model.dto.BaseResponse;
 import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
+import com.graydang.app.global.common.model.dto.SliceResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -35,5 +37,24 @@ public class BillController {
         billService.increaseViewCount(billId);
 
         return new BaseResponse<>(responseDto);
+    }
+
+    @Operation(summary = "홈 화면 실시간 인기 법안", description = "홈 화면에서 법안의 조회수를 기준으로 인기 법안을 페이징하여 보여줍니다.")
+    @GetMapping(value = "/bills/popular")
+    public ResponseEntity<BaseResponse<SliceResponse<BillSimpleResponseDto>>> getPopularBills(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+
+            @Parameter(description = "요청 페이지(디폴트 값 = 0)", example = "0")
+            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+
+            @Parameter(description = "한 페이지당 데이터 수(디폴트 값 = 15)", example = "15")
+            @RequestParam(value = "size", required = false, defaultValue = "15") int size) {
+
+        log.info("=== Bill Controller getPopularBills 진입 ===");
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        SliceResponse<BillSimpleResponseDto> responseDto = billService.getPopularBills(userDetails, pageRequest);
+        return ResponseEntity.ok(BaseResponse.success(responseDto));
     }
 }
