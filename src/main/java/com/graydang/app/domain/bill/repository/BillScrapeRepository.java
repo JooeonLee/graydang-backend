@@ -21,6 +21,7 @@ public interface BillScrapeRepository extends JpaRepository<BillScrape, Long> {
 
     @Query(value = """
         SELECT
+            b.id AS billId,        
             b.ai_title AS aiTitle,
             b.representative_name AS representativeName,
             DATE_FORMAT(b.propose_date, '%Y.%m.%d') AS proposeDate,
