@@ -40,15 +40,16 @@ public class BillScrapeService {
         boolean hasNext = raw.size() > pageable.getPageSize();
         List<BillSimpleResponseDto> content = raw.stream()
                 .map(r -> new BillSimpleResponseDto(
-                        (String) r[0], // aiTitle
-                        (String) r[1], // representativeName
-                        (String) r[2], // proposeDate
-                        (String) r[3], // billHistoryStatus
-                        (String) r[4], // committeeName
-                        ((Number) r[5]).longValue(), // viewCount
-                        ((Number) r[6]).longValue(), // reactionCount
-                        ((Number) r[7]).longValue(), // commentCount
-                        ((Number) r[8]).intValue() == 1 // scraped
+                        ((Number) r[0]).longValue(), // billId
+                        (String) r[1], // aiTitle
+                        (String) r[2], // representativeName
+                        (String) r[3], // proposeDate
+                        (String) r[4], // billHistoryStatus
+                        (String) r[5], // committeeName
+                        ((Number) r[6]).longValue(), // viewCount
+                        ((Number) r[7]).longValue(), // reactionCount
+                        ((Number) r[8]).longValue(), // commentCount
+                        ((Number) r[9]).intValue() == 1 // scraped
                 ))
                 .toList();
 
