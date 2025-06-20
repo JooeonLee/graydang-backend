@@ -61,12 +61,12 @@ spring:
     activate:
       on-profile: local
   jpa:
-    show-sql: true
+    #show-sql: true
     hibernate:
       ddl-auto: validate
     properties:
       hibernate:
-        format_sql: true
+        #format_sql: true
 ---
 spring:
   config:

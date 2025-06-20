@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -56,6 +58,8 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String requestUri = request.getRequestURI();
+        MDC.put("requestUri", requestUri);  // requestUri 추가
+        MDC.put("requestUUID", UUID.randomUUID().toString());  // requestUUID 생성(Trace ID)
         log.info("[JWT Filter] Incoming request: {}", requestUri);
 
         if (isPassUri(requestUri)) {
@@ -95,6 +99,11 @@ public class JwtFilter extends OncePerRequestFilter {
             String provider = jwtUtil.getProvider(accessToken);
             String providerId = jwtUtil.getProviderId(accessToken);
 
+            // 이후 모든 로그에 사용 가능
+            MDC.put("userId", String.valueOf(userId));
+            MDC.put("provider", String.valueOf(provider));
+            MDC.put("providerId", String.valueOf(providerId));
+
             // 사용자 조회
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> {
@@ -124,6 +133,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+        MDC.clear();
     }
 
     private String resolveToken(HttpServletRequest request) {

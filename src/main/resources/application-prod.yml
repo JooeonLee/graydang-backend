@@ -20,3 +20,8 @@ spring:
     redis:
       host: ${SPRING_REDIS_HOST}
       port: ${SPRING_REDIS_PORT}
+
+logging:
+  custom:
+    enabled: true
+    http-request: false
