@@ -6,6 +6,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "홈화면, 마이페이지 의안 간단 정보 요청")
 public record BillSimpleResponseDto(
         @Schema(
+                description = "의안ID",
+                example = "101"
+        )
+        long billId,
+
+        @Schema(
                 description = "의안 AI 생성 제목",
                 example = "해산물 수입을 위한 새로운 법두"
         )
@@ -63,6 +69,7 @@ public record BillSimpleResponseDto(
     public static BillSimpleResponseDto of(Bill bill, String billHistoryStatus, long reactionCount, long commentCount, boolean scraped) {
 
         return new BillSimpleResponseDto(
+                bill.getId(),
                 bill.getAiTitle(),
                 bill.getRepresentativeName(),
                 bill.getProposeDate().toString(),
