@@ -1,7 +1,6 @@
 package com.graydang.app.domain.bill.model.dto;
 
 import com.graydang.app.domain.bill.model.BillReaction;
-import com.graydang.app.domain.bill.model.ReactionType;
 
 import java.util.Optional;
 

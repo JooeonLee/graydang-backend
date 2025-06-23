@@ -10,5 +10,5 @@ BASE_URL:
 
 logging:
   custom:
-    enabled: false
-    http-request: false
+    enabled: true
+    http-request: true
