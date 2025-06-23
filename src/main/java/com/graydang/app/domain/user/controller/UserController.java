@@ -1,7 +1,9 @@
 package com.graydang.app.domain.user.controller;
 
 import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
+import com.graydang.app.domain.bill.model.dto.BillReactionResponseDto;
 import com.graydang.app.domain.bill.model.dto.BillSimpleResponseDto;
+import com.graydang.app.domain.bill.service.BillReactionService;
 import com.graydang.app.domain.bill.service.BillScrapeService;
 import com.graydang.app.domain.user.model.UserProfile;
 import com.graydang.app.domain.user.model.dto.NicknameCheckRequestDto;
@@ -38,6 +40,7 @@ public class UserController {
     private final UserService userService;
     private final UserProfileService userProfileService;
     private final BillScrapeService billScrapeService;
+    private final BillReactionService billReactionService;
 
     @Operation(summary = "닉네임 중복 확인")
     @ApiResponses({
@@ -91,6 +94,20 @@ public class UserController {
         PageRequest pageRequest = PageRequest.of(page, size);
 
         SliceResponse<BillSimpleResponseDto> responseDto = billScrapeService.getScrapedBillsByUserId(userDetails.getId(), pageRequest);
+        return ResponseEntity.ok(BaseResponse.success(responseDto));
+    }
+
+    @Operation(summary = "마이페이지 유저 의견 정보")
+    @GetMapping("/me/reactions")
+    public ResponseEntity<BaseResponse<SliceResponse<BillReactionResponseDto>>> getBillReactionInfo(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "16") int size) {
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        SliceResponse<BillReactionResponseDto> responseDto = billReactionService.getBillReactionInfoByUserId(userDetails.getId(), pageRequest);
+
         return ResponseEntity.ok(BaseResponse.success(responseDto));
     }
 }

@@ -18,8 +18,8 @@ public class SliceResponse<T> {
         this.isLast = content.isLast();
     }
 
-    public SliceResponse(Slice<T> content, int pageNumber, boolean isLast) {
-        this.content = content.getContent();
+    public SliceResponse(List<T> content, int pageNumber, boolean isLast) {
+        this.content = content;
         this.pageNumber = pageNumber;
         this.isLast = isLast;
     }
