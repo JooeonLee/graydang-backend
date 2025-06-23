@@ -1,18 +1,23 @@
 package com.graydang.app.domain.bill.service;
 
-import com.graydang.app.domain.bill.model.Bill;
 import com.graydang.app.domain.bill.model.BillReaction;
+import com.graydang.app.domain.bill.model.dto.BillReactionResponseDto;
+import com.graydang.app.domain.bill.model.dto.BillReactionSimpleResponseDto;
+import com.graydang.app.domain.bill.repository.BillReactionRepository;
+import com.graydang.app.global.common.model.dto.SliceResponse;
+import com.graydang.app.domain.bill.model.Bill;
 import com.graydang.app.domain.bill.model.ReactionType;
 import com.graydang.app.domain.bill.model.dto.BillReactionRequestDto;
-import com.graydang.app.domain.bill.model.dto.BillReactionResponseDto;
-import com.graydang.app.domain.bill.repository.BillReactionRepository;
 import com.graydang.app.domain.user.model.User;
 import com.graydang.app.domain.user.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -26,6 +31,18 @@ public class BillReactionService {
     public long getBillReactionCountByUserId(Long userId) {
         return billReactionRepository.countByUserId(userId);
     }
+
+    public SliceResponse<BillReactionSimpleResponseDto> getBillReactionInfoByUserId(Long userId, Pageable pageable) {
+
+        Slice<BillReaction> slice = billReactionRepository.findByUserIdAndStatus(userId, "ACTIVE", pageable);
+
+        List<BillReactionSimpleResponseDto> content = slice.getContent().stream()
+                .map(b -> BillReactionSimpleResponseDto.from(b, b.getBill().getAiTitle()))
+                .toList();
+
+        return new SliceResponse<>(content, slice.getNumber(), slice.isLast());
+    }
+
 
     @Transactional
     public BillReactionResponseDto toggleReaction(Long userId, Bill bill, BillReactionRequestDto requestDto) {
