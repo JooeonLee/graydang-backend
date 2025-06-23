@@ -30,9 +30,9 @@ public class BillGovTransferredProcessingTasklet implements Tasklet {
     private final BillRepository billRepository;
     private final BillStatusHistoryService billStatusHistoryService;
 
-    private static final int PAGE_SIZE = 50;
-    private static final int MAX_COUNT = 500;
-    private static final int SLEEP_MS = 100;
+    private static final int PAGE_SIZE = 100;
+    private static final int MAX_COUNT = 10000;
+    private static final int SLEEP_MS = 50;
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {

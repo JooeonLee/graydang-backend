@@ -7,3 +7,8 @@ spring:
 
 BASE_URL:
   http://localhost:8080
+
+logging:
+  custom:
+    enabled: true
+    http-request: true

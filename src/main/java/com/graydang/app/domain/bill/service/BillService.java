@@ -12,9 +12,13 @@ import com.graydang.app.domain.bill.repository.BillRepository;
 import com.graydang.app.domain.bill.repository.BillScrapeRepository;
 import com.graydang.app.domain.bill.repository.BillStatusHistoryRepository;
 import com.graydang.app.domain.comment.repository.CommentRepository;
+import com.graydang.app.global.common.model.dto.SliceResponse;
 import com.graydang.app.global.common.model.enums.BaseResponseStatus;
 import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -149,11 +153,50 @@ public class BillService {
         return  BillSimpleResponseDto.of(bill, billHistoryStatus, reactionCount, commentCount, isScrapped);
     }
 
+    public SliceResponse<BillSimpleResponseDto> getPopularBills(CustomUserDetails userDetails, Pageable pageable) {
+
+        int limit = pageable.getPageSize() + 1;
+        int offset = (int)pageable.getOffset();
+        List<Object[]> raw;
+
+        if (userDetails == null) {
+            raw = billRepository.findPopularBills(limit, offset);
+        }
+        else {
+            Long userId = userDetails.getId();
+            raw = billRepository.findPopularBillsWithScraped(userId, limit, offset);
+        }
+
+        boolean hasNext = raw.size() > pageable.getPageSize();
+        List<BillSimpleResponseDto> content = raw.stream()
+                .map(r -> new BillSimpleResponseDto(
+                        ((Number) r[0]).longValue(), // billId
+                        (String) r[1], // aiTitle
+                        (String) r[2], // representativeName
+                        (String) r[3], // proposeDate
+                        (String) r[4], // billHistoryStatus
+                        (String) r[5], // committeeName
+                        ((Number) r[6]).longValue(), // viewCount
+                        ((Number) r[7]).longValue(), // reactionCount
+                        ((Number) r[8]).longValue(), // commentCount
+                        ((Number) r[9]).intValue() == 1 // scraped
+                ))
+                .toList();
+
+        Slice<BillSimpleResponseDto> slice = new SliceImpl<>(content,  pageable, hasNext);
+
+        return new SliceResponse<>(slice);
+    }
+
     @Transactional
     public void increaseViewCount(Long id) {
         Bill bill = billRepository.findById(id)
                 .orElseThrow(() -> new BillException(BaseResponseStatus.NONE_BILL));
 
         bill.increaseViewCount();
+    }
+
+    public Bill findByIdOrThrow(Long id) {
+        return billRepository.findById(id).orElseThrow(() -> new BillException(BaseResponseStatus.NONE_BILL));
     }
 }

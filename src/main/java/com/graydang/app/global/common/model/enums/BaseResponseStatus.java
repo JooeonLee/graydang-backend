@@ -24,13 +24,13 @@ public enum BaseResponseStatus {
     /**
      * 2500 : Bill exception
      */
-    NONE_BILL(false, HttpStatus.NOT_FOUND, 2501, "존재하지 않는 의안입니다."),
+    NONE_BILL(false, HttpStatus.BAD_REQUEST, 2501, "존재하지 않는 의안입니다."),
 
     /**
      * 2600 : User exception
      */
-    NONE_USER(false, HttpStatus.NOT_FOUND, 2601, "존재하지 않는 사용자입니다."),
-    INVALID_USER_KEYWORD(false, HttpStatus.NOT_FOUND, 2602, "유효하지 않은 사용자 키워드입니다."),
+    NONE_USER(false, HttpStatus.BAD_REQUEST, 2601, "존재하지 않는 사용자입니다."),
+    INVALID_USER_KEYWORD(false, HttpStatus.BAD_REQUEST, 2602, "유효하지 않은 사용자 키워드입니다."),
 
     /**
      * 2700 : File exception
@@ -65,7 +65,12 @@ public enum BaseResponseStatus {
     /**
      * 3000 : User Profile Exception
      */
-    NONE_USER_PROFILE(false, HttpStatus.NOT_FOUND, 3001, "사용자의 프로필이 존재하지 않습니다.");
+    NONE_USER_PROFILE(false, HttpStatus.BAD_REQUEST, 3001, "사용자의 프로필이 존재하지 않습니다."),
+
+    /**
+     * 3100 : Bill Reaction Exception
+     */
+    INVALID_REACTION_TYPE(false, HttpStatus.BAD_REQUEST, 3101, "존재하지 않는 반응 타입입니다.");
 
     private final boolean isSuccess;
     @JsonIgnore

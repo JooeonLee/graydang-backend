@@ -7,6 +7,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface BillReactionRepository extends JpaRepository<BillReaction, Long> {
 
     long countByBill(Bill bill);
@@ -17,4 +19,6 @@ public interface BillReactionRepository extends JpaRepository<BillReaction, Long
 
     @EntityGraph(attributePaths = {"bill"})
     Slice<BillReaction> findByUserIdAndStatus(Long userId, String status, Pageable pageable);
+
+    Optional<BillReaction> findByUserIdAndBillId(Long userId, Long billId);
 }

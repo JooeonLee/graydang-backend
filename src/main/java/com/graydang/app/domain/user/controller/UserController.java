@@ -2,6 +2,7 @@ package com.graydang.app.domain.user.controller;
 
 import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
 import com.graydang.app.domain.bill.model.dto.BillReactionResponseDto;
+import com.graydang.app.domain.bill.model.dto.BillReactionSimpleResponseDto;
 import com.graydang.app.domain.bill.model.dto.BillSimpleResponseDto;
 import com.graydang.app.domain.bill.service.BillReactionService;
 import com.graydang.app.domain.bill.service.BillScrapeService;
@@ -99,14 +100,14 @@ public class UserController {
 
     @Operation(summary = "마이페이지 유저 의견 정보")
     @GetMapping("/me/reactions")
-    public ResponseEntity<BaseResponse<SliceResponse<BillReactionResponseDto>>> getBillReactionInfo(
+    public ResponseEntity<BaseResponse<SliceResponse<BillReactionSimpleResponseDto>>> getBillReactionInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
             @RequestParam(value = "size", required = false, defaultValue = "16") int size) {
 
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        SliceResponse<BillReactionResponseDto> responseDto = billReactionService.getBillReactionInfoByUserId(userDetails.getId(), pageRequest);
+        SliceResponse<BillReactionSimpleResponseDto> responseDto = billReactionService.getBillReactionInfoByUserId(userDetails.getId(), pageRequest);
 
         return ResponseEntity.ok(BaseResponse.success(responseDto));
     }
