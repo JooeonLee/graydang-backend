@@ -24,4 +24,7 @@ public class LoginResponseDto {
 
     @Schema(description = "로그인한 사용자의 온보딩 진행 여부", example = "false")
     private boolean onboarded;
+
+    @Schema(description = "로그인한 사용자의 프로필 이미지", example = "https://......")
+    private String profileImage;
 }

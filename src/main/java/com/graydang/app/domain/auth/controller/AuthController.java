@@ -8,6 +8,7 @@ import com.graydang.app.domain.auth.exception.InvalidTokenException;
 import com.graydang.app.domain.auth.service.JwtService;
 import com.graydang.app.domain.user.model.User;
 import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
+import com.graydang.app.domain.user.model.UserProfile;
 import com.graydang.app.domain.user.repository.UserProfileRepository;
 import com.graydang.app.domain.user.service.UserProfileService;
 import com.graydang.app.global.common.model.dto.BaseResponse;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -59,14 +61,17 @@ public class AuthController {
         );
 
         var nickname = userProfileService.getNicknameByUserId(userDetails.getId());
-        var onboarded = userProfileRepository.findByUserIdAndStatus(userDetails.getId(), "ACTIVE").isPresent();
+        Optional<UserProfile> loginUserProfile = userProfileRepository.findByUserIdAndStatus(userDetails.getId(), "ACTIVE");
+        var onboarded = loginUserProfile.isPresent();
+        String profileImageUrl = onboarded ? loginUserProfile.get().getProfileImage() : null;
 
         var responseDto = new LoginResponseDto(
                 tokens.get("accessToken"),
                 tokens.get("refreshToken"),
                 userDetails.getId(),
                 nickname,
-                onboarded
+                onboarded,
+                profileImageUrl
         );
 
         log.info("OAuth2 login successful for user: {} via provider: {}", userDetails.getUsername(), provider);
