@@ -25,12 +25,15 @@ public interface BillScrapeRepository extends JpaRepository<BillScrape, Long> {
             b.ai_title AS aiTitle,
             b.representative_name AS representativeName,
             DATE_FORMAT(b.propose_date, '%Y.%m.%d') AS proposeDate,
-            (
-                SELECT h.step_name
-                FROM bill_status_history h
-                WHERE h.bill_id = b.id AND h.status = 'ACTIVE'
-                ORDER BY h.step_order DESC
-                LIMIT 1
+            IFNULL(
+                (
+                    SELECT h.step_name
+                    FROM bill_status_history h
+                    WHERE h.bill_id = b.id AND h.status = 'ACTIVE'
+                    ORDER BY h.step_order DESC
+                    LIMIT 1
+                ),
+                "발의"
             ) AS billHistoryStatus,
             b.committee_name AS committeeName,
             b.view_count AS viewCount,
