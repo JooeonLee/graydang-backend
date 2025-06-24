@@ -181,6 +181,7 @@ public class BillService {
                         ((Number) r[8]).longValue(), // commentCount
                         ((Number) r[9]).intValue() == 1 // scraped
                 ))
+                .limit(pageable.getPageSize())
                 .toList();
 
         Slice<BillSimpleResponseDto> slice = new SliceImpl<>(content,  pageable, hasNext);
