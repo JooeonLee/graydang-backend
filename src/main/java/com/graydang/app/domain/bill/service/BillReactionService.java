@@ -1,9 +1,11 @@
 package com.graydang.app.domain.bill.service;
 
 import com.graydang.app.domain.bill.model.BillReaction;
+import com.graydang.app.domain.bill.model.dto.BillReactionCountResponseDto;
 import com.graydang.app.domain.bill.model.dto.BillReactionResponseDto;
 import com.graydang.app.domain.bill.model.dto.BillReactionSimpleResponseDto;
 import com.graydang.app.domain.bill.repository.BillReactionRepository;
+import com.graydang.app.domain.bill.repository.projection.BillReactionCountProjection;
 import com.graydang.app.global.common.model.dto.SliceResponse;
 import com.graydang.app.domain.bill.model.Bill;
 import com.graydang.app.domain.bill.model.ReactionType;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -91,5 +94,26 @@ public class BillReactionService {
             }
         }
         return BillReactionResponseDto.of(existing);
+    }
+
+    public BillReactionCountResponseDto getBillReactionCount(Bill bill) {
+
+        List<BillReactionCountProjection> results = billReactionRepository.countReactionsByBillId(bill.getId());
+
+        EnumMap<ReactionType, Long> counts = new EnumMap<>(ReactionType.class);
+        for (ReactionType type : ReactionType.values()) {
+            counts.put(type, 0L); // 기본값 0 설정
+        }
+
+        for (BillReactionCountProjection r : results) {
+            counts.put(r.getReactionType(), r.getCount());
+        }
+
+        return new BillReactionCountResponseDto(
+                counts.get(ReactionType.EXCITED),
+                counts.get(ReactionType.NEEDS_IMPROVEMENT),
+                counts.get(ReactionType.DISAPPOINTED),
+                counts.get(ReactionType.LIKE)
+        );
     }
 }
