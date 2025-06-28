@@ -4,6 +4,7 @@ import com.graydang.app.domain.bill.model.Bill;
 import com.graydang.app.domain.user.model.User;
 import com.graydang.app.global.common.model.entity.BaseEntity;
 import jakarta.persistence.*;
+import jakarta.transaction.Transactional;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -44,4 +45,21 @@ public class Comment extends BaseEntity {
 
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
     private List<CommentReport> reports = new ArrayList<>();
+
+    public void updateContent(String content) {
+        this.content = content;
+        this.isEdited = true;
+    }
+
+    public void softDelete() {
+        this.status = "DELETED";
+    }
+
+    public void restore() {
+        this.status = "ACTIVE";
+    }
+
+    public boolean isActive() {
+        return "ACTIVE".equals(this.status);
+    }
 }
