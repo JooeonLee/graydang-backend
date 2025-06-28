@@ -10,7 +10,7 @@ import java.util.Arrays;
 @Getter
 public enum ReactionType {
 
-    EXCITING("흥미진진"),
+    EXCITED("흥미진진"),
     NEEDS_IMPROVEMENT("개선필요"),
     DISAPPOINTED("아쉬워요"),
     LIKE("좋아요");
