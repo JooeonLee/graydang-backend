@@ -3,7 +3,7 @@ package com.graydang.app.domain.bill.model.dto;
 import com.graydang.app.domain.bill.model.Bill;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "홈화면, 마이페이지 의안 간단 정보 요청")
+@Schema(description = "홈화면, 마이페이지 의안 간단 정보 응답")
 public record BillSimpleResponseDto(
         @Schema(
                 description = "의안ID",

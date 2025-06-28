@@ -63,14 +63,20 @@ public enum BaseResponseStatus {
     UNAUTHORIZED_ACCESS(false, HttpStatus.UNAUTHORIZED, 2053, "로그인이 필요합니다."),
 
     /**
-     * 3000 : User Profile Exception
+     * 3000: User Profile Exception
      */
     NONE_USER_PROFILE(false, HttpStatus.BAD_REQUEST, 3001, "사용자의 프로필이 존재하지 않습니다."),
 
     /**
-     * 3100 : Bill Reaction Exception
+     * 3100: Bill Reaction Exception
      */
-    INVALID_REACTION_TYPE(false, HttpStatus.BAD_REQUEST, 3101, "존재하지 않는 반응 타입입니다.");
+    INVALID_REACTION_TYPE(false, HttpStatus.BAD_REQUEST, 3101, "존재하지 않는 반응 타입입니다."),
+
+    /**
+     * 3200: Comment Exception
+     */
+    NON_COMMENT(false, HttpStatus.BAD_REQUEST, 3201, "존재하지 않는 댓글입니다."),
+    UNAUTHORIZED_COMMENT_ACCESS(false, HttpStatus.FORBIDDEN, 3202, "해당 댓글에 대한 권한이 없습니다.");
 
     private final boolean isSuccess;
     @JsonIgnore
