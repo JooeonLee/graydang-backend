@@ -7,6 +7,7 @@ import com.graydang.app.domain.comment.service.CommentApplicationService;
 import com.graydang.app.domain.comment.service.CommentService;
 import com.graydang.app.global.common.model.dto.BaseResponse;
 import com.graydang.app.global.common.model.dto.SliceResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class CommentController {
     private final CommentService commentService;
     private final CommentApplicationService commentApplicationService;
 
+    @Operation(summary = "의안 상세 보기 화면 댓글 생성", description = "의안에 대한 댓글을 생성합니다.")
     @PostMapping(value = "/bills/{billId}/comments")
     public ResponseEntity<BaseResponse<Long>> createComment(
             @Parameter(description = "댓글을 생성할 의안의 ID", example = "101")
@@ -37,20 +39,22 @@ public class CommentController {
         return ResponseEntity.ok(BaseResponse.success(savedCommentId));
     }
 
+    @Operation(summary = "의안에 대한 댓글 조회", description = "의안 상세 화면에서 의안에 대한 댓글 정보를 페이징하여 보여줍니다.")
     @GetMapping(value = "/bills/{billId}/comments")
     public ResponseEntity<BaseResponse<CommentReadResponseDto>> getCommentByBillId(
             @Parameter(description = "댓글을 조회할 의안의 ID", example = "101")
-            @PathVariable("billId") Long billid,
+            @PathVariable("billId") Long billId,
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
             @RequestParam(value = "size", required = false, defaultValue = "16") int size
     ) {
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        CommentReadResponseDto responseDto = commentApplicationService.getCommentByBillId(customUserDetails, billid, pageRequest);
+        CommentReadResponseDto responseDto = commentApplicationService.getCommentByBillId(customUserDetails, billId, pageRequest);
         return ResponseEntity.ok(BaseResponse.success(responseDto));
     }
 
+    @Operation(summary = "의안에 대한 댓글 수정", description = "의안에 대한 댓글을 수정합니다.")
     @PatchMapping(value = "/comments/{commentId}")
     public ResponseEntity<BaseResponse<Long>> updateComment(
             @Parameter(description = "댓글 ID", example = "1")
@@ -62,6 +66,7 @@ public class CommentController {
         return ResponseEntity.ok(BaseResponse.success(updatedCommentId));
     }
 
+    @Operation(summary = "의안에 대한 댓글 삭제", description = "의안에 대한 댓글을 삭제합니다.")
     @DeleteMapping(value = "/comments/{commentId}")
     public ResponseEntity<BaseResponse<Long>> deleteComment(
             @Parameter(description = "댓글 ID", example = "1")

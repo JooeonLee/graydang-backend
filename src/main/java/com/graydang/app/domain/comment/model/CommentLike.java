@@ -27,4 +27,16 @@ public class CommentLike extends BaseEntity {
 
     @Column(nullable = false, length = 255)
     private String status;
+
+    public void softDelete() {
+        this.status = "DELETED";
+    }
+
+    public void restore() {
+        this.status = "ACTIVE";
+    }
+
+    public boolean isActive() {
+        return "ACTIVE".equals(this.status);
+    }
 }

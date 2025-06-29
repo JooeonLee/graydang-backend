@@ -8,7 +8,9 @@ import com.graydang.app.domain.comment.model.Comment;
 import com.graydang.app.domain.comment.model.dto.CommentReadResponseDto;
 import com.graydang.app.domain.comment.model.dto.CommentResponseDto;
 import com.graydang.app.domain.comment.model.dto.CommentSaveRequestDto;
+import com.graydang.app.domain.comment.model.dto.CommentSimpleResponseDto;
 import com.graydang.app.domain.comment.repository.CommentRepository;
+import com.graydang.app.domain.comment.repository.projection.CommentSimpleProjection;
 import com.graydang.app.domain.user.model.User;
 import com.graydang.app.domain.user.service.UserService;
 import com.graydang.app.global.common.model.dto.SliceResponse;
@@ -64,5 +66,13 @@ public class CommentApplicationService {
         long totalCount = commentRepository.countByBill(bill);
 
         return new CommentReadResponseDto(totalCount, sliceResponse);
+    }
+
+    public SliceResponse<CommentSimpleResponseDto> getCommentInfoByUserId(CustomUserDetails userDetails, Pageable pageable) {
+
+        Slice<CommentSimpleResponseDto> slice = commentRepository.findMyCommentsByUserId(userDetails.getUser().getId(), pageable)
+                .map(CommentSimpleResponseDto::from);
+
+        return new SliceResponse<>(slice);
     }
 }
