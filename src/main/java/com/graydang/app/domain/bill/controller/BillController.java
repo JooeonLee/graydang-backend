@@ -25,6 +25,7 @@ public class BillController {
 
     private final BillService billService;
 
+    @Operation(summary = "의안 상세 보기", description = "의안 상세보기 화면에서 의안 정보를 조회하여 반환합니다.")
     @GetMapping(value = "/bills/{billId}")
     public BaseResponse<BillDetailResponseDto> getBillDetail(
             @Parameter(description = "조회할 법안의 ID", example = "101")
