@@ -21,4 +21,9 @@ public class S3ImageService implements ImageService {
         S3File s3File = s3Util.uploadMultipartFile(file, imagePrefix);
         return s3File.getObjectUrl();
     }
+
+    @Override
+    public void delete(String imageUrl) {
+        s3Util.delete(imageUrl);
+    }
 }

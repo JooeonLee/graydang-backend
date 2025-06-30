@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum ImagePrefix {
 
-    USER("user/"),
+    USER_PROFILE("user-profile/"),
     TEST("test/"),
     DEFAULT("default/");
 
