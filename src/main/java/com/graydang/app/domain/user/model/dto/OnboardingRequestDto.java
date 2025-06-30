@@ -21,11 +21,11 @@ public record OnboardingRequestDto(
 
 
         @ArraySchema(
-                minItems = 5,
+                minItems = 1,
                 maxItems = 5,
                 schema = @Schema(description = "관심 키워드", example = "경제")
         )
-        @Size(min = 5, max = 5, message = "관심 키워드는 정확히 5개 선택해야 합니다.")
+        @Size(min = 1, max = 5, message = "관심 키워드는 정확히 5개 선택해야 합니다.")
         List<@NotBlank String> interestKeywords
 ) {
 }

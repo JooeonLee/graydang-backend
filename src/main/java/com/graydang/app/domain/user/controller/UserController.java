@@ -19,6 +19,7 @@ import com.graydang.app.global.common.model.dto.SliceResponse;
 import com.graydang.app.global.common.model.dto.ValidationErrorResponse;
 import com.graydang.app.global.common.model.enums.BaseResponseStatus;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -29,9 +30,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RestController
@@ -127,5 +130,18 @@ public class UserController {
         SliceResponse<CommentSimpleResponseDto> responseDto = commentApplicationService.getCommentInfoByUserId(userDetails, pageRequest);
 
         return ResponseEntity.ok(BaseResponse.success(responseDto));
+    }
+
+    @Operation(summary = "마이페이지 유저 프로필 이미지 수정")
+    @PatchMapping(value = "/me/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<BaseResponse<String>> updateUserProfileImage(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+
+            @Parameter(description = "새 프로필 이미지 파일 (null 이면 기본 이미지로 변경)", required = false, example = "image.jpeg")
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
+
+        String imageUrl = userProfileService.updateProfileImage(userDetails, profileImage);
+
+        return ResponseEntity.ok(BaseResponse.success(imageUrl));
     }
 }
