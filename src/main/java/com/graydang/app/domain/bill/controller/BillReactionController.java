@@ -40,10 +40,12 @@ public class BillReactionController {
 
     @GetMapping("/bills/{billId}/reactions")
     public ResponseEntity<BaseResponse<BillReactionCountResponseDto>> getBillReactionCount(
-            @PathVariable("billId") Long billId) {
+            @PathVariable("billId") Long billId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Bill bill = billService.findByIdOrThrow(billId);
-        BillReactionCountResponseDto responseDto = billReactionService.getBillReactionCount(bill);
+        Long userId = userDetails != null ? userDetails.getUser().getId() : null;
+        BillReactionCountResponseDto responseDto = billReactionService.getBillReactionCount(bill, userId);
 
         return ResponseEntity.ok(BaseResponse.success(responseDto));
     }
