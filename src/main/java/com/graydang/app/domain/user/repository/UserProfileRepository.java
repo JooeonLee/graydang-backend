@@ -17,4 +17,6 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
     Optional<UserProfile> findByUserIdAndStatus(Long userId, String status);
 
     Long user(User user);
+
+    Boolean existsByUserId(Long userId);
 }

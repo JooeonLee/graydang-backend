@@ -28,16 +28,16 @@ public class UserProfile extends BaseEntity {
     @Column(nullable = false, length = 100)
     private String keyword1;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = true, length = 100)
     private String keyword2;
 
-    @Column(nullable = false,length = 100)
+    @Column(nullable = true,length = 100)
     private String keyword3;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = true, length = 100)
     private String keyword4;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = true, length = 100)
     private String keyword5;
 
     @Column(nullable = false, length = 255)
@@ -47,5 +47,9 @@ public class UserProfile extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public void updateProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
 
 }
