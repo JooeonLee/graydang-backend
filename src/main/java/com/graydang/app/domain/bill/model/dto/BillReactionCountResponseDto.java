@@ -25,6 +25,12 @@ public record BillReactionCountResponseDto(
                 description = "의안에 대한 좋아요 반응 수",
                 example = "5"
         )
-        long likeReactionCount
+        long likeReactionCount,
+
+        @Schema(
+                description = "로그인한 유저의 반응 (반응하지 않았을 경우 null, 비로그인 유저의 경우 null)",
+                example = "좋아요"
+        )
+        String userReactionType
 ) {
 }

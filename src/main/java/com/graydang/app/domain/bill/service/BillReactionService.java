@@ -96,7 +96,7 @@ public class BillReactionService {
         return BillReactionResponseDto.of(existing);
     }
 
-    public BillReactionCountResponseDto getBillReactionCount(Bill bill) {
+    public BillReactionCountResponseDto getBillReactionCount(Bill bill, Long userId) {
 
         List<BillReactionCountProjection> results = billReactionRepository.countReactionsByBillId(bill.getId());
 
@@ -109,11 +109,20 @@ public class BillReactionService {
             counts.put(r.getReactionType(), r.getCount());
         }
 
+        ReactionType userReactionType = null;
+        if(userId != null) {
+            Optional<BillReaction> reactionOptional = billReactionRepository.findByUserIdAndBillId(userId, bill.getId());
+            if(reactionOptional.isPresent()) {
+                userReactionType = reactionOptional.get().getReactionType();
+            }
+        }
+
         return new BillReactionCountResponseDto(
                 counts.get(ReactionType.EXCITED),
                 counts.get(ReactionType.NEEDS_IMPROVEMENT),
                 counts.get(ReactionType.DISAPPOINTED),
-                counts.get(ReactionType.LIKE)
+                counts.get(ReactionType.LIKE),
+                userReactionType != null ? userReactionType.getDisplayName() : null
         );
     }
 }
