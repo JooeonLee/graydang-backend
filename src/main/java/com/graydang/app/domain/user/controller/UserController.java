@@ -83,6 +83,16 @@ public class UserController {
         return ResponseEntity.ok(BaseResponse.success(BaseResponseStatus.SUCCESS));
     }
 
+    @Operation(summary = "유저 프로필 수정", description = "로그인한 유저의 프로필 정보를 수정합니다.")
+    @PatchMapping("/me/info")
+    public ResponseEntity<BaseResponse<Void>> updateUserProfileInfo(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody OnboardingRequestDto requestDto) {
+
+        userProfileService.updateProfileInfo(userDetails.getId(), requestDto);
+        return ResponseEntity.ok(BaseResponse.success(BaseResponseStatus.SUCCESS));
+    }
+
     @Operation(summary = "마이페이지 유저 기본 정보")
     @GetMapping("/me/info")
     public ResponseEntity<BaseResponse<UserInfoResponseDto>> getUserProfileInfo(

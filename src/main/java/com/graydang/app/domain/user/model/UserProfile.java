@@ -52,4 +52,12 @@ public class UserProfile extends BaseEntity {
         this.profileImage = profileImage;
     }
 
+    public void updateProfileInfo(String nickname, String keyword1, String keyword2, String keyword3, String keyword4, String keyword5) {
+        this.nickname = nickname;
+        this.keyword1 = keyword1;
+        this.keyword2 = keyword2;
+        this.keyword3 = keyword3;
+        this.keyword4 = keyword4;
+        this.keyword5 = keyword5;
+    }
 }
