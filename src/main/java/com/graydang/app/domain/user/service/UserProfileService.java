@@ -78,6 +78,30 @@ public class UserProfileService {
         userProfileRepository.save(userProfile);
     }
 
+    @Transactional
+    public void updateProfileInfo(Long userId, OnboardingRequestDto requestDto) {
+        List<InterestKeyword> keywords = requestDto.interestKeywords().stream()
+                .map(InterestKeyword::fromLabel)
+                .toList();
+
+        User user = userService.findByIdOrThrow(userId);
+
+        String[] keywordNames = new String[5];
+        for(int i=0; i<keywords.size(); i++) {
+            keywordNames[i] = keywords.get(i).name();
+        }
+
+        UserProfile currentUserProfile = getUserProfileByUserId(userId);
+        currentUserProfile.updateProfileInfo(
+                requestDto.nickname(),
+                keywordNames[0],
+                keywordNames[1],
+                keywordNames[2],
+                keywordNames[3],
+                keywordNames[4]
+        );
+    }
+
     public String getNicknameByUserId(Long userId) {
         return userProfileRepository.findByUserIdAndStatus(userId, "ACTIVE")
                 .map(UserProfile::getNickname)
