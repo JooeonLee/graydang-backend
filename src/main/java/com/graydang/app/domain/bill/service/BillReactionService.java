@@ -112,7 +112,7 @@ public class BillReactionService {
         ReactionType userReactionType = null;
         if(userId != null) {
             Optional<BillReaction> reactionOptional = billReactionRepository.findByUserIdAndBillId(userId, bill.getId());
-            if(reactionOptional.isPresent()) {
+            if(reactionOptional.isPresent() && reactionOptional.get().isActive()) {
                 userReactionType = reactionOptional.get().getReactionType();
             }
         }

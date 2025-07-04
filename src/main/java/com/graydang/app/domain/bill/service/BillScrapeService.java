@@ -39,6 +39,7 @@ public class BillScrapeService {
 
         boolean hasNext = raw.size() > pageable.getPageSize();
         List<BillSimpleResponseDto> content = raw.stream()
+                .limit(pageable.getPageSize())
                 .map(r -> new BillSimpleResponseDto(
                         ((Number) r[0]).longValue(), // billId
                         (String) r[1], // aiTitle
