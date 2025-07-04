@@ -4,6 +4,7 @@ import com.graydang.app.domain.bill.model.Bill;
 import com.graydang.app.domain.comment.model.Comment;
 import com.graydang.app.domain.comment.model.dto.CommentSimpleResponseDto;
 import com.graydang.app.domain.comment.repository.projection.CommentSimpleProjection;
+import com.graydang.app.domain.comment.repository.projection.MyCommentProjection;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -30,6 +31,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     @Query("""
         SELECT
+            b.id AS billId,
             c.id AS commentId,
             c.content AS content,
             c.createdAt AS createdAt,
@@ -42,5 +44,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
         GROUP BY c.id, c.content, c.createdAt, b.aiTitle
         ORDER BY c.createdAt DESC
     """)
-    Slice<CommentSimpleProjection> findMyCommentsByUserId(Long userId, Pageable pageable);
+    Slice<MyCommentProjection> findMyCommentsByUserId(Long userId, Pageable pageable);
 }

@@ -62,4 +62,10 @@ public class Comment extends BaseEntity {
     public boolean isActive() {
         return "ACTIVE".equals(this.status);
     }
+
+    public long getActiveLikeCount() {
+        return this.likes.stream()
+                .filter(CommentLike::isActive)
+                .count();
+    }
 }
