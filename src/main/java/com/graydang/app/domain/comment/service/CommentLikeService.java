@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -50,5 +51,9 @@ public class CommentLikeService {
                 .build();
         commentLikeRepository.save(commentLike);
         return true;
+    }
+
+    public Set<Long> getLikedCommentIdsByUserIdAndStatus(Long userId, String status) {
+        return commentLikeRepository.findLikedCommentIdsByUserIdAndStatus(userId, status);
     }
 }

@@ -32,6 +32,7 @@ public class CommentApplicationService {
     private final CommentRepository commentRepository;
     private final BillService billService;
     private final CommentService commentService;
+    private final CommentLikeService commentLikeService;
     private final UserService userService;
 
     @Transactional
@@ -52,7 +53,9 @@ public class CommentApplicationService {
 
         Slice<Comment> commentSlice = commentRepository.findByBillIdAndStatusOrderByCreatedAtDesc(bill.getId(), "ACTIVE", pageable);
 
-        Set<Long> likedCommentIds = (userDetails != null) ? commentRepository.findCommentIdsByUserIdAndStatus(userDetails.getUser().getId(), "ACTIVE") : Set.of();
+        //Set<Long> likedCommentIds = (userDetails != null) ? commentRepository.findCommentIdsByUserIdAndStatus(userDetails.getUser().getId(), "ACTIVE") : Set.of();
+        Set<Long> likedCommentIds = (userDetails != null) ? commentLikeService.getLikedCommentIdsByUserIdAndStatus(userDetails.getUser().getId(), "ACTIVE") : Set.of();
+        log.info("=== likedCommentIds : {}", likedCommentIds);
 
         List<CommentResponseDto> commentResponseDtoList = commentSlice.getContent().stream()
                 .map(comment -> CommentMapper.toCommentResponseDto(
