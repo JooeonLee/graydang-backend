@@ -17,7 +17,7 @@ public class CommentMapper {
                 .profileImage(comment.getUser().getProfile().getProfileImage())
                 .isEdited(comment.isEdited())
                 .isLiked(isLiked)
-                .likeCount(comment.getLikes().size())
+                .likeCount(comment.getActiveLikeCount())
                 .daysAgo(daysAgo)
                 .build();
     }

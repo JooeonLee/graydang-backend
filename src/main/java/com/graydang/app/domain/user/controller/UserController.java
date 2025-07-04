@@ -7,6 +7,7 @@ import com.graydang.app.domain.bill.model.dto.BillSimpleResponseDto;
 import com.graydang.app.domain.bill.service.BillReactionService;
 import com.graydang.app.domain.bill.service.BillScrapeService;
 import com.graydang.app.domain.comment.model.dto.CommentSimpleResponseDto;
+import com.graydang.app.domain.comment.model.dto.MyCommentResponseDto;
 import com.graydang.app.domain.comment.service.CommentApplicationService;
 import com.graydang.app.domain.user.model.UserProfile;
 import com.graydang.app.domain.user.model.dto.NicknameCheckRequestDto;
@@ -130,14 +131,14 @@ public class UserController {
 
     @Operation(summary = "마이페이지 유저 댓글 정보")
     @GetMapping("/me/comments")
-    public ResponseEntity<BaseResponse<SliceResponse<CommentSimpleResponseDto>>> getBillCommentInfo(
+    public ResponseEntity<BaseResponse<SliceResponse<MyCommentResponseDto>>> getBillCommentInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
             @RequestParam(value = "size", required = false, defaultValue = "16") int size) {
 
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        SliceResponse<CommentSimpleResponseDto> responseDto = commentApplicationService.getCommentInfoByUserId(userDetails, pageRequest);
+        SliceResponse<MyCommentResponseDto> responseDto = commentApplicationService.getCommentInfoByUserId(userDetails, pageRequest);
 
         return ResponseEntity.ok(BaseResponse.success(responseDto));
     }
