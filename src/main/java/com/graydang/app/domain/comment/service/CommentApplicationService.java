@@ -5,10 +5,7 @@ import com.graydang.app.domain.bill.model.Bill;
 import com.graydang.app.domain.bill.service.BillService;
 import com.graydang.app.domain.comment.mapper.CommentMapper;
 import com.graydang.app.domain.comment.model.Comment;
-import com.graydang.app.domain.comment.model.dto.CommentReadResponseDto;
-import com.graydang.app.domain.comment.model.dto.CommentResponseDto;
-import com.graydang.app.domain.comment.model.dto.CommentSaveRequestDto;
-import com.graydang.app.domain.comment.model.dto.CommentSimpleResponseDto;
+import com.graydang.app.domain.comment.model.dto.*;
 import com.graydang.app.domain.comment.repository.CommentRepository;
 import com.graydang.app.domain.comment.repository.projection.CommentSimpleProjection;
 import com.graydang.app.domain.user.model.User;
@@ -71,10 +68,10 @@ public class CommentApplicationService {
         return new CommentReadResponseDto(totalCount, sliceResponse);
     }
 
-    public SliceResponse<CommentSimpleResponseDto> getCommentInfoByUserId(CustomUserDetails userDetails, Pageable pageable) {
+    public SliceResponse<MyCommentResponseDto> getCommentInfoByUserId(CustomUserDetails userDetails, Pageable pageable) {
 
-        Slice<CommentSimpleResponseDto> slice = commentRepository.findMyCommentsByUserId(userDetails.getUser().getId(), pageable)
-                .map(CommentSimpleResponseDto::from);
+        Slice<MyCommentResponseDto> slice = commentRepository.findMyCommentsByUserId(userDetails.getUser().getId(), pageable)
+                .map(MyCommentResponseDto::from);
 
         return new SliceResponse<>(slice);
     }
