@@ -198,7 +198,10 @@ public class BillService {
         return billRepository.findById(id).orElseThrow(() -> new BillException(BaseResponseStatus.NONE_BILL));
     }
 
-    public SliceResponse<BillSimpleResponseDto> getBillsByKeywordLabels(Set<String> keywords, Long userId, Pageable pageable, String sortBy) {
+    public SliceResponse<BillSimpleResponseDto> getBillsByKeywordLabels(CustomUserDetails userDetails, Set<String> keywords, Pageable pageable, String sortBy) {
+
+        Long userId = userDetails != null ? userDetails.getUser().getId() : null;
+
         Set<String> committeeLabels = InterestKeyword.convertLabelsToCommitteeLabels(keywords);
 
         Slice<BillSimpleResponseDto> slice = billQueryRepository.findBillSimpleProjectionByCommittees(
