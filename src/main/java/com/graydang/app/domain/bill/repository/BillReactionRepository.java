@@ -19,7 +19,7 @@ public interface BillReactionRepository extends JpaRepository<BillReaction, Long
 
     long countByBillId(Long billId);
 
-    long countByUserId(Long userId);
+    long countByUserIdAndStatus(Long userId, String status);
 
     @EntityGraph(attributePaths = {"bill"})
     Slice<BillReaction> findByUserIdAndStatus(Long userId, String status, Pageable pageable);

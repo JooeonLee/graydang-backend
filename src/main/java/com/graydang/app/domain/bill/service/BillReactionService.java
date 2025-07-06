@@ -32,7 +32,7 @@ public class BillReactionService {
     private final UserService userService;
 
     public long getBillReactionCountByUserId(Long userId) {
-        return billReactionRepository.countByUserId(userId);
+        return billReactionRepository.countByUserIdAndStatus(userId, "ACTIVE");
     }
 
     public SliceResponse<BillReactionSimpleResponseDto> getBillReactionInfoByUserId(Long userId, Pageable pageable) {

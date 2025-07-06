@@ -18,7 +18,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
 
     public long getCommentCountByUserId(Long userId) {
-        return commentRepository.countByUserId(userId);
+        return commentRepository.countByUserIdAndStatus(userId, "ACTIVE");
     }
 
     @Transactional

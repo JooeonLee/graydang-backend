@@ -13,9 +13,9 @@ public interface BillScrapeRepository extends JpaRepository<BillScrape, Long> {
 
     boolean existsByUserIdAndBillId(Long userId, Long billId);
 
-    long countByBillId(Long billId);
+    long countByBillIdAndStatus(Long billId, String status);
 
-    long countByUserId(Long userId);
+    long countByUserIdAndStatus(Long userId, String status);
 
     List<BillScrape> findByUserId(Long userId);
 

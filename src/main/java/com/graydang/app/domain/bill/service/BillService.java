@@ -7,11 +7,10 @@ import com.graydang.app.domain.bill.model.BillStatusHistory;
 import com.graydang.app.domain.bill.model.dto.BillDetailResponseDto;
 import com.graydang.app.domain.bill.model.dto.BillSimpleResponseDto;
 import com.graydang.app.domain.bill.model.dto.BillStatusHistoryResponseDto;
-import com.graydang.app.domain.bill.repository.BillReactionRepository;
-import com.graydang.app.domain.bill.repository.BillRepository;
-import com.graydang.app.domain.bill.repository.BillScrapeRepository;
-import com.graydang.app.domain.bill.repository.BillStatusHistoryRepository;
+import com.graydang.app.domain.bill.repository.*;
+import com.graydang.app.domain.bill.repository.projection.BillSimpleProjection;
 import com.graydang.app.domain.comment.repository.CommentRepository;
+import com.graydang.app.domain.user.model.InterestKeyword;
 import com.graydang.app.global.common.model.dto.SliceResponse;
 import com.graydang.app.global.common.model.enums.BaseResponseStatus;
 import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
@@ -24,10 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Service
@@ -38,6 +34,7 @@ public class BillService {
     private final BillStatusHistoryRepository billStatusHistoryRepository;
     private final BillScrapeRepository billScrapeRepository;
     private final CommentRepository commentRepository;
+    private final BillQueryRepository billQueryRepository;
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE; // yyyy-MM-dd
 
@@ -199,5 +196,23 @@ public class BillService {
 
     public Bill findByIdOrThrow(Long id) {
         return billRepository.findById(id).orElseThrow(() -> new BillException(BaseResponseStatus.NONE_BILL));
+    }
+
+    public SliceResponse<BillSimpleResponseDto> getBillsByKeywordLabels(CustomUserDetails userDetails, Set<String> keywords, Pageable pageable, String sortBy) {
+
+        Long userId = userDetails != null ? userDetails.getUser().getId() : null;
+
+        Set<String> committeeLabels = InterestKeyword.convertLabelsToCommitteeLabels(keywords);
+
+        Slice<BillSimpleResponseDto> slice = billQueryRepository.findBillSimpleProjectionByCommittees(
+                committeeLabels, userId, pageable, sortBy
+        );
+
+        //List<BillSimpleResponseDto> content = slice.getContent().stream()
+        //        .map(BillSimpleResponseDto::from)
+        //        .toList();
+
+        //return new SliceResponse<>(content, slice.getNumber(), slice.isLast());
+        return new SliceResponse<>(slice);
     }
 }
