@@ -10,6 +10,7 @@ import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +47,25 @@ public class BillQueryRepositoryImpl implements BillQueryRepository {
                     )
                     .exists();
 
+        Expression<String> billHistoryStatusExpr = Expressions.stringTemplate(
+                "coalesce({0}, {1})",
+                JPAExpressions.select(history.stepName)
+                        .from(history)
+                        .where(
+                                history.bill.eq(bill),
+                                history.status.eq("ACTIVE"),
+                                history.stepOrder.eq(
+                                        JPAExpressions.select(history.stepOrder.max())
+                                                .from(history)
+                                                .where(
+                                                        history.bill.eq(bill),
+                                                        history.status.eq("ACTIVE")
+                                                )
+                                )
+                        ),
+                Expressions.constant("발의")
+        );
+
         List<BillSimpleResponseDto> content =  queryFactory
                 .select(Projections.constructor(
                         BillSimpleResponseDto.class,
@@ -53,12 +73,16 @@ public class BillQueryRepositoryImpl implements BillQueryRepository {
                         bill.aiTitle,
                         bill.representativeName,
                         bill.proposeDate.stringValue().as("proposeDate"),
+//                        ExpressionUtils.as(
+//                                JPAExpressions.select(history.stepName)
+//                                    .from(history)
+//                                    .where(history.bill.eq(bill), history.status.eq("ACTIVE"))
+//                                    .orderBy(history.stepOrder.desc())
+//                                    .limit(1),
+//                                "billHistoryStatus"
+//                        ),
                         ExpressionUtils.as(
-                                JPAExpressions.select(history.stepName)
-                                    .from(history)
-                                    .where(history.bill.eq(bill), history.status.eq("ACTIVE"))
-                                    .orderBy(history.stepOrder.desc())
-                                    .limit(1),
+                                billHistoryStatusExpr,
                                 "billHistoryStatus"
                         ),
                         bill.committeeName,
