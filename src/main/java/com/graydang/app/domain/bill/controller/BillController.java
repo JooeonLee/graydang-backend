@@ -3,6 +3,7 @@ package com.graydang.app.domain.bill.controller;
 import com.graydang.app.domain.bill.model.dto.BillDetailResponseDto;
 import com.graydang.app.domain.bill.model.dto.BillSimpleResponseDto;
 import com.graydang.app.domain.bill.service.BillService;
+import com.graydang.app.domain.user.model.InterestKeyword;
 import com.graydang.app.global.common.model.dto.BaseResponse;
 import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
 import com.graydang.app.global.common.model.dto.SliceResponse;
@@ -15,6 +16,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -56,6 +59,29 @@ public class BillController {
         PageRequest pageRequest = PageRequest.of(page, size);
 
         SliceResponse<BillSimpleResponseDto> responseDto = billService.getPopularBills(userDetails, pageRequest);
+        return ResponseEntity.ok(BaseResponse.success(responseDto));
+    }
+
+    @Operation(summary = "법안 피드 법안 조회", description = "법안 피드에서 법안을 다양한 키워드 기반으로 검색")
+    @GetMapping(value = "/bills")
+    public ResponseEntity<BaseResponse<SliceResponse<BillSimpleResponseDto>>> getBillsByKeywordLabels(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+
+            @Parameter(description = "키워드", example = "경제")
+            @RequestParam Set<String> keywords,
+
+            @Parameter(description = "요청 페이지(디폴트 값 = 0)", example = "0")
+            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+
+            @Parameter(description = "한 페이지당 데이터 수(디폴트 값 = 15)", example = "15")
+            @RequestParam(value = "size", required = false, defaultValue = "15") int size,
+
+            @Parameter(description = "정렬 기준(최신순 = proposeDate, 조회순 = viewCount), (디폴트 값 = viewCount)", example = "viewCount")
+            @RequestParam(value = "sortBy", required = false, defaultValue = "viewCount") String sortBy) {
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        SliceResponse<BillSimpleResponseDto> responseDto  = billService.getBillsByKeywordLabels(userDetails, keywords, pageRequest, sortBy);
         return ResponseEntity.ok(BaseResponse.success(responseDto));
     }
 }

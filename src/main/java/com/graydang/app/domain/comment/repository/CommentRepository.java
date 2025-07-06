@@ -18,7 +18,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     long countByBill(Bill bill);
 
-    long countByUserId(Long userId);
+    long countByUserIdAndStatus(Long userId, String status);
 
     @EntityGraph(attributePaths = {"user.profile"})
     Slice<Comment> findByBillIdAndStatusOrderByCreatedAtDesc(Long billId, String status, Pageable pageable);
