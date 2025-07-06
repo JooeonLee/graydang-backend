@@ -27,7 +27,7 @@ public class BillScrapeService {
     private final UserService userService;
 
     public long getBillScrapeCountByUserId(Long userId) {
-        return billScrapeRepository.countByUserId(userId);
+        return billScrapeRepository.countByUserIdAndStatus(userId, "ACTIVE");
     }
 
     public SliceResponse<BillSimpleResponseDto> getScrapedBillsByUserId(Long userId, Pageable pageable) {
@@ -60,7 +60,7 @@ public class BillScrapeService {
     }
 
     public long getBillScrapeCountByBillId(Long billId) {
-        return billScrapeRepository.countByBillId(billId);
+        return billScrapeRepository.countByBillIdAndStatus(billId, "ACTIVE");
     }
 
     @Transactional
