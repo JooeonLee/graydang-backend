@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @RequiredArgsConstructor
@@ -46,5 +48,13 @@ public enum InterestKeyword {
                 .filter(k -> k.label.equals(label))
                 .findFirst()
                 .orElseThrow(() -> new UserException(BaseResponseStatus.INVALID_USER_KEYWORD));
+    }
+
+    public static Set<String> convertLabelsToCommitteeLabels(Set<String> labels) {
+        return labels.stream()
+                .map(InterestKeyword::fromLabel)
+                .map(InterestKeyword::getCommittee)
+                .map(Committee::getLabel)
+                .collect(Collectors.toSet());
     }
 }

@@ -1,6 +1,7 @@
 package com.graydang.app.domain.bill.model.dto;
 
 import com.graydang.app.domain.bill.model.Bill;
+import com.graydang.app.domain.bill.repository.projection.BillSimpleProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "홈화면, 마이페이지 의안 간단 정보 응답")
@@ -80,5 +81,20 @@ public record BillSimpleResponseDto(
                 commentCount,
                 scraped
         );
+    }
+
+    public static BillSimpleResponseDto from(BillSimpleProjection projection) {
+            return new BillSimpleResponseDto(
+                    projection.getBillId(),
+                    projection.getAiTitle(),
+                    projection.getRepresentativeName(),
+                    projection.getProposeDate(),
+                    projection.getBillHistoryStatus(),
+                    projection.getCommitteeName(),
+                    projection.getViewCount(),
+                    projection.getReactionCount(),
+                    projection.getCommentCount(),
+                    projection.getScraped()
+            );
     }
 }

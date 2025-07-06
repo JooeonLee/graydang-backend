@@ -3,6 +3,7 @@ package com.graydang.app.domain.bill.controller;
 import com.graydang.app.domain.bill.model.dto.BillDetailResponseDto;
 import com.graydang.app.domain.bill.model.dto.BillSimpleResponseDto;
 import com.graydang.app.domain.bill.service.BillService;
+import com.graydang.app.domain.user.model.InterestKeyword;
 import com.graydang.app.global.common.model.dto.BaseResponse;
 import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
 import com.graydang.app.global.common.model.dto.SliceResponse;
@@ -15,6 +16,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -56,6 +59,24 @@ public class BillController {
         PageRequest pageRequest = PageRequest.of(page, size);
 
         SliceResponse<BillSimpleResponseDto> responseDto = billService.getPopularBills(userDetails, pageRequest);
+        return ResponseEntity.ok(BaseResponse.success(responseDto));
+    }
+
+    @Operation(summary = "법안 피드 법안 조회", description = "법안 피드에서 법안을 다양한 키워드 기반으로 검색")
+    @GetMapping(value = "/bills")
+    public ResponseEntity<BaseResponse<SliceResponse<BillSimpleResponseDto>>> getBillsByKeywordLabels(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+
+            @RequestParam Set<String> keywords,
+            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "15") int size,
+            @RequestParam(value = "sortBy", required = false, defaultValue = "viewCount") String sortBy) {
+
+        Long userId = userDetails != null ? userDetails.getUser().getId() : null;
+        PageRequest pageRequest = PageRequest.of(page, size);
+        //Set<String> committeeLabels = InterestKeyword.convertLabelsToCommitteeLabels(keywords);
+
+        SliceResponse<BillSimpleResponseDto> responseDto  = billService.getBillsByKeywordLabels(keywords, userId, pageRequest, sortBy);
         return ResponseEntity.ok(BaseResponse.success(responseDto));
     }
 }
