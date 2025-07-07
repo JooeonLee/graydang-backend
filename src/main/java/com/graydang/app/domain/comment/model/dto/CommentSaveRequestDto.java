@@ -6,6 +6,8 @@ import com.graydang.app.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
+import java.util.ArrayList;
+
 @Schema(description = "댓글 저장 요청")
 public record CommentSaveRequestDto(
         @Schema(
@@ -22,6 +24,8 @@ public record CommentSaveRequestDto(
                 .content(content)
                 .isEdited(false)
                 .status("ACTIVE")
+                .likes(new ArrayList<>())
+                .reports(new ArrayList<>())
                 .build();
     }
 }

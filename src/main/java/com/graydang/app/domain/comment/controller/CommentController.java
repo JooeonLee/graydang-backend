@@ -2,6 +2,7 @@ package com.graydang.app.domain.comment.controller;
 
 import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
 import com.graydang.app.domain.comment.model.dto.CommentReadResponseDto;
+import com.graydang.app.domain.comment.model.dto.CommentResponseDto;
 import com.graydang.app.domain.comment.model.dto.CommentSaveRequestDto;
 import com.graydang.app.domain.comment.service.CommentApplicationService;
 import com.graydang.app.domain.comment.service.CommentService;
@@ -29,14 +30,15 @@ public class CommentController {
 
     @Operation(summary = "의안 상세 보기 화면 댓글 생성", description = "의안에 대한 댓글을 생성합니다.")
     @PostMapping(value = "/bills/{billId}/comments")
-    public ResponseEntity<BaseResponse<Long>> createComment(
+    public ResponseEntity<BaseResponse<CommentResponseDto>> createComment(
             @Parameter(description = "댓글을 생성할 의안의 ID", example = "101")
             @PathVariable("billId") Long billId,
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody CommentSaveRequestDto requestDto) {
 
         long savedCommentId = commentApplicationService.createComment(requestDto, userDetails.getId(), billId);
-        return ResponseEntity.ok(BaseResponse.success(savedCommentId));
+        CommentResponseDto responseDto = commentApplicationService.getCommentById(savedCommentId);
+        return ResponseEntity.ok(BaseResponse.success(responseDto));
     }
 
     @Operation(summary = "의안에 대한 댓글 조회", description = "의안 상세 화면에서 의안에 대한 댓글 정보를 페이징하여 보여줍니다.")
