@@ -45,4 +45,13 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
         ORDER BY c.createdAt DESC
     """)
     Slice<MyCommentProjection> findMyCommentsByUserId(Long userId, Pageable pageable);
+
+    @Query("""
+        SELECT c from Comment c
+        JOIN FETCH c.user u 
+        JOIN FETCH u.profile p 
+        LEFT JOIN FETCH c.likes l 
+        WHERE c.id = :id AND c.status = 'ACTIVE'
+    """)
+    Optional<Comment> findByIdWithUserProfileAndLikes(Long id);
 }
