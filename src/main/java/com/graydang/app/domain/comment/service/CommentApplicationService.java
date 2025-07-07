@@ -3,6 +3,7 @@ package com.graydang.app.domain.comment.service;
 import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
 import com.graydang.app.domain.bill.model.Bill;
 import com.graydang.app.domain.bill.service.BillService;
+import com.graydang.app.domain.comment.exception.CommentException;
 import com.graydang.app.domain.comment.mapper.CommentMapper;
 import com.graydang.app.domain.comment.model.Comment;
 import com.graydang.app.domain.comment.model.dto.*;
@@ -11,6 +12,7 @@ import com.graydang.app.domain.comment.repository.projection.CommentSimpleProjec
 import com.graydang.app.domain.user.model.User;
 import com.graydang.app.domain.user.service.UserService;
 import com.graydang.app.global.common.model.dto.SliceResponse;
+import com.graydang.app.global.common.model.enums.BaseResponseStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -74,5 +77,11 @@ public class CommentApplicationService {
                 .map(MyCommentResponseDto::from);
 
         return new SliceResponse<>(slice);
+    }
+
+    public CommentResponseDto getCommentById(Long commentId) {
+
+        Comment comment = commentService.findByIdAndStatusOrThrow(commentId);
+        return CommentMapper.toCommentResponseDto(comment, false);
     }
 }
