@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -55,6 +57,16 @@ public enum InterestKeyword {
                 .map(InterestKeyword::fromLabel)
                 .map(InterestKeyword::getCommittee)
                 .map(Committee::getLabel)
+                .collect(Collectors.toSet());
+    }
+
+    public static Set<String> getRandomLabels() {
+        List<InterestKeyword> keywords = Arrays.asList(values());
+        Collections.shuffle(keywords);
+
+        return keywords.stream()
+                .limit(5)
+                .map(InterestKeyword::getLabel)
                 .collect(Collectors.toSet());
     }
 }
