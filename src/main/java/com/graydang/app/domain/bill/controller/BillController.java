@@ -4,6 +4,7 @@ import com.graydang.app.domain.bill.model.dto.BillDetailResponseDto;
 import com.graydang.app.domain.bill.model.dto.BillRecommendResponseDto;
 import com.graydang.app.domain.bill.model.dto.BillSimpleResponseDto;
 import com.graydang.app.domain.bill.service.BillApplicationService;
+import com.graydang.app.domain.bill.service.BillSearchService;
 import com.graydang.app.domain.bill.service.BillService;
 import com.graydang.app.domain.user.model.InterestKeyword;
 import com.graydang.app.global.common.model.dto.BaseResponse;
@@ -29,6 +30,7 @@ import java.util.Set;
 public class BillController {
 
     private final BillService billService;
+    private final BillSearchService billSearchService;
     private final BillApplicationService billApplicationService;
 
     @Operation(summary = "의안 상세 보기", description = "의안 상세보기 화면에서 의안 정보를 조회하여 반환합니다.")
@@ -102,6 +104,26 @@ public class BillController {
         PageRequest pageRequest = PageRequest.of(page, size);
 
         BillRecommendResponseDto responseDto = billApplicationService.getBillsByUserKeywords(userDetails, pageRequest);
+        return ResponseEntity.ok(BaseResponse.success(responseDto));
+    }
+
+    @Operation(summary = "의안 제목 검색", description = "의안 제목에 키워드를 포함하는 의안을 검색합니다.")
+    @GetMapping(value = "/bills/search")
+    public ResponseEntity<BaseResponse<SliceResponse<BillSimpleResponseDto>>> searchBillsByTitle(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+
+            @Parameter(description = "검색 키워드", example = "경제")
+            @RequestParam String keyword,
+
+            @Parameter(description = "요청 페이지(디폴트 값 = 0)", example = "0")
+            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+
+            @Parameter(description = "한 페이지당 데이터 수(디폴트 값 = 15)", example = "15")
+            @RequestParam(value = "size", required = false, defaultValue = "15") int size) {
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        SliceResponse<BillSimpleResponseDto> responseDto = billSearchService.search(userDetails, keyword, pageRequest);
         return ResponseEntity.ok(BaseResponse.success(responseDto));
     }
 }
