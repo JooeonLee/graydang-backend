@@ -23,7 +23,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.graydang.app.global.common.model.enums.BaseResponseStatus.NONE_USER_PROFILE;
 
@@ -146,5 +151,18 @@ public class UserProfileService {
         userProfile.updateProfileImage(newImageUrl);
 
         return newImageUrl;
+    }
+
+    public Set<String> getUserKeywordsByUserId(Long userId) {
+        UserProfile userProfile = getUserProfileByUserId(userId);
+
+        return Stream.of(
+                userProfile.getKeyword1(),
+                userProfile.getKeyword2(),
+                userProfile.getKeyword3(),
+                userProfile.getKeyword4(),
+                userProfile.getKeyword5())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 }
