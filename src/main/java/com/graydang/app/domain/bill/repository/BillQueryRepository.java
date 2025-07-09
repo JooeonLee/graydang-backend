@@ -12,4 +12,6 @@ import java.util.Set;
 public interface BillQueryRepository {
 
     Slice<BillSimpleResponseDto> findBillSimpleProjectionByCommittees(Set<String> committeeLabels, Long userId, Pageable pageable, String sortBy);
+
+    Slice<BillSimpleResponseDto> findBySearchKeyword(String keyword, Long userId, Pageable pageable, String sortBy);
 }
