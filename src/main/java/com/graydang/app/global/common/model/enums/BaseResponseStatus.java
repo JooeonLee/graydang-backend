@@ -77,7 +77,12 @@ public enum BaseResponseStatus {
      * 3200: Comment Exception
      */
     NON_COMMENT(false, HttpStatus.BAD_REQUEST, 3201, "존재하지 않는 댓글입니다."),
-    UNAUTHORIZED_COMMENT_ACCESS(false, HttpStatus.FORBIDDEN, 3202, "해당 댓글에 대한 권한이 없습니다.");
+    UNAUTHORIZED_COMMENT_ACCESS(false, HttpStatus.FORBIDDEN, 3202, "해당 댓글에 대한 권한이 없습니다."),
+
+    /**
+     * 3300: Comment Report Exception
+     */
+    ALREADY_REPORTED(false, HttpStatus.BAD_REQUEST, 3301, "이미 해당 댓글을 신고했습니다.");
 
     private final boolean isSuccess;
     @JsonIgnore
