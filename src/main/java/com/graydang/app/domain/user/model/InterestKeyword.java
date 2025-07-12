@@ -69,4 +69,19 @@ public enum InterestKeyword {
                 .map(InterestKeyword::getLabel)
                 .collect(Collectors.toSet());
     }
+
+    public static InterestKeyword fromName(String name) {
+        return Arrays.stream(values())
+                .filter(k -> k.name().equals(name))
+                .findFirst()
+                .orElseThrow(() -> new UserException(BaseResponseStatus.INVALID_USER_KEYWORD));
+    }
+
+    public static Set<String> convertNamesToCommitteeLabels(Set<String> names) {
+        return names.stream()
+                .map(InterestKeyword::fromName)
+                .map(InterestKeyword::getCommittee)
+                .map(Committee::getLabel)
+                .collect(Collectors.toSet());
+    }
 }
