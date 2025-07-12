@@ -202,7 +202,8 @@ public class BillService {
 
         Long userId = userDetails != null ? userDetails.getUser().getId() : null;
 
-        Set<String> committeeLabels = InterestKeyword.convertLabelsToCommitteeLabels(keywords);
+        //Set<String> committeeLabels = InterestKeyword.convertLabelsToCommitteeLabels(keywords);
+        Set<String> committeeLabels = InterestKeyword.convertNamesToCommitteeLabels(keywords);
 
         Slice<BillSimpleResponseDto> slice = billQueryRepository.findBillSimpleProjectionByCommittees(
                 committeeLabels, userId, pageable, sortBy

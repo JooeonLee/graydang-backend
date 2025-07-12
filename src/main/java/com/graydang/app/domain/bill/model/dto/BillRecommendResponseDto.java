@@ -1,9 +1,11 @@
 package com.graydang.app.domain.bill.model.dto;
 
+import com.graydang.app.domain.user.model.InterestKeyword;
 import com.graydang.app.global.common.model.dto.SliceResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Schema(description = "홈 화면 의안 추천 응답")
 public record BillRecommendResponseDto(
@@ -27,6 +29,12 @@ public record BillRecommendResponseDto(
 ) {
 
     public static BillRecommendResponseDto of(String nickname, Set<String> keywords, SliceResponse<BillSimpleResponseDto> bills) {
-        return new BillRecommendResponseDto(nickname, keywords, bills);
+
+        Set<String> keywordLabels = keywords.stream()
+                .map(InterestKeyword::fromName)
+                .map(InterestKeyword::getLabel)
+                .collect(Collectors.toSet());
+
+        return new BillRecommendResponseDto(nickname, keywordLabels, bills);
     }
 }

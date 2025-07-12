@@ -1,5 +1,6 @@
 package com.graydang.app.domain.user.model.dto;
 
+import com.graydang.app.domain.user.model.InterestKeyword;
 import com.graydang.app.domain.user.model.UserProfile;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -7,6 +8,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 @Schema(description = "마이페이지 기본 정보 요청")
 public record UserInfoResponseDto(
@@ -47,12 +50,17 @@ public record UserInfoResponseDto(
 ) {
 
     public static UserInfoResponseDto of(UserProfile profile, long scrapeCount, long reactionCount, long commentCount) {
-        List<String> interests = new ArrayList<>();
-        interests.add(profile.getKeyword1());
-        interests.add(profile.getKeyword2());
-        interests.add(profile.getKeyword3());
-        interests.add(profile.getKeyword4());
-        interests.add(profile.getKeyword5());
+        List<String> interests = Stream.of(
+                        profile.getKeyword1(),
+                        profile.getKeyword2(),
+                        profile.getKeyword3(),
+                        profile.getKeyword4(),
+                        profile.getKeyword5()
+                )
+                .filter(Objects::nonNull)
+                .map(InterestKeyword::fromName)
+                .map(InterestKeyword::getLabel)
+                .toList();
 
         return new UserInfoResponseDto(
                 profile.getNickname(),
