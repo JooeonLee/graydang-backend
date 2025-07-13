@@ -209,4 +209,17 @@ public class BillQueryRepositoryImpl implements BillQueryRepository {
 
         return new SliceImpl<>(content, pageable, hasNext);
     }
+
+    @Override
+    public Long countBySearchKeyword(String keyword) {
+        QBill bill = QBill.bill;
+        return queryFactory
+                .select(bill.count())
+                .from(bill)
+                .where(
+                        bill.status.eq("ACTIVE"),
+                        bill.aiTitle.containsIgnoreCase(keyword)
+                )
+                .fetchOne();
+    }
 }

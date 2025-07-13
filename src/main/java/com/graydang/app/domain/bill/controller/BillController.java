@@ -2,6 +2,7 @@ package com.graydang.app.domain.bill.controller;
 
 import com.graydang.app.domain.bill.model.dto.BillDetailResponseDto;
 import com.graydang.app.domain.bill.model.dto.BillRecommendResponseDto;
+import com.graydang.app.domain.bill.model.dto.BillSearchResponseDto;
 import com.graydang.app.domain.bill.model.dto.BillSimpleResponseDto;
 import com.graydang.app.domain.bill.service.BillApplicationService;
 import com.graydang.app.domain.bill.service.BillSearchService;
@@ -109,7 +110,7 @@ public class BillController {
 
     @Operation(summary = "의안 제목 검색", description = "의안 제목에 키워드를 포함하는 의안을 검색합니다.")
     @GetMapping(value = "/bills/search")
-    public ResponseEntity<BaseResponse<SliceResponse<BillSimpleResponseDto>>> searchBillsByTitle(
+    public ResponseEntity<BaseResponse<BillSearchResponseDto>> searchBillsByTitle(
             @AuthenticationPrincipal CustomUserDetails userDetails,
 
             @Parameter(description = "검색 키워드", example = "경제")
@@ -123,7 +124,7 @@ public class BillController {
 
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        SliceResponse<BillSimpleResponseDto> responseDto = billSearchService.search(userDetails, keyword, pageRequest);
+        BillSearchResponseDto responseDto = billSearchService.search(userDetails, keyword, pageRequest);
         return ResponseEntity.ok(BaseResponse.success(responseDto));
     }
 }
