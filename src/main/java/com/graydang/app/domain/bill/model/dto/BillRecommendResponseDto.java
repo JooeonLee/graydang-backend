@@ -31,7 +31,7 @@ public record BillRecommendResponseDto(
     public static BillRecommendResponseDto of(String nickname, Set<String> keywords, SliceResponse<BillSimpleResponseDto> bills) {
 
         Set<String> keywordLabels = keywords.stream()
-                .map(InterestKeyword::fromName)
+                .map(InterestKeyword::fromLabel)
                 .map(InterestKeyword::getLabel)
                 .collect(Collectors.toSet());
 

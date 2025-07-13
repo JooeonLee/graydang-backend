@@ -163,6 +163,8 @@ public class UserProfileService {
                 userProfile.getKeyword4(),
                 userProfile.getKeyword5())
                 .filter(Objects::nonNull)
+                .map(InterestKeyword::fromName)
+                .map(InterestKeyword::getLabel)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 }

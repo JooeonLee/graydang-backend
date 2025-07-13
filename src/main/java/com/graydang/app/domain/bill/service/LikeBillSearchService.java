@@ -1,6 +1,7 @@
 package com.graydang.app.domain.bill.service;
 
 import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
+import com.graydang.app.domain.bill.model.dto.BillSearchResponseDto;
 import com.graydang.app.domain.bill.model.dto.BillSimpleResponseDto;
 import com.graydang.app.domain.bill.repository.BillQueryRepository;
 import com.graydang.app.global.common.model.dto.SliceResponse;
@@ -15,10 +16,14 @@ public class LikeBillSearchService implements BillSearchService {
     private final BillQueryRepository billQueryRepository;
 
     @Override
-    public SliceResponse<BillSimpleResponseDto> search(CustomUserDetails userDetails, String keyword, org.springframework.data.domain.Pageable pageable) {
+    public BillSearchResponseDto search(CustomUserDetails userDetails, String keyword, org.springframework.data.domain.Pageable pageable) {
         Long userId = userDetails != null ? userDetails.getUser().getId() : null;
 
-        Slice<BillSimpleResponseDto> bills = billQueryRepository.findBySearchKeyword(keyword, userId, pageable, "proposeDate");
-        return new SliceResponse<>(bills);
+        Long totalCount = billQueryRepository.countBySearchKeyword(keyword);
+
+        Slice<BillSimpleResponseDto> billSlice = billQueryRepository.findBySearchKeyword(keyword, userId, pageable, "proposeDate");
+        SliceResponse<BillSimpleResponseDto> bills = new SliceResponse<>(billSlice);
+
+        return new BillSearchResponseDto(totalCount, bills);
     }
 }

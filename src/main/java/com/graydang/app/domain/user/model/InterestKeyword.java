@@ -5,6 +5,7 @@ import com.graydang.app.domain.user.exception.UserException;
 import com.graydang.app.global.common.model.enums.BaseResponseStatus;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @RequiredArgsConstructor
+@Slf4j
 public enum InterestKeyword {
     해외("해외", Committee.FOREIGN_AFFAIRS),
     문화예술("문화예술", Committee.CULTURE_SPORTS),
@@ -46,6 +48,7 @@ public enum InterestKeyword {
     private final Committee committee;
 
     public static InterestKeyword fromLabel(String label) {
+        log.info("Trying to match label: {}", label);
         return Arrays.stream(values())
                 .filter(k -> k.label.equals(label))
                 .findFirst()
@@ -84,4 +87,12 @@ public enum InterestKeyword {
                 .map(Committee::getLabel)
                 .collect(Collectors.toSet());
     }
+
+    public static Set<String> convertNamesToLabels(Set<String> names) {
+        return names.stream()
+                .map(InterestKeyword::fromName)
+                .map(InterestKeyword::getLabel)
+                .collect(Collectors.toSet());
+    }
+
 }
