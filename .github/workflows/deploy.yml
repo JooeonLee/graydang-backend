@@ -53,7 +53,7 @@ jobs:
             echo "DATASOURCE_URL_PROD=${{ secrets.DATASOURCE_URL_PROD }}" > .env
             echo "DATASOURCE_USERNAME_PROD=${{ secrets.DATASOURCE_USERNAME_PROD }}" >> .env
             echo "DATASOURCE_PASSWORD_PROD=${{ secrets.DATASOURCE_PASSWORD_PROD }}" >> .env
-            echo "SPRING_PROFILES_ACTIVE=prod" >> .env
+            echo "SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }}" >> .env
             echo "BILL_API_KEY=${{ secrets.BILL_API_KEY }}" >> .env
             echo "BILL_API_KEY_V2=${{ secrets.BILL_API_KEY_V2 }}" >> .env
             echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
