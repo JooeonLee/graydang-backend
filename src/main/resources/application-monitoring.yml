@@ -6,7 +6,6 @@ management:
       enabled: true
     prometheus:
       enabled: true
-
   endpoints:
     web:
       exposure:
