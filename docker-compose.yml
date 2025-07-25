@@ -28,6 +28,8 @@ services:
       REFRESH_TOKEN_EXPIRED_IN: ${REFRESH_TOKEN_EXPIRED_IN}
       SPRING_REDIS_HOST: ${SPRING_REDIS_HOST}
       SPRING_REDIS_PORT: ${SPRING_REDIS_PORT}
+    volumes:
+      - ./logs:/app/logs
     restart: always
 
   redis:
