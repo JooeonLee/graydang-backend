@@ -1,0 +1,8 @@
+promtail:
+  image: grafana/promtail:2.9.4
+  container_name: promtail
+  volumes:
+    - ./promtail/promtail.yml:/etc/promtail/promtail.yml
+    - /var/log:/var/log       # EC2 호스트 로그 마운트 (혹은 필요 경로로 변경)
+  command: -config.file=/etc/promtail/promtail.yml
+  restart: always
