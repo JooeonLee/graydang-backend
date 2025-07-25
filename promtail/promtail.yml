@@ -22,7 +22,7 @@ scrape_configs:
     static_configs:
       - targets:
         - localhost
-        lables:
+        labels:
           job: springboot
           app: graydang
           __path__: /app/logs/*.log
