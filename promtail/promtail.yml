@@ -17,3 +17,12 @@ scrape_configs:
           job: varlogs
           host: ${HOSTNAME}
           __path__: /var/log/*.log
+
+  - job_name: springboot-app
+    static_configs:
+      - targets:
+        - localhost
+        lables:
+          job: springboot
+          app: graydang
+          __path__: /app/logs/*.log
