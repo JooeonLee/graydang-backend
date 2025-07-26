@@ -55,6 +55,10 @@ aws:
 user:
   default-profile-image-url: ${DEFAULT_PROFILE_IMAGE_URL}
 
+logging:
+  file:
+    name: /app/logs/app.log
+
 ---
 spring:
   config:
