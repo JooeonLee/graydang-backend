@@ -31,6 +31,9 @@ public class User extends BaseEntity {
     @Comment("시스템 관리 상태")
     private String status;
 
+    @Column(length = 255)
+    private String email;
+
     // 연관관계 Mapping
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserProfile profile;
