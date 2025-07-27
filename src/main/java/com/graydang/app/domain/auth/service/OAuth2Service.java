@@ -189,6 +189,7 @@ public class OAuth2Service {
     private User createNewUser(OAuth2UserInfo userInfo, String provider, String username) {
         User user = User.builder()
                 .username(username)
+                .email(userInfo.getEmail())
                 .role("USER")
                 .status("ACTIVE")
                 .build();

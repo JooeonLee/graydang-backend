@@ -64,8 +64,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
     
     private User createNewUser(OAuth2UserInfo userInfo, String provider, String username) {
+        log.info("Creating new user - Username: {}, UserEmail: {}", username, userInfo.getEmail());
         User user = User.builder()
                 .username(username)
+                .email(userInfo.getEmail())
                 .role("USER")
                 .build();
         
