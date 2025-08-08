@@ -4,14 +4,22 @@ import com.graydang.app.domain.comment.exception.CommentReportException;
 import com.graydang.app.domain.comment.model.Comment;
 import com.graydang.app.domain.comment.model.CommentReport;
 import com.graydang.app.domain.comment.model.dto.CommentReportSaveRequestDto;
+import com.graydang.app.domain.comment.model.dto.ReportedCommentSummaryResponseDto;
 import com.graydang.app.domain.comment.repository.CommentReportRepository;
+import com.graydang.app.domain.comment.repository.projection.ReportedCommentSummaryProjection;
 import com.graydang.app.domain.user.model.User;
 import com.graydang.app.domain.user.service.UserService;
+import com.graydang.app.global.common.model.dto.SliceResponse;
 import com.graydang.app.global.common.model.enums.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -36,5 +44,15 @@ public class CommentReportService {
         CommentReport savedCommentReport = commentReportRepository.save(commentReport);
 
         return savedCommentReport.getId();
+    }
+
+    @Transactional
+    public SliceResponse<ReportedCommentSummaryResponseDto> getReportedCommentSummary(Pageable pageable) {
+
+        Slice<ReportedCommentSummaryProjection> projections = commentReportRepository.findReportedComments(pageable);
+
+        Slice<ReportedCommentSummaryResponseDto> dtoSlice = projections.map(ReportedCommentSummaryResponseDto::from);
+
+        return new SliceResponse<>(dtoSlice);
     }
 }

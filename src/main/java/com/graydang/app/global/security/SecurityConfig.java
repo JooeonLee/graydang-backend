@@ -50,6 +50,10 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/bills/**").permitAll()
                     .requestMatchers("/swagger-ui/**", "/swagger-ui.html/**", "/v3/api-docs/**").permitAll()
                     .requestMatchers("/actuator/**").permitAll()
+
+                    // 어드민 전용 API
+                    .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
                     .anyRequest().authenticated()
             )
 
