@@ -107,4 +107,6 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
             @Param("limit") Integer limit,
             @Param("offset") Integer offset
     );
+
+    Boolean existsByBillId(@NonNull String billId);
 }

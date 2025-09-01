@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
@@ -20,6 +20,10 @@ spring:
     redis:
       host: ${SPRING_REDIS_HOST}
       port: ${SPRING_REDIS_PORT}
+
+  batch:
+    jdbc:
+      initialize-schema: always
 
 logging:
   custom:
