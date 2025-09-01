@@ -16,8 +16,8 @@ spring:
     job:
 #      name: billStatusUpdateJob
 #      name: collectRecentBillsJob
-      name: summarizeBillJob
-      enabled: true
+#      name: summarizeBillJob
+      enabled: false
   profiles:
     active: local
   config:
