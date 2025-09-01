@@ -70,13 +70,54 @@ public class BillApiClient {
         }
     }
 
-    public String getBillReceiptInfoXml(String billId) {
-        String url = API_BASE_URL + "getBillReceiptInfo"
-                + "?serviceKey=" + URLEncoder.encode(serviceKey, StandardCharsets.UTF_8)
-                + "&billId=" + billId;
+    public List<BillRecentResponseDto.ItemDto> getBillRecentList(int numOfRows, int pageNo) {
+        String url = API_BASE_URL + "getRecentRceptList"
+                + "?serviceKey=" + serviceKey
+                + "&numOfRows=" + numOfRows
+                + "&pageNo=" + pageNo;
+
+        URI uri = URI.create(url);
+
+        log.info("[DEBUG] 서비스 키: {}", serviceKey);
+        log.info(">> 최종 요청 URI: {}", url);
 
         try {
-            return restTemplate.getForObject(url, String.class);
+            String xml = restTemplate.getForObject(URI.create(url), String.class);
+            log.info("[DEBUG] XML 응답:\n{}", xml);
+            BillRecentResponseDto responseDto = xmlMapper.readValue(xml, BillRecentResponseDto.class);
+            return responseDto.getBody().getItems();
+        } catch (Exception e) {
+            log.error("[API 오류] 최근 등록 의안 조회 실패 - error: {}" , e.getMessage());
+            throw new RuntimeException("getBillRecentList 호출 실패");
+        }
+    }
+
+    public Optional<BillReceiptInfoResponseDto> getBillReceiptInfo(String billId) {
+        String url = API_BASE_URL + "getBillReceiptInfo"
+                + "?serviceKey=" + serviceKey
+                + "&bill_id=" + billId;
+
+        URI uri = URI.create(url);
+        log.info("[DEBUG] 서비스 키: {}", serviceKey);
+        log.info(">> 최종 요청 URI: {} {}", uri, url);
+
+        try {
+            String xml = restTemplate.getForObject(uri, String.class);
+            log.info("[DEBUG] XML 응답(요약): {}",  xml != null && xml.length() > 300 ? xml.substring(0, 300) + "..." : xml);
+            BillReceiptInfoResponseDto responseDto = xmlMapper.readValue(xml, BillReceiptInfoResponseDto.class);
+
+            // 헤더 코드 체크 (00: 정상)
+            if (responseDto == null || responseDto.getHeader() == null) {
+                log.warn("[API 경고] Receipt 응답 매핑 실패 또는 header 없음 - billId: {}", billId);
+                return Optional.empty();
+            }
+            String code = responseDto.getHeader().getResultCode();
+            if (code != null && !"00".equals(code)) {
+                log.warn("[API 경고] Receipt resultCode != 00 (code={}, msg={} - billId: {}", code, responseDto.getHeader().getResultMsg(), billId);
+                return Optional.empty();
+            }
+
+            return Optional.of(responseDto);
         } catch (Exception e) {
             log.error("[API 오류] getBillReceiptInfo 호출 실패: {}", billId, e);
             throw new RuntimeException("getBillReceiptInfo 호출 실패: " + billId);

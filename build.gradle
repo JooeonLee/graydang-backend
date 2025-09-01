@@ -74,6 +74,9 @@ dependencies {
     // Prometheus
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
+    // Jsoup
+    implementation 'org.jsoup:jsoup:1.16.1'
+
 }
 
 def querydslDir = file("build/generated/querydsl")
