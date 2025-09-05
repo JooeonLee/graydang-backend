@@ -12,9 +12,11 @@ openai:
 spring:
   batch:
     jdbc:
-      initialize-schema: never
+      initialize-schema: always
     job:
 #      name: billStatusUpdateJob
+#      name: collectRecentBillsJob
+#      name: summarizeBillJob
       enabled: false
   profiles:
     active: local

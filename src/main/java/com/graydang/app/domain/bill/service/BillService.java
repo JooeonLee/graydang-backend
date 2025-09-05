@@ -1,6 +1,7 @@
 package com.graydang.app.domain.bill.service;
 
 import com.graydang.app.batch.bill.dto.BillInfoResponseDto;
+import com.graydang.app.batch.bill.dto.BillSaveRequestDto;
 import com.graydang.app.domain.bill.exception.BillException;
 import com.graydang.app.domain.bill.model.Bill;
 import com.graydang.app.domain.bill.model.BillStatusHistory;
@@ -15,6 +16,7 @@ import com.graydang.app.global.common.model.dto.SliceResponse;
 import com.graydang.app.global.common.model.enums.BaseResponseStatus;
 import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -25,6 +27,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class BillService {
@@ -50,6 +53,29 @@ public class BillService {
         }
     }
 
+    @Transactional
+    public void saveOrUpdate(BillSaveRequestDto  requestDto) {
+        Optional<Bill> existing = billRepository.findByBillId(requestDto.getBillId());
+
+        if (existing.isPresent()) {
+            update(existing.get(), requestDto);
+        } else {
+            Bill bill = toEntity(requestDto);
+            billRepository.save(bill);
+        }
+    }
+
+    @Transactional
+    public void saveAll(List<? extends BillSaveRequestDto> requests) {
+        if (requests ==  null || requests.isEmpty()) {
+            log.warn("Empty or null requests were provided");
+            return;
+        }
+        for (BillSaveRequestDto requestDto : requests) {
+            saveOrUpdate(requestDto);
+        }
+    }
+
     private Bill toEntity(BillInfoResponseDto.ItemDto dto) {
         return Bill.builder()
                 .billId(dto.getBillId())
@@ -63,6 +89,21 @@ public class BillService {
                 .build();
     }
 
+    private  Bill toEntity(BillSaveRequestDto dto) {
+        return Bill.builder()
+                .billId(dto.getBillId())
+                .title(dto.getBillName())
+                .proposeDate(parseDate(dto.getProposeDate()))
+                .processResult(dto.getProcessResult())
+                .billStatus(dto.getBillStatus())
+                .summary(dto.getSummary())
+                .representativeName(dto.getRepresentativeName())
+                .committeeName(dto.getCommitteeName())
+                .viewCount(0L)
+                .status("ACTIVE")
+                .build();
+    }
+
     private void update(Bill bill, BillInfoResponseDto.ItemDto dto) {
         bill.update(
                 dto.getBillName(),
@@ -72,6 +113,18 @@ public class BillService {
                 dto.getProcStageCd(),
                 null, // summary: 현재 DTO에는 없음
                 parseRepresentativeName(dto.getProposerKind())
+        );
+    }
+
+    private void update(Bill bill, BillSaveRequestDto dto) {
+        bill.update(
+                dto.getBillName(),
+                parseDate(dto.getProposeDate()),
+                dto.getCommitteeName(),
+                dto.getProcessResult(),
+                dto.getBillStatus(),
+                dto.getSummary(),
+                dto.getRepresentativeName()
         );
     }
 
