@@ -21,7 +21,7 @@ public class BillBatchScheduler {
     private final Job summarizeBillJob;
     private final AtomicReference<LocalDate> lastSuccessfulRunDate = new AtomicReference<>();
 
-    @Scheduled(cron = "0 0 19 * * *")
+    @Scheduled(cron = "0 0 18 * * *")
     public void runBillJobs() {
         LocalDate today = LocalDate.now();
         LocalDate lastRunDate = lastSuccessfulRunDate.get();
@@ -29,7 +29,7 @@ public class BillBatchScheduler {
         // --- 1. 실행 조건 확인 ---
         // 마지막 실행일이 없거나, 마지막 실행일로부터 일정 이상 지났는지 확인
         if(lastRunDate == null || ChronoUnit.DAYS.between(lastRunDate, today) >= 0) {
-            log.info("매일 19시가 되어 의안 수집 및 요약 배치를 시작합니다.");
+            log.info("매일 18시가 되어 의안 수집 및 요약 배치를 시작합니다.");
             try {
                 // --- 2. 배치 job 실행 ---
                 JobParameters collectParams = new JobParametersBuilder()

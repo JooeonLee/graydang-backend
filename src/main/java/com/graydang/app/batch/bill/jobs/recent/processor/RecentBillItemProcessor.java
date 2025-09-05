@@ -50,7 +50,8 @@ public class RecentBillItemProcessor implements ItemProcessor<BillRecentResponse
         String summaryLink = receipt.getSummaryLink();
         if (summaryLink != null && !summaryLink.isBlank()) {
             try {
-                summary = summaryCrawler.extractSummary(receipt.getSummaryLink());
+                // summary = summaryCrawler.extractSummary(receipt.getSummaryLink());
+                summary = summaryCrawler.extractSummary(billId);
 
             } catch (Exception e) {
                 log.warn("Failed to crawl summaryLink for billId: {}, link= {}", billId, summaryLink);
