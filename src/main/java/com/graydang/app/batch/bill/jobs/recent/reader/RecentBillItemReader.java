@@ -3,6 +3,7 @@ package com.graydang.app.batch.bill.jobs.recent.reader;
 import com.graydang.app.batch.bill.client.BillApiClient;
 import com.graydang.app.batch.bill.dto.BillRecentResponseDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamReader;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Slf4j
 @Component
 @StepScope
 @RequiredArgsConstructor
@@ -34,12 +36,22 @@ public class RecentBillItemReader implements ItemStreamReader<BillRecentResponse
     private static final String KEY_PAGE_NO = "recent.pageNo";
     private static final String KEY_CURSOR = "recent.cursor";
 
+    // test 용 변수 추후 삭제 필요
+    private int endPage = 100;
+
     @Override
     public BillRecentResponseDto.ItemDto read() {
         if (finished)
             return null;
 
         while (cursor >= buffer.size()) {
+            // test를 위해 100개의 테이터만 수집
+            if (endPage > 0 && pageNo > endPage) {
+                finished = true;
+                log.info("");
+                return null;
+            }
+
             if (noMorePages) {
                 finished = true;
                 return null;
