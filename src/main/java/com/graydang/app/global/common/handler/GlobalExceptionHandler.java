@@ -4,6 +4,7 @@ import com.graydang.app.common.exception.ApiException;
 import com.graydang.app.common.exception.ErrorLevel;
 import com.graydang.app.common.exception.response.ExceptionResponse;
 import com.graydang.app.global.common.model.dto.BaseResponse;
+import com.graydang.app.monitoring.SlackBotNotifier;
 import com.graydang.app.monitoring.SlackNotifier;
 import com.graydang.app.monitoring.SlackPayload;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,7 @@ import static com.graydang.app.global.common.model.enums.BaseResponseStatus.METH
 @RequiredArgsConstructor
 @Slf4j
 public class GlobalExceptionHandler {
-    private final SlackNotifier slack;
+    private final SlackBotNotifier slack;
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ExceptionResponse> handleApiException(ApiException e){
