@@ -46,6 +46,7 @@ public class JwtFilter extends OncePerRequestFilter {
     public final static List<String> PASS_URIS = Arrays.asList(
             "/api/auth/oauth/**",
             "/api/auth/reissue",
+            "/api/test/slack",
             //"/api/auth/logout",
             "/swagger-ui/**",
             "/v3/api-docs/**",
