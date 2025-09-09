@@ -70,6 +70,7 @@ jobs:
             echo "REFRESH_TOKEN_EXPIRED_IN=${{ secrets.REFRESH_TOKEN_EXPIRED_IN }}" >> .env
             echo "SPRING_REDIS_HOST=${{ secrets.SPRING_REDIS_HOST }}" >> .env
             echo "SPRING_REDIS_PORT=${{ secrets.SPRING_REDIS_PORT }}" >> .env
+            echo "SPRING_REDIS_PORT=${{ secrets.SLACK_BOT_TOKEN }}" >> .env
 
             docker compose down || true
             sleep 5
