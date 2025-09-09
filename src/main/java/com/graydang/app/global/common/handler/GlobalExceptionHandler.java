@@ -1,6 +1,13 @@
 package com.graydang.app.global.common.handler;
 
+import com.graydang.app.common.exception.ApiException;
+import com.graydang.app.common.exception.ErrorLevel;
+import com.graydang.app.common.exception.response.ExceptionResponse;
 import com.graydang.app.global.common.model.dto.BaseResponse;
+import com.graydang.app.monitoring.SlackBotNotifier;
+import com.graydang.app.monitoring.SlackNotifier;
+import com.graydang.app.monitoring.SlackPayload;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -21,8 +28,45 @@ import static com.graydang.app.global.common.model.enums.BaseResponseStatus.HTTP
 import static com.graydang.app.global.common.model.enums.BaseResponseStatus.METHOD_ARGUMENT_TYPE_MISMATCH;
 
 @ControllerAdvice
+@RequiredArgsConstructor
 @Slf4j
 public class GlobalExceptionHandler {
+    private final SlackBotNotifier slack;
+
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<ExceptionResponse> handleApiException(ApiException e){
+        // 1. 실제 발생 위치(= 사용자 코드 지점) 찾기
+        StackTraceElement[] stackTrace = e.getStackTrace();
+        StackTraceElement userStack = null;
+
+        for (StackTraceElement element : stackTrace) {
+            String className = element.getClassName();
+            // ApiException 자체나 common.exception 패키지가 아닌 곳을 잡아내자
+            if (!className.startsWith("com.graydang.app.common.exception")) {
+                userStack = element;
+                break;
+            }
+        }
+
+        // 2. userStack에서 location 정보를 만든다.
+        //    예: "com.mycompany.service.PatientService.findPatient():123"
+        String location = "Unknown";
+        if (userStack != null) {
+            location =
+                String.format(
+                    "%s.%s():%d",
+                    userStack.getClassName(), userStack.getMethodName(), userStack.getLineNumber());
+        }
+
+        if (e.getLevel().equals(ErrorLevel.LV4)) {
+            slack.send(new SlackPayload(
+                "errorMsg: " + e.getMessage() + "\nlocation: " + location,
+                "#monitoring", true));
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ExceptionResponse.of(e.getErrorCode(), e.getMessage()));
+    }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)

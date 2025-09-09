@@ -85,3 +85,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+slack:
+  bot:
+    token: ${SLACK_BOT_TOKEN}

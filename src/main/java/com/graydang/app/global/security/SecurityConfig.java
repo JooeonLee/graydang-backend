@@ -47,6 +47,7 @@ public class SecurityConfig {
                     .requestMatchers("/", "/error", "/favicon.ico", "/h2-console/**", "/health/**").permitAll()
                     .requestMatchers("/api/auth/oauth/**", "/api/auth/reissue").permitAll()
                     .requestMatchers("/api/public/**", "/api/test/public").permitAll()
+                    .requestMatchers("/api/test/slack").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/bills/**").permitAll()
                     .requestMatchers("/swagger-ui/**", "/swagger-ui.html/**", "/v3/api-docs/**").permitAll()
                     .requestMatchers("/actuator/**").permitAll()
