@@ -82,7 +82,13 @@ public enum BaseResponseStatus {
     /**
      * 3300: Comment Report Exception
      */
-    ALREADY_REPORTED(false, HttpStatus.BAD_REQUEST, 3301, "이미 해당 댓글을 신고했습니다.");
+    ALREADY_REPORTED(false, HttpStatus.BAD_REQUEST, 3301, "이미 해당 댓글을 신고했습니다."),
+
+    /**
+     * 3400: Search Keyword Exception
+     */
+    SEARCH_KEYWORD_NOT_FOUND(false, HttpStatus.NOT_FOUND, 3401, "존재하지 않는 검색 키워드입니다."),
+    SEARCH_KEYWORD_ALREADY_EXISTS(false, HttpStatus.BAD_REQUEST, 3402, "이미 존재하는 검색 키워드입니다.");
 
     private final boolean isSuccess;
     @JsonIgnore
