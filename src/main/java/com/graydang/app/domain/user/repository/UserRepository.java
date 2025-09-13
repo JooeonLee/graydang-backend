@@ -1,6 +1,8 @@
 package com.graydang.app.domain.user.repository;
 
 import com.graydang.app.domain.user.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,4 +19,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByProviderAndProviderUserId(@Param("provider") String provider, @Param("providerUserId") String providerUserId);
     
     boolean existsByUsername(String username);
+    
+    Page<User> findByUsernameContainingOrEmailContaining(String username, String email, Pageable pageable);
 } 
