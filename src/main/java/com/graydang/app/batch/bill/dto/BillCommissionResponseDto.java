@@ -6,7 +6,9 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Data;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JacksonXmlRootElement(localName = "response")
@@ -70,5 +72,16 @@ public class BillCommissionResponseDto {
 
         @JacksonXmlProperty(localName = "submitDt")
         private String submitDt;
+    }
+
+    // 편의 메서드
+    public List<JurisdictionExaminationItem> getJurisdictionExaminationItems() {
+        return Optional.ofNullable(body)
+                .map(BodyDto::getJurisdictionExamination)
+                .orElse(Collections.emptyList());
+    }
+
+    public Optional<JurisdictionExaminationItem> getFirstJurisdictionExaminationItem() {
+        return getJurisdictionExaminationItems().stream().findFirst();
     }
 }
