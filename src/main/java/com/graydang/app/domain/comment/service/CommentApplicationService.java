@@ -7,6 +7,7 @@ import com.graydang.app.domain.comment.exception.CommentException;
 import com.graydang.app.domain.comment.mapper.CommentMapper;
 import com.graydang.app.domain.comment.model.Comment;
 import com.graydang.app.domain.comment.model.dto.*;
+import com.graydang.app.domain.comment.model.enums.CommentStatus;
 import com.graydang.app.domain.comment.repository.CommentRepository;
 import com.graydang.app.domain.comment.repository.projection.CommentSimpleProjection;
 import com.graydang.app.domain.user.model.User;
@@ -51,7 +52,7 @@ public class CommentApplicationService {
 
         Bill bill = billService.findByIdOrThrow(billId);
 
-        Slice<Comment> commentSlice = commentRepository.findByBillIdAndStatusOrderByCreatedAtDesc(bill.getId(), "ACTIVE", pageable);
+        Slice<Comment> commentSlice = commentRepository.findByBillIdAndStatusOrderByCreatedAtDesc(bill.getId(), CommentStatus.ACTIVE, pageable);
 
         //Set<Long> likedCommentIds = (userDetails != null) ? commentRepository.findCommentIdsByUserIdAndStatus(userDetails.getUser().getId(), "ACTIVE") : Set.of();
         Set<Long> likedCommentIds = (userDetails != null) ? commentLikeService.getLikedCommentIdsByUserIdAndStatus(userDetails.getUser().getId(), "ACTIVE") : Set.of();
