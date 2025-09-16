@@ -43,10 +43,6 @@ public class CommitteeProcessingJobConfig {
     @Bean
     public Job billCommitteeJob(JobRepository jobRepository, Step billCommitteeUpdateStep) {
 
-//        JobParameters jobParameters = new JobParametersBuilder()
-//                .addString("runDate", LocalDateTime.now().toString())
-//                .toJobParameters();
-
         return new JobBuilder("billCommitteeJob", jobRepository)
                 .start(billCommitteeUpdateStep)
                 .incrementer(new RunIdIncrementer())

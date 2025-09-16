@@ -20,7 +20,7 @@ public class CommitteeBatchScheduler {
     private final Job billCommitteeJob; // CommitteeProcessingJobConfig에 정의된 Job Bean
 
     // 매일 새벽 4시에 실행되도록 설정 (cron="초 분 시 일 월 요일")
-    @Scheduled(cron = "0 30 20 * * *")
+    @Scheduled(cron = "0 15 19 * * *")
     public void runBillCommitteeJob() {
         try {
             // JobParameters: 배치 작업의 고유성을 보장. 매번 다른 파라미터로 실행해야 재실행이 가능합니다.
