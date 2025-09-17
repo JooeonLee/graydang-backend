@@ -3,6 +3,7 @@ package com.graydang.app.domain.comment.service;
 import com.graydang.app.domain.comment.exception.CommentException;
 import com.graydang.app.domain.comment.model.Comment;
 import com.graydang.app.domain.comment.model.dto.CommentSaveRequestDto;
+import com.graydang.app.domain.comment.model.enums.CommentStatus;
 import com.graydang.app.domain.comment.repository.CommentRepository;
 import com.graydang.app.global.common.model.enums.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
 
     public long getCommentCountByUserId(Long userId) {
-        return commentRepository.countByUserIdAndStatus(userId, "ACTIVE");
+        return commentRepository.countByUserIdAndStatus(userId, CommentStatus.ACTIVE);
     }
 
     @Transactional
@@ -45,7 +46,7 @@ public class CommentService {
     }
 
     public Comment findByIdAndStatusOrThrow(Long commentId) {
-        return commentRepository.findByIdAndStatus(commentId, "ACTIVE")
+        return commentRepository.findByIdAndStatus(commentId, CommentStatus.ACTIVE)
                 .orElseThrow(() -> new CommentException(BaseResponseStatus.NON_COMMENT));
     }
 }

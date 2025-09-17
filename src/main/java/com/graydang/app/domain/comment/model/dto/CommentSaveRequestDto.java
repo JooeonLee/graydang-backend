@@ -2,6 +2,7 @@ package com.graydang.app.domain.comment.model.dto;
 
 import com.graydang.app.domain.bill.model.Bill;
 import com.graydang.app.domain.comment.model.Comment;
+import com.graydang.app.domain.comment.model.enums.CommentStatus;
 import com.graydang.app.domain.user.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -23,7 +24,7 @@ public record CommentSaveRequestDto(
                 .bill(bill)
                 .content(content)
                 .isEdited(false)
-                .status("ACTIVE")
+                .status(CommentStatus.ACTIVE)
                 .likes(new ArrayList<>())
                 .reports(new ArrayList<>())
                 .build();

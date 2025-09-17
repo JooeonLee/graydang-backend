@@ -79,6 +79,9 @@ dependencies {
 
     // WebClient 사용
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // Hibernate Envers
+    implementation 'org.springframework.data:spring-data-envers'
 }
 
 def querydslDir = file("build/generated/querydsl")
