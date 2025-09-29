@@ -31,6 +31,8 @@ public class UserService {
             throw new UserException(BaseResponseStatus.ALREADY_WITHDRAWN_USER);
         }
         
+        // 차단된 사용자도 탈퇴 가능 (차단 상태에서도 탈퇴할 수 있음)
+        
         // User 상태를 INACTIVE로 변경
         user.withdraw();
         

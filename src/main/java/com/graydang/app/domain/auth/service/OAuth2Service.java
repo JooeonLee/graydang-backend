@@ -173,9 +173,13 @@ public class OAuth2Service {
         
         if (existingUser.isPresent()) {
             User user = existingUser.get();
-            // 탈퇴한 사용자인지 확인
-            if (user.getStatus().isInactive()) {
-                throw new RuntimeException("탈퇴한 사용자는 로그인할 수 없습니다.");
+            // 로그인 가능한 상태인지 확인
+            if (!user.getStatus().canLogin()) {
+                if (user.getStatus().isInactive()) {
+                    throw new RuntimeException("탈퇴한 사용자는 로그인할 수 없습니다.");
+                } else if (user.getStatus().isBlocked()) {
+                    throw new RuntimeException("차단된 사용자는 로그인할 수 없습니다.");
+                }
             }
             return user;
         }
@@ -185,9 +189,13 @@ public class OAuth2Service {
         
         if (userByUsername.isPresent()) {
             User existingUserEntity = userByUsername.get();
-            // 탈퇴한 사용자인지 확인
-            if (existingUserEntity.getStatus().isInactive()) {
-                throw new RuntimeException("탈퇴한 사용자는 로그인할 수 없습니다.");
+            // 로그인 가능한 상태인지 확인
+            if (!existingUserEntity.getStatus().canLogin()) {
+                if (existingUserEntity.getStatus().isInactive()) {
+                    throw new RuntimeException("탈퇴한 사용자는 로그인할 수 없습니다.");
+                } else if (existingUserEntity.getStatus().isBlocked()) {
+                    throw new RuntimeException("차단된 사용자는 로그인할 수 없습니다.");
+                }
             }
             addCredentialToUser(existingUserEntity, provider, userInfo.getId());
             return existingUserEntity;

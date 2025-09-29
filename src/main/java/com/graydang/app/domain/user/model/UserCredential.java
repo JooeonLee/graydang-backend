@@ -38,5 +38,13 @@ public class UserCredential extends BaseEntity {
     public void deactivate() {
         this.status = UserStatus.INACTIVE;
     }
+    
+    public void block() {
+        this.status = UserStatus.BLOCKED;
+    }
+    
+    public void unblock() {
+        this.status = UserStatus.ACTIVE;
+    }
 
 }

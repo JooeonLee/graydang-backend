@@ -37,9 +37,6 @@ public class User extends BaseEntity {
     @Column(length = 255)
     private String email;
 
-    @Column
-    @Comment("회원 탈퇴 일시")
-    private LocalDateTime withdrawnAt;
 
     // 연관관계 Mapping
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
@@ -51,7 +48,14 @@ public class User extends BaseEntity {
 
     public void withdraw() {
         this.status = UserStatus.INACTIVE;
-        this.withdrawnAt = LocalDateTime.now();
+    }
+    
+    public void block() {
+        this.status = UserStatus.BLOCKED;
+    }
+    
+    public void unblock() {
+        this.status = UserStatus.ACTIVE;
     }
 
 }
