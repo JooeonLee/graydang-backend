@@ -104,7 +104,7 @@ public class UserDetailResponseDto {
                     .keyword3(user.getProfile().getKeyword3())
                     .keyword4(user.getProfile().getKeyword4())
                     .keyword5(user.getProfile().getKeyword5())
-                    .status(user.getProfile().getStatus())
+                    .status(user.getProfile().getStatus().name())
                     .build();
         }
 
@@ -112,7 +112,7 @@ public class UserDetailResponseDto {
                 .map(credential -> CredentialInfo.builder()
                         .provider(credential.getProvider())
                         .providerUserId(credential.getProviderUserId())
-                        .status(credential.getStatus())
+                        .status(credential.getStatus().name())
                         .build())
                 .collect(Collectors.toList());
 
@@ -121,7 +121,7 @@ public class UserDetailResponseDto {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .role(user.getRole())
-                .status(user.getStatus())
+                .status(user.getStatus().name())
                 .profile(profileInfo)
                 .credentials(credentialInfos)
                 .createdAt(user.getCreatedAt())

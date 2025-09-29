@@ -156,4 +156,20 @@ public class UserController {
 
         return ResponseEntity.ok(BaseResponse.success(imageUrl));
     }
+
+    @Operation(summary = "회원 탈퇴", description = "로그인한 사용자의 회원 탈퇴를 처리합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회원 탈퇴 성공"),
+            @ApiResponse(responseCode = "400", description = "이미 탈퇴한 사용자",
+                    content = @Content(schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+                    content = @Content(schema = @Schema(implementation = BaseResponse.class)))
+    })
+    @DeleteMapping("/me")
+    public ResponseEntity<BaseResponse<Void>> withdrawUser(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        
+        userService.withdrawUser(userDetails.getId());
+        return ResponseEntity.ok(BaseResponse.success(BaseResponseStatus.SUCCESS));
+    }
 }

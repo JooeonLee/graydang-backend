@@ -1,5 +1,6 @@
 package com.graydang.app.domain.user.model;
 
+import com.graydang.app.domain.user.model.enums.UserStatus;
 import com.graydang.app.global.common.model.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -40,8 +41,10 @@ public class UserProfile extends BaseEntity {
     @Column(nullable = true, length = 100)
     private String keyword5;
 
-    @Column(nullable = false, length = 255)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    @Builder.Default
+    private UserStatus status = UserStatus.ACTIVE;
 
     // 연관관계 Mapping
     @OneToOne
@@ -59,5 +62,9 @@ public class UserProfile extends BaseEntity {
         this.keyword3 = keyword3;
         this.keyword4 = keyword4;
         this.keyword5 = keyword5;
+    }
+
+    public void deactivate() {
+        this.status = UserStatus.INACTIVE;
     }
 }

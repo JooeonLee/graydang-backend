@@ -67,6 +67,7 @@ public enum BaseResponseStatus {
      */
     NONE_USER_PROFILE(false, HttpStatus.BAD_REQUEST, 3001, "사용자의 프로필이 존재하지 않습니다."),
     ALREADY_ONBOARDED(false, HttpStatus.BAD_REQUEST, 3002, "이미 온보딩이 완료된 사용자입니다."),
+    ALREADY_WITHDRAWN_USER(false, HttpStatus.BAD_REQUEST, 3003, "이미 탈퇴한 사용자입니다."),
 
     /**
      * 3100: Bill Reaction Exception

@@ -2,6 +2,7 @@ package com.graydang.app.domain.auth.service;
 
 import com.graydang.app.domain.user.model.User;
 import com.graydang.app.domain.user.model.UserCredential;
+import com.graydang.app.domain.user.model.enums.UserStatus;
 import com.graydang.app.domain.user.repository.UserRepository;
 import com.graydang.app.domain.user.repository.UserCredentialRepository;
 import com.graydang.app.domain.user.repository.UserProfileRepository;
@@ -171,7 +172,12 @@ public class OAuth2Service {
         Optional<User> existingUser = userRepository.findByProviderAndProviderUserId(provider, userInfo.getId());
         
         if (existingUser.isPresent()) {
-            return existingUser.get();
+            User user = existingUser.get();
+            // 탈퇴한 사용자인지 확인
+            if (user.getStatus().isInactive()) {
+                throw new RuntimeException("탈퇴한 사용자는 로그인할 수 없습니다.");
+            }
+            return user;
         }
         
         String username = generateUsername(userInfo.getEmail(), userInfo.getName());
@@ -179,6 +185,10 @@ public class OAuth2Service {
         
         if (userByUsername.isPresent()) {
             User existingUserEntity = userByUsername.get();
+            // 탈퇴한 사용자인지 확인
+            if (existingUserEntity.getStatus().isInactive()) {
+                throw new RuntimeException("탈퇴한 사용자는 로그인할 수 없습니다.");
+            }
             addCredentialToUser(existingUserEntity, provider, userInfo.getId());
             return existingUserEntity;
         }
@@ -191,7 +201,7 @@ public class OAuth2Service {
                 .username(username)
                 .email(userInfo.getEmail())
                 .role("USER")
-                .status("ACTIVE")
+                .status(UserStatus.ACTIVE)
                 .build();
         
         User savedUser = userRepository.save(user);
@@ -219,7 +229,7 @@ public class OAuth2Service {
         UserCredential credential = UserCredential.builder()
                 .provider(provider)
                 .providerUserId(providerUserId)
-                .status("ACTIVE")
+                .status(UserStatus.ACTIVE)
                 .user(user)
                 .build();
         

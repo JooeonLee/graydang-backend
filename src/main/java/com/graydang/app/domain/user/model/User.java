@@ -1,5 +1,6 @@
 package com.graydang.app.domain.user.model;
 
+import com.graydang.app.domain.user.model.enums.UserStatus;
 import com.graydang.app.global.common.model.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -27,18 +28,30 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 255)
     private String role;
 
-    @Column(nullable = false, length = 255)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     @Comment("시스템 관리 상태")
-    private String status;
+    @Builder.Default
+    private UserStatus status = UserStatus.ACTIVE;
 
     @Column(length = 255)
     private String email;
+
+    @Column
+    @Comment("회원 탈퇴 일시")
+    private LocalDateTime withdrawnAt;
 
     // 연관관계 Mapping
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserProfile profile;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<UserCredential> credentials = new ArrayList<>();
+
+    public void withdraw() {
+        this.status = UserStatus.INACTIVE;
+        this.withdrawnAt = LocalDateTime.now();
+    }
 
 }

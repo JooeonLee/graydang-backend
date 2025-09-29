@@ -117,3 +117,11 @@ Currently minimal test coverage. When adding tests:
 4. **Batch Jobs**: Can be triggered manually via REST endpoints in development mode.
 
 5. **Entity Auditing**: Base entities use JPA auditing for createdAt/updatedAt fields automatically.
+
+### Documentation Guidelines
+
+When creating execution plans or architectural documentation for tasks:
+- Create documentation files in the `docs/` directory
+- Use descriptive filenames that indicate the content (e.g., `docs/feature-implementation-plan.md`, `docs/api-design.md`)
+- Include the creation date and purpose at the top of each document
+- Structure documents with clear sections and markdown formatting
