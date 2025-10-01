@@ -107,7 +107,7 @@ public class UserProfileService {
     }
 
     public String getNicknameByUserId(Long userId) {
-        return userProfileRepository.findByUserIdAndStatus(userId, "ACTIVE")
+        return userProfileRepository.findByUserIdAndStatus(userId, UserStatus.ACTIVE)
                 .map(UserProfile::getNickname)
                 .orElse(null);
     }
@@ -128,7 +128,7 @@ public class UserProfileService {
 //    }
 
     public UserProfile getUserProfileByUserId(Long userId) {
-        return userProfileRepository.findByUserIdAndStatus(userId, "ACTIVE")
+        return userProfileRepository.findByUserIdAndStatus(userId, UserStatus.ACTIVE)
                 .orElseThrow(() -> new UserProfileException(NONE_USER_PROFILE));
     }
 
