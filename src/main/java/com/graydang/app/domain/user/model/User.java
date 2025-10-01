@@ -57,5 +57,9 @@ public class User extends BaseEntity {
     public void unblock() {
         this.status = UserStatus.ACTIVE;
     }
+    
+    public void setProfile(UserProfile profile) {
+        this.profile = profile;
+    }
 
 }
