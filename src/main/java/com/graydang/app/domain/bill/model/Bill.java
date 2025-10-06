@@ -122,4 +122,27 @@ public class Bill extends BaseEntity {
     public void increaseViewCount() {
         this.viewCount++;
     }
+
+    public void updateByAdmin(String title, String summary, String aiTitle, 
+                             String aiSummary, String committeeName, String billStatus) {
+        if (title != null && !title.isBlank()) {
+            this.title = title;
+        }
+        if (summary != null && !summary.isBlank()) {
+            this.summary = summary;
+        }
+        if (aiTitle != null && !aiTitle.isBlank()) {
+            this.aiTitle = aiTitle;
+        }
+        if (aiSummary != null && !aiSummary.isBlank()) {
+            this.aiSummary = aiSummary;
+            this.aiProcessed = true;
+        }
+        if (committeeName != null && !committeeName.isBlank()) {
+            this.committeeName = committeeName;
+        }
+        if (billStatus != null && !billStatus.isBlank()) {
+            this.billStatus = billStatus;
+        }
+    }
 }
