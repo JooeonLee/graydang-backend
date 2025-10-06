@@ -27,6 +27,7 @@ public class AdminBillService {
         log.info("법안 수정 전 - billId: {}, title: {}, status: {}", 
                 bill.getId(), bill.getTitle(), bill.getBillStatus());
 
+        // 법안 업데이트 - Envers가 자동으로 이력 추적
         bill.updateByAdmin(
                 requestDto.getTitle(),
                 requestDto.getSummary(),
