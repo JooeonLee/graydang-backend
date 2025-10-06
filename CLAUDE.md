@@ -128,6 +128,10 @@ When creating execution plans or architectural documentation for tasks:
 
 # 테스트 코드 작성 규칙
 
+## 0. 테스트 코드 작성 전 준비
+- 컨트롤러 통합테스트의 경우 지시가 없는한 작성하지 말아주세요
+- service 통합테스트, repository, domain 객체에 대한 단위 테스트만 실행해주세요
+
 ## 1. 테스트 클래스 구조
 
 - 테스트 클래스는 테스트 대상 클래스와 동일한 패키지에 위치
