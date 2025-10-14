@@ -1,18 +1,16 @@
 package com.graydang.app.domain.user.controller;
 
 import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
-import com.graydang.app.domain.bill.model.dto.BillReactionResponseDto;
 import com.graydang.app.domain.bill.model.dto.BillReactionSimpleResponseDto;
 import com.graydang.app.domain.bill.model.dto.BillSimpleResponseDto;
 import com.graydang.app.domain.bill.service.BillReactionService;
 import com.graydang.app.domain.bill.service.BillScrapeService;
-import com.graydang.app.domain.comment.model.dto.CommentSimpleResponseDto;
 import com.graydang.app.domain.comment.model.dto.MyCommentResponseDto;
 import com.graydang.app.domain.comment.service.CommentApplicationService;
-import com.graydang.app.domain.user.model.UserProfile;
 import com.graydang.app.domain.user.model.dto.NicknameCheckRequestDto;
 import com.graydang.app.domain.user.model.dto.OnboardingRequestDto;
 import com.graydang.app.domain.user.model.dto.UserInfoResponseDto;
+import com.graydang.app.domain.user.model.dto.WithdrawRequestDto;
 import com.graydang.app.domain.user.service.UserProfileService;
 import com.graydang.app.domain.user.service.UserService;
 import com.graydang.app.global.common.model.dto.BaseResponse;
@@ -160,16 +158,17 @@ public class UserController {
     @Operation(summary = "회원 탈퇴", description = "로그인한 사용자의 회원 탈퇴를 처리합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "회원 탈퇴 성공"),
-            @ApiResponse(responseCode = "400", description = "이미 탈퇴한 사용자",
+            @ApiResponse(responseCode = "400", description = "이미 탈퇴한 사용자 또는 유효성 검사 실패",
                     content = @Content(schema = @Schema(implementation = BaseResponse.class))),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
                     content = @Content(schema = @Schema(implementation = BaseResponse.class)))
     })
     @DeleteMapping("/me")
     public ResponseEntity<BaseResponse<Void>> withdrawUser(
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody WithdrawRequestDto withdrawRequestDto) {
         
-        userService.withdrawUser(userDetails.getId());
+        userService.withdrawUser(userDetails.getId(), withdrawRequestDto);
         return ResponseEntity.ok(BaseResponse.success(BaseResponseStatus.SUCCESS));
     }
 }

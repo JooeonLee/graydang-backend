@@ -5,6 +5,7 @@ import com.graydang.app.domain.user.model.User;
 import com.graydang.app.domain.user.model.UserCredential;
 import com.graydang.app.domain.user.model.UserProfile;
 import com.graydang.app.domain.user.model.enums.UserStatus;
+import com.graydang.app.domain.user.model.enums.WithdrawalReason;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -147,7 +148,7 @@ class UserRepositoryTest {
         
         // When
         User userToUpdate = userRepository.findById(savedUser.getId()).orElseThrow();
-        userToUpdate.withdraw();
+        userToUpdate.withdraw(WithdrawalReason.NO_LONGER_NEEDED, null);
         userRepository.save(userToUpdate);
         entityManager.flush();
         entityManager.clear();
@@ -155,6 +156,32 @@ class UserRepositoryTest {
         // Then
         User updatedUser = userRepository.findById(savedUser.getId()).orElseThrow();
         assertThat(updatedUser.getStatus()).isEqualTo(UserStatus.INACTIVE);
+        assertThat(updatedUser.getWithdrawalReason()).isEqualTo(WithdrawalReason.NO_LONGER_NEEDED);
+        assertThat(updatedUser.getWithdrawalOtherReason()).isNull();
+    }
+    
+    @Test
+    @DisplayName("User 탈퇴 시 기타 사유 저장 테스트")
+    void testUserWithdrawWithOtherReason() {
+        // Given
+        User user = UserTestDataBuilder.createActiveUser();
+        User savedUser = userRepository.save(user);
+        entityManager.flush();
+        entityManager.clear();
+        
+        // When
+        User userToUpdate = userRepository.findById(savedUser.getId()).orElseThrow();
+        String otherReason = "서비스가 마음에 들지 않습니다";
+        userToUpdate.withdraw(WithdrawalReason.OTHER, otherReason);
+        userRepository.save(userToUpdate);
+        entityManager.flush();
+        entityManager.clear();
+        
+        // Then
+        User updatedUser = userRepository.findById(savedUser.getId()).orElseThrow();
+        assertThat(updatedUser.getStatus()).isEqualTo(UserStatus.INACTIVE);
+        assertThat(updatedUser.getWithdrawalReason()).isEqualTo(WithdrawalReason.OTHER);
+        assertThat(updatedUser.getWithdrawalOtherReason()).isEqualTo(otherReason);
     }
     
     @Test

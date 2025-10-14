@@ -4,6 +4,7 @@ import com.graydang.app.domain.user.exception.UserException;
 import com.graydang.app.domain.user.model.User;
 import com.graydang.app.domain.user.model.UserCredential;
 import com.graydang.app.domain.user.model.UserProfile;
+import com.graydang.app.domain.user.model.dto.WithdrawRequestDto;
 import com.graydang.app.domain.user.repository.UserRepository;
 import com.graydang.app.global.common.model.enums.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class UserService {
     }
 
     @Transactional
-    public void withdrawUser(Long userId) {
+    public void withdrawUser(Long userId, WithdrawRequestDto withdrawRequest) {
         User user = findByIdOrThrow(userId);
         
         // 이미 탈퇴한 사용자인지 확인
@@ -33,8 +34,8 @@ public class UserService {
         
         // 차단된 사용자도 탈퇴 가능 (차단 상태에서도 탈퇴할 수 있음)
         
-        // User 상태를 INACTIVE로 변경
-        user.withdraw();
+        // User 상태를 INACTIVE로 변경하고 탈퇴 사유 저장
+        user.withdraw(withdrawRequest.reason(), withdrawRequest.otherReason());
         
         // UserProfile 상태를 INACTIVE로 변경
         UserProfile profile = user.getProfile();
@@ -48,6 +49,7 @@ public class UserService {
         }
         
         userRepository.save(user);
-        log.info("User withdrawn successfully: userId={}", userId);
+        log.info("User withdrawn successfully: userId={}, reason={}, otherReason={}", 
+                userId, withdrawRequest.reason(), withdrawRequest.otherReason());
     }
 }

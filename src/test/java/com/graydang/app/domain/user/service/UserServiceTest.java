@@ -4,8 +4,9 @@ import com.graydang.app.common.fixture.UserTestDataBuilder;
 import com.graydang.app.domain.user.exception.UserException;
 import com.graydang.app.domain.user.model.User;
 import com.graydang.app.domain.user.model.UserCredential;
-import com.graydang.app.domain.user.model.UserProfile;
+import com.graydang.app.domain.user.model.dto.WithdrawRequestDto;
 import com.graydang.app.domain.user.model.enums.UserStatus;
+import com.graydang.app.domain.user.model.enums.WithdrawalReason;
 import com.graydang.app.domain.user.repository.UserRepository;
 import com.graydang.app.global.common.model.enums.BaseResponseStatus;
 import org.junit.jupiter.api.DisplayName;
@@ -69,14 +70,20 @@ class UserServiceTest {
         // Given
         Long userId = 1L;
         User user = UserTestDataBuilder.createFullUser();
+        WithdrawRequestDto withdrawRequest = new WithdrawRequestDto(
+                WithdrawalReason.NO_LONGER_NEEDED, 
+                null
+        );
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
         
         // When
-        userService.withdrawUser(userId);
+        userService.withdrawUser(userId, withdrawRequest);
         
         // Then
         assertThat(user.getStatus()).isEqualTo(UserStatus.INACTIVE);
+        assertThat(user.getWithdrawalReason()).isEqualTo(WithdrawalReason.NO_LONGER_NEEDED);
+        assertThat(user.getWithdrawalOtherReason()).isNull();
         assertThat(user.getProfile().getStatus()).isEqualTo(UserStatus.INACTIVE);
         assertThat(user.getCredentials())
                 .extracting(UserCredential::getStatus)
@@ -87,19 +94,49 @@ class UserServiceTest {
     }
     
     @Test
+    @DisplayName("기타 사유로 회원 탈퇴 처리")
+    void testWithdrawUser_WithOtherReason() {
+        // Given
+        Long userId = 1L;
+        User user = UserTestDataBuilder.createFullUser();
+        String otherReason = "더 좋은 서비스를 찾았습니다";
+        WithdrawRequestDto withdrawRequest = new WithdrawRequestDto(
+                WithdrawalReason.OTHER, 
+                otherReason
+        );
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenReturn(user);
+        
+        // When
+        userService.withdrawUser(userId, withdrawRequest);
+        
+        // Then
+        assertThat(user.getStatus()).isEqualTo(UserStatus.INACTIVE);
+        assertThat(user.getWithdrawalReason()).isEqualTo(WithdrawalReason.OTHER);
+        assertThat(user.getWithdrawalOtherReason()).isEqualTo(otherReason);
+        
+        verify(userRepository, times(1)).save(user);
+    }
+    
+    @Test
     @DisplayName("UserProfile이 없는 사용자도 정상 탈퇴 처리")
     void testWithdrawUser_WithoutProfile() {
         // Given
         Long userId = 1L;
         User user = UserTestDataBuilder.createUserWithCredentials();
+        WithdrawRequestDto withdrawRequest = new WithdrawRequestDto(
+                WithdrawalReason.LACK_OF_FEATURES, 
+                null
+        );
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
         
         // When
-        userService.withdrawUser(userId);
+        userService.withdrawUser(userId, withdrawRequest);
         
         // Then
         assertThat(user.getStatus()).isEqualTo(UserStatus.INACTIVE);
+        assertThat(user.getWithdrawalReason()).isEqualTo(WithdrawalReason.LACK_OF_FEATURES);
         assertThat(user.getProfile()).isNull();
         assertThat(user.getCredentials())
                 .extracting(UserCredential::getStatus)
@@ -117,15 +154,20 @@ class UserServiceTest {
         user.block();
         user.getProfile().block();
         user.getCredentials().forEach(UserCredential::block);
+        WithdrawRequestDto withdrawRequest = new WithdrawRequestDto(
+                WithdrawalReason.INCONVENIENT, 
+                null
+        );
         
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
         
         // When
-        userService.withdrawUser(userId);
+        userService.withdrawUser(userId, withdrawRequest);
         
         // Then
         assertThat(user.getStatus()).isEqualTo(UserStatus.INACTIVE);
+        assertThat(user.getWithdrawalReason()).isEqualTo(WithdrawalReason.INCONVENIENT);
         assertThat(user.getProfile().getStatus()).isEqualTo(UserStatus.INACTIVE);
         assertThat(user.getCredentials())
                 .extracting(UserCredential::getStatus)
@@ -139,10 +181,14 @@ class UserServiceTest {
     void testWithdrawUser_NonExistentUser() {
         // Given
         Long userId = 999L;
+        WithdrawRequestDto withdrawRequest = new WithdrawRequestDto(
+                WithdrawalReason.SWITCHING_SERVICE, 
+                null
+        );
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
         
         // When & Then
-        assertThatThrownBy(() -> userService.withdrawUser(userId))
+        assertThatThrownBy(() -> userService.withdrawUser(userId, withdrawRequest))
                 .isInstanceOf(UserException.class)
                 .hasFieldOrPropertyWithValue("baseResponseStatus", BaseResponseStatus.NONE_USER);
         
@@ -156,10 +202,14 @@ class UserServiceTest {
         // Given
         Long userId = 1L;
         User user = UserTestDataBuilder.createInactiveUser();
+        WithdrawRequestDto withdrawRequest = new WithdrawRequestDto(
+                WithdrawalReason.NO_LONGER_NEEDED, 
+                null
+        );
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         
         // When & Then
-        assertThatThrownBy(() -> userService.withdrawUser(userId))
+        assertThatThrownBy(() -> userService.withdrawUser(userId, withdrawRequest))
                 .isInstanceOf(UserException.class)
                 .hasFieldOrPropertyWithValue("baseResponseStatus", BaseResponseStatus.ALREADY_WITHDRAWN_USER);
         
@@ -173,17 +223,43 @@ class UserServiceTest {
         // Given
         Long userId = 1L;
         User user = UserTestDataBuilder.createUserWithProfile();
+        WithdrawRequestDto withdrawRequest = new WithdrawRequestDto(
+                WithdrawalReason.OTHER, 
+                "테스트를 위한 탈퇴"
+        );
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
         
         // When
-        userService.withdrawUser(userId);
+        userService.withdrawUser(userId, withdrawRequest);
         
         // Then
         assertThat(user.getStatus()).isEqualTo(UserStatus.INACTIVE);
+        assertThat(user.getWithdrawalReason()).isEqualTo(WithdrawalReason.OTHER);
+        assertThat(user.getWithdrawalOtherReason()).isEqualTo("테스트를 위한 탈퇴");
         assertThat(user.getProfile().getStatus()).isEqualTo(UserStatus.INACTIVE);
         assertThat(user.getCredentials()).isEmpty();
         
         verify(userRepository, times(1)).save(user);
+    }
+    
+    @Test
+    @DisplayName("기타 사유 선택 시 상세 내용 없으면 예외 발생")
+    void testWithdrawUser_OtherReasonWithoutDetail() {
+        // Given
+        Long userId = 1L;
+        
+        // When & Then
+        assertThatThrownBy(() -> new WithdrawRequestDto(WithdrawalReason.OTHER, null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("기타를 선택한 경우 상세 사유를 입력해야 합니다.");
+        
+        assertThatThrownBy(() -> new WithdrawRequestDto(WithdrawalReason.OTHER, ""))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("기타를 선택한 경우 상세 사유를 입력해야 합니다.");
+        
+        assertThatThrownBy(() -> new WithdrawRequestDto(WithdrawalReason.OTHER, "   "))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("기타를 선택한 경우 상세 사유를 입력해야 합니다.");
     }
 }
