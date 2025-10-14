@@ -7,11 +7,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,16 +23,18 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import(SearchKeyword.class)
+@Sql("/sql/create-search-keyword-table.sql")
 @ActiveProfiles("test")
 class SearchKeywordRepositoryTest {
 
     @Autowired
     private SearchKeywordRepository searchKeywordRepository;
+    
+    @Autowired
+    private TestEntityManager entityManager;
 
-    @BeforeEach
-    void setUp() {
-        searchKeywordRepository.deleteAll();
-    }
 
     @Nested
     @DisplayName("findByIdAndDelYn 테스트")
@@ -37,14 +43,14 @@ class SearchKeywordRepositoryTest {
         @Test
         @DisplayName("존재하는 키워드를 찾는다")
         void findByIdAndDelYn_shouldReturnKeywordWhenExists() {
-            SearchKeyword savedKeyword = searchKeywordRepository.save(
-                    SearchKeyword.builder()
-                            .text("테스트 키워드")
-                            .priority(1)
-                            .displayYn(Yn.Y)
-                            .delYn(Yn.N)
-                            .build()
-            );
+            SearchKeyword keyword = SearchKeyword.builder()
+                    .text("테스트 키워드")
+                    .priority(1)
+                    .displayYn(Yn.Y)
+                    .delYn(Yn.N)
+                    .build();
+            
+            SearchKeyword savedKeyword = entityManager.persistAndFlush(keyword);
 
             Optional<SearchKeyword> found = searchKeywordRepository.findByIdAndDelYn(
                     savedKeyword.getId(), Yn.N
@@ -58,12 +64,12 @@ class SearchKeywordRepositoryTest {
         @Test
         @DisplayName("삭제된 키워드는 반환하지 않는다")
         void findByIdAndDelYn_shouldReturnEmptyWhenDeleted() {
-            SearchKeyword savedKeyword = searchKeywordRepository.save(
-                    SearchKeyword.builder()
-                            .text("삭제된 키워드")
-                            .delYn(Yn.Y)
-                            .build()
-            );
+            SearchKeyword keyword = SearchKeyword.builder()
+                    .text("삭제된 키워드")
+                    .delYn(Yn.Y)
+                    .build();
+            
+            SearchKeyword savedKeyword = entityManager.persistAndFlush(keyword);
 
             Optional<SearchKeyword> found = searchKeywordRepository.findByIdAndDelYn(
                     savedKeyword.getId(), Yn.N
