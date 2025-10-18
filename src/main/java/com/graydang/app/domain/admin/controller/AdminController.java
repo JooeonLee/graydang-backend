@@ -93,9 +93,9 @@ public class AdminController {
             @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음",
                     content = @Content(schema = @Schema(implementation = BaseResponse.class)))
     })
-    @GetMapping("/users/{userId}/reports")
+    @GetMapping("/users/{userId}/reports/received")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<BaseResponse<SliceResponse<UserReportHistoryResponseDto>>> getUserReportHistory(
+    public ResponseEntity<BaseResponse<SliceResponse<UserReportHistoryResponseDto>>> getReceivedReports(
             @PathVariable Long userId,
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
             @RequestParam(value = "size", required = false, defaultValue = "20") int size,
@@ -103,6 +103,28 @@ public class AdminController {
         
         PageRequest pageRequest = PageRequest.of(page, size);
         SliceResponse<UserReportHistoryResponseDto> responseDto = commentReportService.getReportHistoryByReportedUser(userId, pageRequest);
+        
+        return ResponseEntity.ok(BaseResponse.success(responseDto));
+    }
+
+    @Operation(summary = "특정 사용자가 신고한 이력 조회", description = "특정 사용자가 신고한 댓글 내역을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "신고 이력 조회 성공"),
+            @ApiResponse(responseCode = "403", description = "관리자 권한 없음",
+                    content = @Content(schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음",
+                    content = @Content(schema = @Schema(implementation = BaseResponse.class)))
+    })
+    @GetMapping("/users/{userId}/reports/sent")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<BaseResponse<SliceResponse<UserReportHistoryResponseDto>>> getSentReports(
+            @PathVariable Long userId,
+            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "20") int size,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        
+        PageRequest pageRequest = PageRequest.of(page, size);
+        SliceResponse<UserReportHistoryResponseDto> responseDto = commentReportService.getUserReportHistory(userId, pageRequest);
         
         return ResponseEntity.ok(BaseResponse.success(responseDto));
     }
