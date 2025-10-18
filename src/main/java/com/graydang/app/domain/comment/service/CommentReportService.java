@@ -69,4 +69,16 @@ public class CommentReportService {
         
         return new SliceResponse<>(dtoSlice);
     }
+
+    @Transactional(readOnly = true)
+    public SliceResponse<UserReportHistoryResponseDto> getReportHistoryByReportedUser(Long reportedUserId, Pageable pageable) {
+        
+        userService.findByIdOrThrow(reportedUserId);
+        
+        Slice<UserReportHistoryProjection> projections = commentReportRepository.findByReportedUserId(reportedUserId, pageable);
+        
+        Slice<UserReportHistoryResponseDto> dtoSlice = projections.map(UserReportHistoryResponseDto::from);
+        
+        return new SliceResponse<>(dtoSlice);
+    }
 }

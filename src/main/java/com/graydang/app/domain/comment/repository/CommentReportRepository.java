@@ -61,4 +61,29 @@ public interface CommentReportRepository extends JpaRepository<CommentReport, Lo
     """
     )
     Slice<UserReportHistoryProjection> findByUserId(@Param("userId") Long userId, Pageable pageable);
+    
+    @Query("""
+        SELECT 
+            r.id AS reportId,
+            r.reason AS reportReason,
+            r.status AS reportStatus,
+            r.createdAt AS reportedAt,
+            c.id AS commentId,
+            c.content AS commentContent,
+            ru.id AS reporterId,
+            ru.email AS reporterEmail,
+            rup.nickname AS reporterNickname,
+            b.id AS billId,
+            b.aiTitle AS billTitle,
+            b.proposeDate AS billProposeDate
+        FROM CommentReport r
+        JOIN r.comment c
+        JOIN r.user ru
+        JOIN ru.profile rup
+        JOIN c.bill b
+        WHERE r.reportedUser.id = :reportedUserId
+        ORDER BY r.createdAt DESC
+    """
+    )
+    Slice<UserReportHistoryProjection> findByReportedUserId(@Param("reportedUserId") Long reportedUserId, Pageable pageable);
 }

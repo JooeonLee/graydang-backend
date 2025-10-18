@@ -85,7 +85,7 @@ public class AdminController {
         return ResponseEntity.ok(BaseResponse.success(BaseResponseStatus.SUCCESS));
     }
     
-    @Operation(summary = "특정 사용자의 신고 이력 조회", description = "특정 사용자가 신고한 댓글 내역을 조회합니다.")
+    @Operation(summary = "특정 사용자가 신고당한 이력 조회", description = "특정 사용자가 신고당한 댓글 내역을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "신고 이력 조회 성공"),
             @ApiResponse(responseCode = "403", description = "관리자 권한 없음",
@@ -102,7 +102,7 @@ public class AdminController {
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         
         PageRequest pageRequest = PageRequest.of(page, size);
-        SliceResponse<UserReportHistoryResponseDto> responseDto = commentReportService.getUserReportHistory(userId, pageRequest);
+        SliceResponse<UserReportHistoryResponseDto> responseDto = commentReportService.getReportHistoryByReportedUser(userId, pageRequest);
         
         return ResponseEntity.ok(BaseResponse.success(responseDto));
     }
