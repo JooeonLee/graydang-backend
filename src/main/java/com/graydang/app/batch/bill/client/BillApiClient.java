@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -229,9 +230,10 @@ public class BillApiClient {
      * 
      * API 엔드포인트: /getRecentPasageList (주의: API 이름에 오타가 있음 - Passage가 아닌 Pasage)
      * 
-     * 고정 파라미터:
-     * - pageNo: 1 (첫 페이지만 조회)
-     * - numOfRows: 100 (최대 100건 조회)
+     * 페이징 처리:
+     * - 첫 페이지(100건)가 모두 오늘 날짜인 경우, 다음 페이지도 확인
+     * - 오늘이 아닌 날짜의 법안이 나올 때까지 페이징 진행
+     * - numOfRows: 100 (페이지당 100건 조회)
      * 
      * 반환되는 법안 정보:
      * - billId: 법안 ID
@@ -247,46 +249,65 @@ public class BillApiClient {
      * @throws RuntimeException API 호출 실패 시
      */
     public List<BillRecentPassageResponseDto.ItemDto> getRecentPassageList() {
-        // pageNo는 1, numOfRows는 100으로 고정
+        List<BillRecentPassageResponseDto.ItemDto> allTodayPassedBills = new ArrayList<>();
         int pageNo = 1;
         int numOfRows = 100;
+        String today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        boolean shouldContinue = true;
         
-        String url = API_BASE_URL + "getRecentPasageList"
-                + "?serviceKey=" + serviceKey
-                + "&numOfRows=" + numOfRows
-                + "&pageNo=" + pageNo;
+        while (shouldContinue) {
+            String url = API_BASE_URL + "getRecentPasageList"
+                    + "?serviceKey=" + serviceKey
+                    + "&numOfRows=" + numOfRows
+                    + "&pageNo=" + pageNo;
 
-        URI uri = URI.create(url);
+            URI uri = URI.create(url);
 
-        log.info("[DEBUG] 최근 통과 법안 조회 - pageNo: {}, numOfRows: {}", pageNo, numOfRows);
-        log.info(">> 최종 요청 URI: {}", url);
+            log.info("[DEBUG] 최근 통과 법안 조회 - pageNo: {}, numOfRows: {}", pageNo, numOfRows);
+            log.info(">> 최종 요청 URI: {}", url);
 
-        try {
-            String xml = restTemplate.getForObject(uri, String.class);
-            log.info("[DEBUG] XML 응답:\n{}", xml);
-            BillRecentPassageResponseDto responseDto = xmlMapper.readValue(xml, BillRecentPassageResponseDto.class);
-            
-            if (responseDto.getBody() == null || responseDto.getBody().getItems() == null) {
-                log.warn("[API 경고] 최근 통과 법안이 없습니다.");
-                return List.of();
+            try {
+                String xml = restTemplate.getForObject(uri, String.class);
+                log.debug("[DEBUG] XML 응답:\n{}", xml);
+                BillRecentPassageResponseDto responseDto = xmlMapper.readValue(xml, BillRecentPassageResponseDto.class);
+                
+                if (responseDto.getBody() == null || responseDto.getBody().getItems() == null || responseDto.getBody().getItems().isEmpty()) {
+                    log.info("[API 정보] 페이지 {}에 더 이상 데이터가 없습니다.", pageNo);
+                    break;
+                }
+                
+                List<BillRecentPassageResponseDto.ItemDto> items = responseDto.getBody().getItems();
+                
+                // 현재 페이지에서 오늘 날짜의 법안만 필터링
+                List<BillRecentPassageResponseDto.ItemDto> todayBillsInPage = items.stream()
+                        .filter(item -> today.equals(item.getProcDt()))
+                        .collect(Collectors.toList());
+                
+                allTodayPassedBills.addAll(todayBillsInPage);
+                
+                // 다음 페이지 확인 여부 결정
+                // 1. 현재 페이지가 100건 미만이면 더 이상 데이터가 없음
+                // 2. 현재 페이지의 모든 항목이 오늘 날짜가 아니면 중단
+                // 3. 현재 페이지에 오늘이 아닌 날짜가 하나라도 있으면 중단 (이미 과거 날짜에 도달)
+                boolean hasNonTodayBill = items.stream().anyMatch(item -> !today.equals(item.getProcDt()));
+                
+                if (items.size() < numOfRows || hasNonTodayBill) {
+                    shouldContinue = false;
+                    log.info("[DEBUG] 페이지 {} - 전체: {}건, 오늘: {}건 (종료 조건 만족)", 
+                            pageNo, items.size(), todayBillsInPage.size());
+                } else {
+                    // 모든 항목이 오늘 날짜인 경우 다음 페이지 확인
+                    pageNo++;
+                    log.info("[DEBUG] 페이지의 모든 법안이 오늘 날짜입니다. 다음 페이지를 확인합니다.");
+                }
+                
+            } catch (Exception e) {
+                log.error("[API 오류] 최근 통과 법안 조회 실패 (pageNo: {}) - error: {}", pageNo, e.getMessage());
+                throw new RuntimeException("getRecentPassageList 호출 실패");
             }
-            
-            // 오늘 날짜 문자열 (yyyy-MM-dd 형식)
-            String today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
-            
-            // procDt가 오늘인 법안만 필터링
-            // procDt는 법안이 실제로 처리(통과)된 날짜를 의미
-            List<BillRecentPassageResponseDto.ItemDto> todayPassedBills = responseDto.getBody().getItems().stream()
-                    .filter(item -> today.equals(item.getProcDt()))
-                    .collect(Collectors.toList());
-            
-            log.info("[DEBUG] 전체 통과 법안: {}건, 오늘 통과 법안: {}건", 
-                    responseDto.getBody().getItems().size(), todayPassedBills.size());
-            
-            return todayPassedBills;
-        } catch (Exception e) {
-            log.error("[API 오류] 최근 통과 법안 조회 실패 - error: {}", e.getMessage());
-            throw new RuntimeException("getRecentPassageList 호출 실패");
         }
+        
+        log.info("[DEBUG] 최종 결과: 오늘 통과된 법안 총 {}건", allTodayPassedBills.size());
+        return allTodayPassedBills;
     }
 }
