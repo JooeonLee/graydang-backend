@@ -2,6 +2,8 @@ package com.graydang.app.batch.bill.tasklet;
 
 import com.graydang.app.batch.bill.client.BillApiClient;
 import com.graydang.app.batch.bill.dto.BillInfoResponseDto;
+import com.graydang.app.batch.bill.dto.BillRecentPassageResponseDto;
+import com.graydang.app.batch.bill.dto.BillSaveRequestDto;
 import com.graydang.app.domain.bill.service.BillService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,29 +28,40 @@ public class BillSyncTasklet implements Tasklet {
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
 
-        log.info("📦 [의안 수집 배치] 시작");
+        log.info("📦 [오늘 통과 법안 수집 배치] 시작");
 
-        int pageNo = 1;
-        int numOfRows = 100;
-        int totalCount = 0;
-
-        while (true) {
-            List<BillInfoResponseDto.ItemDto> items = billApiClient.getBillInfoList(numOfRows, pageNo);
-            if (items == null || items.isEmpty()) {
-                log.info("✔️ 수집 종료: 더 이상 수집할 데이터 없음 (pageNo={})", pageNo);
-                break;
+        try {
+            // getRecentPassageList는 오늘 날짜에 통과된 법안만 반환 (고정: pageNo=1, numOfRows=100)
+            List<BillRecentPassageResponseDto.ItemDto> todayPassedBills = billApiClient.getRecentPassageList();
+            
+            if (todayPassedBills.isEmpty()) {
+                log.info("✔️ 수집 종료: 오늘 통과된 법안이 없습니다.");
+                return RepeatStatus.FINISHED;
             }
 
-            for (BillInfoResponseDto.ItemDto item : items) {
-                billService.saveOrUpdate(item);
+            // 각 통과 법안을 BillSaveRequestDto로 변환하여 저장
+            for (BillRecentPassageResponseDto.ItemDto item : todayPassedBills) {
+                BillSaveRequestDto saveRequest = BillSaveRequestDto.builder()
+                        .billId(item.getBillId())
+                        .billName(item.getBillName())
+                        .committeeName(item.getCommitteeName())
+                        .processResult(item.getGeneralResult())
+                        .billStatus(item.getGeneralResult())
+                        .proposeDate(item.getProposeDt())
+                        .representativeName(item.getProposerKind())
+                        .status("ACTIVE")
+                        .build();
+                
+                billService.saveOrUpdate(saveRequest);
             }
 
-            totalCount += items.size();
-            log.info("📄 pageNo={} 처리 완료 (누적: {}건)", pageNo, totalCount);
-            pageNo++;
+            log.info("✅ [오늘 통과 법안 수집 배치] 완료 - 총 {}건 수집됨", todayPassedBills.size());
+            
+        } catch (Exception e) {
+            log.error("❌ [오늘 통과 법안 수집 배치] 실패", e);
+            throw new RuntimeException("오늘 통과 법안 수집 실패", e);
         }
 
-        log.info("✅ [의안 수집 배치] 완료 - 총 {}건 수집됨", totalCount);
         return RepeatStatus.FINISHED;
     }
 }

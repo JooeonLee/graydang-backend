@@ -9,10 +9,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -217,6 +218,75 @@ public class BillApiClient {
         } catch (Exception e) {
             log.warn("❌ 표결 결과 조회 실패 - billId: {}", billId, e);
             return Optional.empty();
+        }
+    }
+
+    /**
+     * 최근 통과된 법안 목록 중 오늘 날짜에 처리된 법안만 조회
+     * 
+     * 이 메소드는 국회 공공데이터포털의 getRecentPasageList API를 호출하여
+     * 최근 통과된 법안 목록을 가져온 후, 오늘 날짜(procDt)에 처리된 법안만 필터링하여 반환합니다.
+     * 
+     * API 엔드포인트: /getRecentPasageList (주의: API 이름에 오타가 있음 - Passage가 아닌 Pasage)
+     * 
+     * 고정 파라미터:
+     * - pageNo: 1 (첫 페이지만 조회)
+     * - numOfRows: 100 (최대 100건 조회)
+     * 
+     * 반환되는 법안 정보:
+     * - billId: 법안 ID
+     * - billName: 법안명
+     * - billNo: 법안 번호
+     * - committeeName: 위원회명
+     * - generalResult: 처리결과 (예: 원안가결, 수정가결 등)
+     * - procDt: 처리일자 (yyyy-MM-dd 형식)
+     * - proposeDt: 제안일자
+     * - proposerKind: 제안자 구분 (예: 의장, 위원장 등)
+     * 
+     * @return 오늘 날짜에 통과된 법안 목록. 오늘 통과된 법안이 없으면 빈 리스트 반환
+     * @throws RuntimeException API 호출 실패 시
+     */
+    public List<BillRecentPassageResponseDto.ItemDto> getRecentPassageList() {
+        // pageNo는 1, numOfRows는 100으로 고정
+        int pageNo = 1;
+        int numOfRows = 100;
+        
+        String url = API_BASE_URL + "getRecentPasageList"
+                + "?serviceKey=" + serviceKey
+                + "&numOfRows=" + numOfRows
+                + "&pageNo=" + pageNo;
+
+        URI uri = URI.create(url);
+
+        log.info("[DEBUG] 최근 통과 법안 조회 - pageNo: {}, numOfRows: {}", pageNo, numOfRows);
+        log.info(">> 최종 요청 URI: {}", url);
+
+        try {
+            String xml = restTemplate.getForObject(uri, String.class);
+            log.info("[DEBUG] XML 응답:\n{}", xml);
+            BillRecentPassageResponseDto responseDto = xmlMapper.readValue(xml, BillRecentPassageResponseDto.class);
+            
+            if (responseDto.getBody() == null || responseDto.getBody().getItems() == null) {
+                log.warn("[API 경고] 최근 통과 법안이 없습니다.");
+                return List.of();
+            }
+            
+            // 오늘 날짜 문자열 (yyyy-MM-dd 형식)
+            String today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+            
+            // procDt가 오늘인 법안만 필터링
+            // procDt는 법안이 실제로 처리(통과)된 날짜를 의미
+            List<BillRecentPassageResponseDto.ItemDto> todayPassedBills = responseDto.getBody().getItems().stream()
+                    .filter(item -> today.equals(item.getProcDt()))
+                    .collect(Collectors.toList());
+            
+            log.info("[DEBUG] 전체 통과 법안: {}건, 오늘 통과 법안: {}건", 
+                    responseDto.getBody().getItems().size(), todayPassedBills.size());
+            
+            return todayPassedBills;
+        } catch (Exception e) {
+            log.error("[API 오류] 최근 통과 법안 조회 실패 - error: {}", e.getMessage());
+            throw new RuntimeException("getRecentPassageList 호출 실패");
         }
     }
 }
