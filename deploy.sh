@@ -77,6 +77,11 @@ docker exec nginx nginx -s reload
 
 # 7. 기존에 실행중이던 구 버전 컨테이너 종료
 echo ">>> 기존 ${CURRENT_PROFILE} 서버(컨테이너)를 종료합니다."
-docker compose --profile ${CURRENT_PROFILE} down
+EXISTING_CONTAINER=$(docker compose ps -q --profile ${CURRENT_PROFILE})
+if [ -n "$EXISTING_CONTAINER" ]; then
+  docker compose --profile ${CURRENT_PROFILE} down
+else
+    echo ">>> 기존 ${CURRENT_PROFILE} 서버가 없어 종료를 건너뜁니다."
+fi
 
 echo ">>> ✅ 배포가 성공적으로 완료되었습니다."
