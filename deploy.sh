@@ -85,7 +85,8 @@ docker exec nginx nginx -s reload
 echo ">>> 기존 ${CURRENT_PROFILE} 서버(컨테이너)를 종료합니다."
 EXISTING_CONTAINER=$(docker ps -q --filter name=graydang-app-${CURRENT_PROFILE})
 if [ -n "$EXISTING_CONTAINER" ]; then
-  docker compose --profile ${CURRENT_PROFILE} down
+  docker stop ${CONTAINER_ID_TO_DOWN}
+  docker rm ${CONTAINER_ID_TO_DOWN}
 else
     echo ">>> 기존 ${CURRENT_PROFILE} 서버가 없어 종료를 건너뜁니다."
 fi
