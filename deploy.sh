@@ -50,7 +50,7 @@ echo ">>> 최대 90초 동안 5초 간격으로 헬스 체크를 시도합니다
 
 for i in {1..18}; do
     # curl로 헬스 체크 시도
-    STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${IDLE_MANAGEMENT_PORT}/actuator/health)
+    STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${IDLE_MANAGEMENT_PORT}/actuator/health || true)
 
     if [ ${STATUS_CODE} -eq 200 ]; then
         echo ">>> 헬스 체크 성공! (상태 코드: ${STATUS_CODE})"
