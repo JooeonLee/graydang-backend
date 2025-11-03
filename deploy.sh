@@ -43,28 +43,28 @@ docker compose --profile ${IDLE_PROFILE} up -d --build
 
 # 4. 새로운 컨테이너가 정상적으로 실행되었는지 헬스 체크
 echo ">>> ${IDLE_PROFILE} 서버 헬스 체크..."
-# 10초 대기 (컨테이너가 뜨는 시간)
-sleep 10
+echo ">>> 최대 60초 동안 5초 간격으로 헬스 체크를 시도합니다."
 
-# 헬스 체크를 10번 시도 (총 50초)
-for i in {1..10}; do
-    # curl로 헬스 체크 API(/actuator/health) 호출, HTTP 상태 코드를 받음
+for i in {1..12}; do
+    # curl로 헬스 체크 시도
     STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${IDLE_PORT}/actuator/health)
 
     if [ ${STATUS_CODE} -eq 200 ]; then
         echo ">>> 헬스 체크 성공! (상태 코드: ${STATUS_CODE})"
-        break
+        break # 성공 시 루프 탈출
     else
-        echo ">>> 헬스 체크 실패... (상태 코드: ${STATUS_CODE})"
-        # 10번 모두 실패하면 배포 실패로 간주하고 스크립트 종료
-        if [ ${i} -eq 10 ]; then
+        echo ">>> 아직 준비되지 않았습니다... (${i}/12)"
+        # 마지막 시도(12번째)에도 실패하면 배포 실패 처리
+        if [ ${i} -eq 12 ]; then
             echo ">>> 헬스 체크에 최종 실패했습니다. 배포를 중단합니다."
-            # 실패한 컨테이너는 바로 종료
+            echo ">>> ${IDLE_PROFILE} 컨테이너의 최근 로그 50줄:"
+            # 실패 원인 파악을 위해 컨테이너 로그 출력
+            docker logs --tail 50 graydang-app-${IDLE_PROFILE}
+            # 실패한 컨테이너 종료
             docker compose --profile ${IDLE_PROFILE} down
             exit 1
         fi
-        # 5초 후 재시도
-        sleep 5
+        sleep 5 # 5초 대기 후 재시도
     fi
 done
 
