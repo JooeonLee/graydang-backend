@@ -5,6 +5,7 @@ import com.graydang.app.domain.bill.model.dto.BillSimpleResponseDto;
 import com.graydang.app.domain.bill.repository.BillQueryRepository;
 import com.graydang.app.domain.bill.repository.projection.BillSimpleProjection;
 import com.graydang.app.domain.comment.model.QComment;
+import com.graydang.app.domain.comment.model.enums.CommentStatus;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
@@ -96,7 +97,7 @@ public class BillQueryRepositoryImpl implements BillQueryRepository {
                         ExpressionUtils.as(
                                 JPAExpressions.select(comment.count())
                                         .from(comment)
-                                        .where(comment.bill.eq(bill), comment.status.eq("ACTIVE")),
+                                        .where(comment.bill.eq(bill), comment.status.eq(CommentStatus.ACTIVE)),
                                 "commentCount"
                         ),
                         ExpressionUtils.as(scrapedExpr, "scraped")
@@ -187,7 +188,7 @@ public class BillQueryRepositoryImpl implements BillQueryRepository {
                         ExpressionUtils.as(
                                 JPAExpressions.select(comment.count())
                                         .from(comment)
-                                        .where(comment.bill.eq(bill), comment.status.eq("ACTIVE")),
+                                        .where(comment.bill.eq(bill), comment.status.eq(CommentStatus.ACTIVE)),
                                 "commentCount"
                         ),
                         ExpressionUtils.as(scrapedExpr, "scraped")

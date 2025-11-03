@@ -3,6 +3,7 @@ package com.graydang.app.domain.comment.repository;
 import com.graydang.app.domain.bill.model.Bill;
 import com.graydang.app.domain.comment.model.Comment;
 import com.graydang.app.domain.comment.model.dto.CommentSimpleResponseDto;
+import com.graydang.app.domain.comment.model.enums.CommentStatus;
 import com.graydang.app.domain.comment.repository.projection.CommentSimpleProjection;
 import com.graydang.app.domain.comment.repository.projection.MyCommentProjection;
 import org.springframework.data.domain.Pageable;
@@ -18,15 +19,15 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     long countByBill(Bill bill);
 
-    long countByUserIdAndStatus(Long userId, String status);
+    long countByUserIdAndStatus(Long userId, CommentStatus status);
 
     @EntityGraph(attributePaths = {"user.profile"})
-    Slice<Comment> findByBillIdAndStatusOrderByCreatedAtDesc(Long billId, String status, Pageable pageable);
+    Slice<Comment> findByBillIdAndStatusOrderByCreatedAtDesc(Long billId, CommentStatus status, Pageable pageable);
 
     @Query("SELECT c.id FROM Comment c WHERE c.user.id = :userId AND c.status = :status")
-    Set<Long> findCommentIdsByUserIdAndStatus(Long userId, String status);
+    Set<Long> findCommentIdsByUserIdAndStatus(Long userId, CommentStatus status);
 
-    Optional<Comment> findByIdAndStatus(Long commentId, String status);
+    Optional<Comment> findByIdAndStatus(Long commentId, CommentStatus status);
 
 
     @Query("""
@@ -40,7 +41,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
         FROM Comment c
         LEFT JOIN c.likes l ON c.id = l.comment.id AND l.status = 'ACTIVE'
         JOIN Bill b ON c.bill.id = b.id
-        WHERE c.user.id = :userId AND c.status = 'ACTIVE'
+        WHERE c.user.id = :userId AND c.status = com.graydang.app.domain.comment.model.enums.CommentStatus.ACTIVE
         GROUP BY c.id, c.content, c.createdAt, b.aiTitle
         ORDER BY c.createdAt DESC
     """)
@@ -51,7 +52,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
         JOIN FETCH c.user u 
         JOIN FETCH u.profile p 
         LEFT JOIN FETCH c.likes l 
-        WHERE c.id = :id AND c.status = 'ACTIVE'
+        WHERE c.id = :id AND c.status = com.graydang.app.domain.comment.model.enums.CommentStatus.ACTIVE
     """)
     Optional<Comment> findByIdWithUserProfileAndLikes(Long id);
 }
