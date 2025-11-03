@@ -67,6 +67,10 @@ public enum BaseResponseStatus {
      */
     NONE_USER_PROFILE(false, HttpStatus.BAD_REQUEST, 3001, "사용자의 프로필이 존재하지 않습니다."),
     ALREADY_ONBOARDED(false, HttpStatus.BAD_REQUEST, 3002, "이미 온보딩이 완료된 사용자입니다."),
+    ALREADY_WITHDRAWN_USER(false, HttpStatus.BAD_REQUEST, 3003, "이미 탈퇴한 사용자입니다."),
+    ALREADY_BLOCKED_USER(false, HttpStatus.BAD_REQUEST, 3004, "이미 차단된 사용자입니다."),
+    NOT_BLOCKED_USER(false, HttpStatus.BAD_REQUEST, 3005, "차단되지 않은 사용자입니다."),
+    CANNOT_BLOCK_INACTIVE_USER(false, HttpStatus.BAD_REQUEST, 3006, "탈퇴한 사용자는 차단할 수 없습니다."),
 
     /**
      * 3100: Bill Reaction Exception

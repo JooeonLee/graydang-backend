@@ -3,6 +3,7 @@ package com.graydang.app.domain.auth.oauth2;
 import com.graydang.app.domain.user.model.User;
 import com.graydang.app.domain.user.model.UserCredential;
 import com.graydang.app.domain.user.model.UserProfile;
+import com.graydang.app.domain.user.model.enums.UserStatus;
 import com.graydang.app.domain.user.repository.UserRepository;
 import com.graydang.app.domain.user.repository.UserCredentialRepository;
 import com.graydang.app.domain.user.repository.UserProfileRepository;
@@ -48,7 +49,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Optional<User> existingUser = userRepository.findByProviderAndProviderUserId(provider, userInfo.getId());
         
         if (existingUser.isPresent()) {
-            return existingUser.get();
+            User user = existingUser.get();
+            // 로그인 가능한 상태인지 확인
+            if (!user.getStatus().canLogin()) {
+                if (user.getStatus().isInactive()) {
+                    throw new RuntimeException("탈퇴한 사용자는 로그인할 수 없습니다.");
+                } else if (user.getStatus().isBlocked()) {
+                    throw new RuntimeException("차단된 사용자는 로그인할 수 없습니다.");
+                }
+            }
+            return user;
         }
         
         String username = generateUsername(userInfo.getEmail(), userInfo.getName());
@@ -56,6 +66,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         
         if (userByUsername.isPresent()) {
             User existingUserEntity = userByUsername.get();
+            // 로그인 가능한 상태인지 확인
+            if (!existingUserEntity.getStatus().canLogin()) {
+                if (existingUserEntity.getStatus().isInactive()) {
+                    throw new RuntimeException("탈퇴한 사용자는 로그인할 수 없습니다.");
+                } else if (existingUserEntity.getStatus().isBlocked()) {
+                    throw new RuntimeException("차단된 사용자는 로그인할 수 없습니다.");
+                }
+            }
             addCredentialToUser(existingUserEntity, provider, userInfo.getId());
             return existingUserEntity;
         }
@@ -81,7 +99,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .keyword3("사회")
                 .keyword4("문화")
                 .keyword5("스포츠")
-                .status("ACTIVE")
+                .status(UserStatus.ACTIVE)
                 .user(savedUser)
                 .build();
         
@@ -96,7 +114,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         UserCredential credential = UserCredential.builder()
                 .provider(provider)
                 .providerUserId(providerUserId)
-                .status("ACTIVE")
+                .status(UserStatus.ACTIVE)
                 .user(user)
                 .build();
         

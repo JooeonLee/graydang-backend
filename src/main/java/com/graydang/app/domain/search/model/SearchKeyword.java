@@ -12,7 +12,7 @@ import org.hibernate.annotations.Comment;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Entity
-@Table(name = "searchKeyword")
+@Table(name = "search_keyword")
 @Comment("검색 키워드")
 public class SearchKeyword {
 

@@ -44,7 +44,7 @@ public class UserListResponseDto {
                 .email(user.getEmail())
                 .nickname(user.getProfile() != null ? user.getProfile().getNickname() : null)
                 .role(user.getRole())
-                .status(user.getStatus())
+                .status(user.getStatus().name())
                 .createdAt(user.getCreatedAt())
                 .build();
     }
