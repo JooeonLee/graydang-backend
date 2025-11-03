@@ -1,12 +1,57 @@
 version: '3.8'
 
 services:
-  app:
-    image: jooeonlee/graydang:latest
-    container_name: graydang-app
+  # ------------------- BLUE APP -------------------
+  app-blue:
+    # deploy.sh에서 전달받은 동적 이미지 태그를 사용
+    image: jooeonlee/graydang:${DOCKER_IMAGE_TAG}
+    container_name: graydang-app-blue
     ports:
+      # Blue는 호스트의 8080 포트를 사용
       - "8080:8080"
       - "9292:9292"
+    profiles:
+      # 'blue' 프로필에 할당
+      - "blue"
+    environment:
+      TZ: Asia/Seoul
+      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
+      SPRING_DATASOURCE_URL: ${DATASOURCE_URL_PROD}
+      SPRING_DATASOURCE_USERNAME: ${DATASOURCE_USERNAME_PROD}
+      SPRING_DATASOURCE_PASSWORD: ${DATASOURCE_PASSWORD_PROD}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      BILL_API_KEY: ${BILL_API_KEY}
+      BILL_API_KEY_V2: ${BILL_API_KEY_V2}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
+      KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
+      BASE_URL: ${BASE_URL}
+      AWS_S3_ACCESS_KEY: ${AWS_S3_ACCESS_KEY}
+      AWS_S3_SECRET_KEY: ${AWS_S3_SECRET_KEY}
+      DEFAULT_PROFILE_IMAGE_URL: ${DEFAULT_PROFILE_IMAGE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      ACCESS_TOKEN_EXPIRED_IN: ${ACCESS_TOKEN_EXPIRED_IN}
+      REFRESH_TOKEN_EXPIRED_IN: ${REFRESH_TOKEN_EXPIRED_IN}
+      SPRING_REDIS_HOST: ${SPRING_REDIS_HOST}
+      SPRING_REDIS_PORT: ${SPRING_REDIS_PORT}
+    volumes:
+      - ./logs:/app/logs
+    restart: always
+
+  # ------------------- GREEN APP -------------------
+  app-green:
+    # deploy.sh에서 전달받은 동적 이미지 태그를 사용
+    image: jooeonlee/graydang:${DOCKER_IMAGE_TAG}
+    container_name: graydang-app-green
+    ports:
+      # Green은 호스트의 8081 포트를 사용
+      - "8081:8080"
+      - "9293:9292"
+    profiles:
+      # 'Green' 프로필에 할당
+      - "green"
     environment:
       TZ: Asia/Seoul
       SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
@@ -55,8 +100,6 @@ services:
       - ./nginx/ssl:/etc/letsencrypt
       - ./nginx/ssl:/var/lib/letsencrypt
       - ./nginx/www:/var/www/certbot
-    depends_on:
-      - app
     restart: always
 
   certbot:
