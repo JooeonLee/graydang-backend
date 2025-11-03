@@ -8,7 +8,7 @@ set -e
 
 # 1. 현재 실행중인 컨테이너 확인 (Blue or Green)
 # docker ps 명령어와 grep을 이용해 'blue' 문자열이 포함된 컨테이너가 실행 중인지 확인
-EXISTING_BLUE=$(docker ps | grep blue)
+EXISTING_BLUE=$(docker ps | grep blue || true)
 
 # 기본값을 Green으로 설정
 IDLE_PROFILE="green"
