@@ -1,7 +1,6 @@
 package com.graydang.app.domain.user.service;
 
 import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
-import com.graydang.app.domain.bill.model.dto.BillSimpleResponseDto;
 import com.graydang.app.domain.bill.service.BillReactionService;
 import com.graydang.app.domain.bill.service.BillScrapeService;
 import com.graydang.app.domain.comment.service.CommentService;
@@ -9,10 +8,10 @@ import com.graydang.app.domain.user.exception.UserProfileException;
 import com.graydang.app.domain.user.model.InterestKeyword;
 import com.graydang.app.domain.user.model.User;
 import com.graydang.app.domain.user.model.UserProfile;
+import com.graydang.app.domain.user.model.enums.UserStatus;
 import com.graydang.app.domain.user.model.dto.OnboardingRequestDto;
 import com.graydang.app.domain.user.model.dto.UserInfoResponseDto;
 import com.graydang.app.domain.user.repository.UserProfileRepository;
-import com.graydang.app.global.common.model.dto.SliceResponse;
 import com.graydang.app.global.common.model.enums.BaseResponseStatus;
 import com.graydang.app.global.s3.model.ImagePrefix;
 import com.graydang.app.global.s3.service.ImageService;
@@ -77,7 +76,7 @@ public class UserProfileService {
                 .keyword5(keywordNames[4])
                 .profileImage(DEFAULT_USER_IMAGE_URL)
                 .user(user)
-                .status("ACTIVE")
+                .status(UserStatus.ACTIVE)
                 .build();
 
         userProfileRepository.save(userProfile);
@@ -108,7 +107,7 @@ public class UserProfileService {
     }
 
     public String getNicknameByUserId(Long userId) {
-        return userProfileRepository.findByUserIdAndStatus(userId, "ACTIVE")
+        return userProfileRepository.findByUserIdAndStatus(userId, UserStatus.ACTIVE)
                 .map(UserProfile::getNickname)
                 .orElse(null);
     }
@@ -129,7 +128,7 @@ public class UserProfileService {
 //    }
 
     public UserProfile getUserProfileByUserId(Long userId) {
-        return userProfileRepository.findByUserIdAndStatus(userId, "ACTIVE")
+        return userProfileRepository.findByUserIdAndStatus(userId, UserStatus.ACTIVE)
                 .orElseThrow(() -> new UserProfileException(NONE_USER_PROFILE));
     }
 

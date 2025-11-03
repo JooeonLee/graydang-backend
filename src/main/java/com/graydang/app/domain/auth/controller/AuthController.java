@@ -11,6 +11,7 @@ import com.graydang.app.domain.auth.oauth2.CustomUserDetails;
 import com.graydang.app.domain.user.model.UserProfile;
 import com.graydang.app.domain.user.repository.UserProfileRepository;
 import com.graydang.app.domain.user.service.UserProfileService;
+import com.graydang.app.domain.user.model.enums.UserStatus;
 import com.graydang.app.global.common.model.dto.BaseResponse;
 import com.graydang.app.global.common.model.enums.BaseResponseStatus;
 import com.graydang.app.global.security.jwt.JwtTokenProvider;
@@ -61,7 +62,7 @@ public class AuthController {
         );
 
         var nickname = userProfileService.getNicknameByUserId(userDetails.getId());
-        Optional<UserProfile> loginUserProfile = userProfileRepository.findByUserIdAndStatus(userDetails.getId(), "ACTIVE");
+        Optional<UserProfile> loginUserProfile = userProfileRepository.findByUserIdAndStatus(userDetails.getId(), UserStatus.ACTIVE);
         var onboarded = loginUserProfile.isPresent();
         String profileImageUrl = onboarded ? loginUserProfile.get().getProfileImage() : null;
 

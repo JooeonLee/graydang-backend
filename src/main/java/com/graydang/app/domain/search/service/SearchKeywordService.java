@@ -32,9 +32,17 @@ public class SearchKeywordService {
             throw new BusinessException(BaseResponseStatus.SEARCH_KEYWORD_ALREADY_EXISTS);
         }
 
-        // 기존 활성화된 표시 키워드 개수를 세어서 우선순위 설정
-        long activeDisplayedCount = searchKeywordRepository.countByDisplayYnAndDelYn(Yn.Y, Yn.N);
-        int priority = (int) (activeDisplayedCount + 1);
+        // 표시 여부에 따라 우선순위 설정
+        int priority;
+        if (requestDto.getDisplay()) {
+            // 표시 키워드: 기존 표시 키워드 개수 + 1
+            long activeDisplayedCount = searchKeywordRepository.countByDisplayYnAndDelYn(Yn.Y, Yn.N);
+            priority = (int) (activeDisplayedCount + 1);
+        } else {
+            // 비표시 키워드: 기존 비표시 키워드 개수 + 1
+            long activeHiddenCount = searchKeywordRepository.countByDisplayYnAndDelYn(Yn.N, Yn.N);
+            priority = (int) (activeHiddenCount + 1);
+        }
 
         SearchKeyword searchKeyword = SearchKeyword.builder()
                 .text(requestDto.getText())

@@ -18,6 +18,7 @@ public record CommentReportSaveRequestDto(
         return CommentReport.builder()
                 .user(user)
                 .comment(comment)
+                .reportedUser(comment.getUser())
                 .reason(content)
                 .status("ACTIVE")
                 .build();

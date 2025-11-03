@@ -4,6 +4,7 @@ import com.graydang.app.global.common.model.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
+import org.hibernate.envers.Audited;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Audited
 public class Bill extends BaseEntity {
 
     @Id
@@ -121,5 +123,28 @@ public class Bill extends BaseEntity {
 
     public void increaseViewCount() {
         this.viewCount++;
+    }
+
+    public void updateByAdmin(String title, String summary, String aiTitle, 
+                             String aiSummary, String committeeName, String billStatus) {
+        if (title != null && !title.isBlank()) {
+            this.title = title;
+        }
+        if (summary != null && !summary.isBlank()) {
+            this.summary = summary;
+        }
+        if (aiTitle != null && !aiTitle.isBlank()) {
+            this.aiTitle = aiTitle;
+        }
+        if (aiSummary != null && !aiSummary.isBlank()) {
+            this.aiSummary = aiSummary;
+            this.aiProcessed = true;
+        }
+        if (committeeName != null && !committeeName.isBlank()) {
+            this.committeeName = committeeName;
+        }
+        if (billStatus != null && !billStatus.isBlank()) {
+            this.billStatus = billStatus;
+        }
     }
 }

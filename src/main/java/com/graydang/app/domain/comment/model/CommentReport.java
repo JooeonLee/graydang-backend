@@ -36,4 +36,9 @@ public class CommentReport extends BaseEntity {
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+    @JoinColumn(name = "reported_user_id", nullable = false)
+    private User reportedUser;
 }
