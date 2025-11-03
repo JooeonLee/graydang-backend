@@ -1,0 +1,1 @@
+set $service_url http://app-green:8080;
