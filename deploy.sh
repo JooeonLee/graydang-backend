@@ -44,9 +44,11 @@ docker compose --profile ${IDLE_PROFILE} up -d --build
 
 # 4. 새로운 컨테이너가 정상적으로 실행되었는지 헬스 체크
 echo ">>> ${IDLE_PROFILE} 서버 헬스 체크..."
-echo ">>> 최대 60초 동안 5초 간격으로 헬스 체크를 시도합니다."
+echo ">>> 컨테이너 시작을 위해 30초간 대기합니다..."
+sleep 30 # 1. 초기 유예 시간 부여
+echo ">>> 최대 90초 동안 5초 간격으로 헬스 체크를 시도합니다."
 
-for i in {1..12}; do
+for i in {1..18}; do
     # curl로 헬스 체크 시도
     STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${IDLE_MANAGEMENT_PORT}/actuator/health)
 
@@ -54,7 +56,7 @@ for i in {1..12}; do
         echo ">>> 헬스 체크 성공! (상태 코드: ${STATUS_CODE})"
         break # 성공 시 루프 탈출
     else
-        echo ">>> 아직 준비되지 않았습니다... (${i}/12)"
+        echo ">>> 아직 준비되지 않았습니다... (${i}/18)"
         # 마지막 시도(12번째)에도 실패하면 배포 실패 처리
         if [ ${i} -eq 12 ]; then
             echo ">>> 헬스 체크에 최종 실패했습니다. 배포를 중단합니다."
