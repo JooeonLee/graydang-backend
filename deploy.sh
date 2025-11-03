@@ -12,18 +12,19 @@ EXISTING_BLUE=$(docker ps | grep blue || true)
 
 # 기본값을 Green으로 설정
 IDLE_PROFILE="green"
-IDLE_PORT=8081
+# 관리 포트 변수 추가
+IDLE_MANAGEMENT_PORT=9293
 CURRENT_PROFILE="blue"
 
 # 만약 실행중인 blue 컨테이너가 없다면? (첫 배포 또는 green이 실행중인 경우)
 if [ -z "$EXISTING_BLUE" ]; then
     IDLE_PROFILE="blue"
-    IDLE_PORT=8080
+    IDLE_MANAGEMENT_PORT=9292
     CURRENT_PROFILE="green"
 fi
 
 echo ">>> 현재 실행중인 서버: ${CURRENT_PROFILE}"
-echo ">>> 새로 배포할 서버: ${IDLE_PROFILE}"
+echo ">>> 새로 배포할 서버: ${IDLE_PROFILE} (관리 포트: ${IDLE_MANAGEMENT_PORT})"
 
 # 2. 새로 배포할 Docker 이미지 태그를 환경변수로 받음 (GitHub Actions에서 전달)
 # 예: ./deploy.sh 1.0.0
@@ -38,7 +39,7 @@ echo ">>> Docker 이미지 태그: ${DOCKER_IMAGE_TAG}"
 
 # 3. docker-compose.yml을 이용해 새로운 버전의 컨테이너 실행
 # --profile 옵션으로 blue 또는 green 서비스만 선택적으로 실행
-echo ">>> ${IDLE_PROFILE} 서버(컨테이너)를 실행합니다. Port: ${IDLE_PORT}"
+echo ">>> ${IDLE_PROFILE} 서버(컨테이너)를 실행합니다. Management Port: ${IDLE_MANAGEMENT_PORT}"
 docker compose --profile ${IDLE_PROFILE} up -d --build
 
 # 4. 새로운 컨테이너가 정상적으로 실행되었는지 헬스 체크
@@ -47,7 +48,7 @@ echo ">>> 최대 60초 동안 5초 간격으로 헬스 체크를 시도합니다
 
 for i in {1..12}; do
     # curl로 헬스 체크 시도
-    STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${IDLE_PORT}/actuator/health)
+    STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${IDLE_MANAGEMENT_PORT}/actuator/health)
 
     if [ ${STATUS_CODE} -eq 200 ]; then
         echo ">>> 헬스 체크 성공! (상태 코드: ${STATUS_CODE})"
