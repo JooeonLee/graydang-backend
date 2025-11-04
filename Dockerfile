@@ -1,5 +1,6 @@
 # 🔧 1단계: Build stage
-FROM openjdk:17-jdk-slim AS builder
+# FROM openjdk:17-jdk-slim AS builder
+FROM amazoncorretto:17-alpine-jdk
 
 WORKDIR /app
 
