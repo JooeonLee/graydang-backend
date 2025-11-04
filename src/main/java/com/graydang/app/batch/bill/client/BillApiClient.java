@@ -245,13 +245,14 @@ public class BillApiClient {
      * - proposeDt: 제안일자
      * - proposerKind: 제안자 구분 (예: 의장, 위원장 등)
      * 
-     * @return 오늘 날짜에 통과된 법안 목록. 오늘 통과된 법안이 없으면 빈 리스트 반환
+     * @return 통과 법안 조회 결과 (전체 조회 건수와 오늘 날짜 필터링된 목록 포함)
      * @throws RuntimeException API 호출 실패 시
      */
-    public List<BillRecentPassageResponseDto.ItemDto> getRecentPassageList() {
+    public BillPassageResult getRecentPassageList() {
         List<BillRecentPassageResponseDto.ItemDto> allTodayPassedBills = new ArrayList<>();
         int pageNo = 1;
         int numOfRows = 100;
+        int totalFetchedCount = 0;
         String today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
         boolean shouldContinue = true;
         
@@ -277,6 +278,7 @@ public class BillApiClient {
                 }
                 
                 List<BillRecentPassageResponseDto.ItemDto> items = responseDto.getBody().getItems();
+                totalFetchedCount += items.size();
                 
                 // 현재 페이지에서 오늘 날짜의 법안만 필터링
                 List<BillRecentPassageResponseDto.ItemDto> todayBillsInPage = items.stream()
@@ -307,7 +309,12 @@ public class BillApiClient {
             }
         }
         
-        log.info("[DEBUG] 최종 결과: 오늘 통과된 법안 총 {}건", allTodayPassedBills.size());
-        return allTodayPassedBills;
+        log.info("[DEBUG] 최종 결과: 전체 조회 {}건 중 오늘 통과된 법안 {}건", totalFetchedCount, allTodayPassedBills.size());
+        
+        return BillPassageResult.builder()
+                .totalFetchedCount(totalFetchedCount)
+                .todayPassedCount(allTodayPassedBills.size())
+                .todayPassedBills(allTodayPassedBills)
+                .build();
     }
 }

@@ -23,7 +23,7 @@ public class TodayPassedBillScheduler {
      * 이 스케줄러는 매일 오후 9시에 실행되어 당일 국회에서 통과된 법안들을 수집합니다.
      * 오후 9시로 설정한 이유는 국회 본회의가 대부분 저녁 이전에 종료되기 때문입니다.
      */
-    @Scheduled(cron = "0 0 21 * * *")  // 매일 21시(오후 9시) 0분 0초
+    @Scheduled(cron = "0 30 21 * * *")  // 매일 21시(오후 9시) 0분 0초
     public void runTodayPassedBillCollection() {
         log.info("📅 [오늘 통과 법안 수집 배치] 스케줄러 시작 - {}", LocalDateTime.now());
         
