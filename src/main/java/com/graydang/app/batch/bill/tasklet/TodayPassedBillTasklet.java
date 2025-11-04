@@ -18,7 +18,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class BillSyncTasklet implements Tasklet {
+public class TodayPassedBillTasklet implements Tasklet {
 
     private final BillApiClient billApiClient;
     private final BillService billService;
