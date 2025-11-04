@@ -1,6 +1,6 @@
 # 🔧 1단계: Build stage
 # FROM openjdk:17-jdk-slim AS builder
-FROM amazoncorretto:17-alpine-jdk
+FROM amazoncorretto:17-alpine-jdk AS builder
 
 WORKDIR /app
 
@@ -12,7 +12,8 @@ RUN ./gradlew clean build -x test
 
 
 # 🚀 2단계: Run stage
-FROM openjdk:17-jdk-slim
+# FROM openjdk:17-jdk-slim
+FROM amazoncorretto:17-alpine-jdk
 
 WORKDIR /app
 
