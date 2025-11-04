@@ -1,6 +1,6 @@
 package com.graydang.app.batch.bill.config;
 
-import com.graydang.app.batch.bill.tasklet.BillSyncTasklet;
+import com.graydang.app.batch.bill.tasklet.TodayPassedBillTasklet;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -13,24 +13,24 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 @RequiredArgsConstructor
-public class BillSyncJobConfig {
+public class TodayPassedBillJobConfig {
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
-    private final BillSyncTasklet billSyncTasklet;
+    private final TodayPassedBillTasklet todayPassedBillTasklet;
 
     @Bean
-    public Job billSyncJob() {
-        return new JobBuilder("billSyncJob", jobRepository)
-                .start(billSyncStep())
+    public Job todayPassedBillJob() {
+        return new JobBuilder("todayPassedBillJob", jobRepository)
+                .start(todayPassedBillStep())
                 .build();
     }
 
     @Bean
-    public Step billSyncStep() {
-        return new StepBuilder("billSyncStep", jobRepository)
-                .tasklet(billSyncTasklet, transactionManager)
-                //.allowStartIfComplete(true)
+    public Step todayPassedBillStep() {
+        return new StepBuilder("todayPassedBillStep", jobRepository)
+                .tasklet(todayPassedBillTasklet, transactionManager)
+                .allowStartIfComplete(true)
                 .build();
     }
 }
