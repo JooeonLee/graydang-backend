@@ -40,7 +40,12 @@ echo ">>> Docker 이미지 태그: ${DOCKER_IMAGE_TAG}"
 # 3. docker-compose.yml을 이용해 새로운 버전의 컨테이너 실행
 # --profile 옵션으로 blue 또는 green 서비스만 선택적으로 실행
 echo ">>> ${IDLE_PROFILE} 서버(컨테이너)를 실행합니다. Management Port: ${IDLE_MANAGEMENT_PORT}"
-docker compose --profile ${IDLE_PROFILE} up -d --build
+#docker compose --profile ${IDLE_PROFILE} up -d --build
+
+# 이 환경 변수를 export하여 docker-compose가 컨테이너에 주입(monitoring 포트에 대한 환경변수 설정)
+# Spring Boot는 .yml 설정보다 이 환경 변수를 우선
+export MANAGEMENT_SERVER_PORT=${IDLE_MANAGEMENT_PORT}
+docker compose --env-file .env --profile ${IDLE_PROFILE} up -d --build
 
 # 4. 새로운 컨테이너가 정상적으로 실행되었는지 헬스 체크
 echo ">>> ${IDLE_PROFILE} 서버 헬스 체크..."
@@ -58,7 +63,7 @@ for i in {1..18}; do
     else
         echo ">>> 아직 준비되지 않았습니다... (${i}/18)"
         # 마지막 시도(12번째)에도 실패하면 배포 실패 처리
-        if [ ${i} -eq 12 ]; then
+        if [ ${i} -eq 18 ]; then
             echo ">>> 헬스 체크에 최종 실패했습니다. 배포를 중단합니다."
             echo ">>> ${IDLE_PROFILE} 컨테이너의 최근 로그 50줄:"
             # 실패 원인 파악을 위해 컨테이너 로그 출력
