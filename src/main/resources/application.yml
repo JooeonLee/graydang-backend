@@ -17,6 +17,7 @@ spring:
 #      name: billStatusUpdateJob
 #      name: collectRecentBillsJob
 #      name: summarizeBillJob
+      name: billStatusHistoryCommitteeUpdateJob
       enabled: false
   profiles:
     active: local
@@ -72,7 +73,7 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
       org:
         hibernate:
           envers:
@@ -90,7 +91,7 @@ spring:
       ddl-auto: update # 운영 시에는 보통 validate 또는 none 사용
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
       org:
         hibernate:
           envers:

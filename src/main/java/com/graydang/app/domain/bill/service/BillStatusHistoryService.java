@@ -31,19 +31,28 @@ public class BillStatusHistoryService {
 
     @Transactional
     public void saveCommitteeExamination(String billId, BillCommissionResponseDto.JurisdictionExaminationItem item) {
-        if (item == null) {
-            log.warn("위원회 회부 item이 null 입니다. - billId: {}", billId);
-            return;
-        }
-
         Bill bill = billRepository.findByBillId(billId)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 billId를 찾을 수 없습니다: " + billId));
+
+        saveCommitteeExaminationLogic(bill, item);
+    }
+
+    @Transactional
+    public void saveCommitteeExamination(Bill bill, BillCommissionResponseDto.JurisdictionExaminationItem item) {
+        saveCommitteeExaminationLogic(bill, item);
+    }
+
+    private void saveCommitteeExaminationLogic(Bill bill, BillCommissionResponseDto.JurisdictionExaminationItem item) {
+        if (item == null) {
+            log.warn("위원회 회부 item이 null 입니다. - billId: {}", bill.getBillId());
+            return;
+        }
 
         LocalDate stepDate = parseDate(item.getProcDt());
         String stepResult = item.getProcResultCd();
 
         if (stepDate == null || stepResult == null || stepResult.isBlank()) {
-            log.info("심사 처리 정보가 없어 저장 생략 - billId: {}", billId);
+            log.info("심사 처리 정보가 없어 저장 생략 - billId: {}", bill.getBillId());
             return;
         }
 
@@ -52,7 +61,7 @@ public class BillStatusHistoryService {
         if(existingOpt.isPresent()) {
             BillStatusHistory existing = existingOpt.get();
             existing.update(stepDate, stepResult, STATUS_ACTIVE);
-            log.info("위원회 회부 이력 업데이트 완료 - billId: {}, result: {}", billId, stepResult);
+            log.info("위원회 회부 이력 업데이트 완료 - billId: {}, result: {}", bill.getBillId(), stepResult);
         } else {
             BillStatusHistory history = BillStatusHistory.builder()
                     .bill(bill)
@@ -64,7 +73,7 @@ public class BillStatusHistoryService {
                     .build();
 
             billStatusHistoryRepository.save(history);
-            log.info("위원회 회부 이력 저장 완료 - billId: {}, date: {}, result: {}", billId, item.getProcDt(), item.getProcResultCd());
+            log.info("위원회 회부 이력 저장 완료 - billId: {}, date: {}, result: {}", bill.getBillId(), item.getProcDt(), item.getProcResultCd());
         }
     }
 
@@ -176,5 +185,50 @@ public class BillStatusHistoryService {
     private LocalDate parseDate(String date) {
         if (date == null || date.isBlank()) return null;
         return LocalDate.parse(date, DATE_FORMATTER);
+    }
+
+    /**
+     * [Job 1: 발의 -> 심사 중] 배치를 위한 전용 메서드.
+     * '회부일'(submitDt)이 확인되면 '소관위 회부' 이력을 신규 생성(INSERT)합니다.
+     *
+     * @param bill  Writer가 조회한 Bill 엔티티
+     * @param item  API 응답 (소관위 심사 정보)
+     */
+    @Transactional
+    public void saveNewCommitteeReferral(Bill bill, BillCommissionResponseDto.JurisdictionExaminationItem item) {
+        if (item == null) {
+            log.warn("위원회 회부 item이 null 입니다. - billId: {}", bill.getBillId());
+            return;
+        }
+
+        // (1) '회부일'(submitDt)을 기준 날짜로 사용합니다.
+        LocalDate stepDate = parseDate(item.getSubmitDt());
+
+        // (2) '회부일'이 없으면 '소관위 회부'가 아니므로 저장 생략
+        if (stepDate == null) {
+            log.info("핵심 정보인 '회부일'(submitDt)이 없어 저장 생략 - billId: {}", bill.getBillId());
+            return;
+        }
+
+        // (3) api 응답값 확인
+        String apiStepResult = item.getProcResultCd();
+
+        // (4) api 결과가 없으면 "심사 중"을 기본값으로 설정
+        String finalStepResult = (apiStepResult == null || apiStepResult.isBlank()) ? "심사 중" : apiStepResult;
+
+        // (3) [중요] 이 메서드는 Job 1(신규) 전용이므로, existingOpt 검사를 *하지 않습니다.*
+        // Reader가 (WHERE NOT EXISTS)로 신규 의안만 가져왔다고 신뢰합니다.
+
+        BillStatusHistory history = BillStatusHistory.builder()
+                .bill(bill)
+                .stepOrder(1)
+                .stepName(STEP_NAME)     // "소관위 회부"
+                .stepDate(stepDate)      // ★ 회부일
+                .stepResult(finalStepResult)
+                .status(STATUS_ACTIVE)
+                .build();
+
+        billStatusHistoryRepository.save(history);
+        log.info("위원회 '심사 중' 이력 신규 저장 완료 - billId: {}, date: {}", bill.getBillId(), item.getSubmitDt());
     }
 }
