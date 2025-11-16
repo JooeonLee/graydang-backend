@@ -147,6 +147,12 @@ public class BillService {
         optional.ifPresent(bill -> bill.updateCommitteeName(committeeName));
     }
 
+    // ItemWriter에서 활용할 메서드
+    @Transactional
+    public void updateCommitteeName(Bill bill, String committeeName) {
+        bill.updateCommitteeName(committeeName);
+    }
+
     public BillDetailResponseDto getBillDetail(Long id, CustomUserDetails userDetails) {
         Bill bill = billRepository.findById(id)
                 .orElseThrow(() -> new BillException(BaseResponseStatus.NONE_BILL));
