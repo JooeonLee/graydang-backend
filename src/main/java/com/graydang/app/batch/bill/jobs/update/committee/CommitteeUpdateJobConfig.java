@@ -4,6 +4,7 @@ import com.graydang.app.batch.bill.jobs.update.committee.dto.BillStatusHistoryCo
 import com.graydang.app.batch.bill.jobs.update.committee.processor.BillStatusHistoryCommitteeItemProcessor;
 import com.graydang.app.batch.bill.jobs.update.committee.writer.BillStatusHistoryCommitteeItemWriter;
 import com.graydang.app.batch.bill.listener.BillStepLoggingListener;
+import com.graydang.app.batch.bill.listener.JobCompletionNotificationListener;
 import com.graydang.app.domain.bill.model.Bill;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,7 @@ public class CommitteeUpdateJobConfig {
     private final BillStatusHistoryCommitteeItemWriter itemWriter;
 
     private final BillStepLoggingListener loggingListener;
+    private final JobCompletionNotificationListener jobLoggingListener;
 
     private static final int CHUNK_SIZE = 100;
     private static final int THREAD_POOL_SIZE = 10;
@@ -50,6 +52,7 @@ public class CommitteeUpdateJobConfig {
         return new JobBuilder("billStatusHistoryCommitteeUpdateJob", jobRepository)
                 .start(billStatusHistoryCommitteeUpdateStep)
                 .incrementer(new RunIdIncrementer())
+                .listener(jobLoggingListener)
                 .build();
     }
 
