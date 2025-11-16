@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Audited
+@Setter
 public class Bill extends BaseEntity {
 
     @Id
