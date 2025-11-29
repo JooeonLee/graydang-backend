@@ -22,6 +22,8 @@ spring:
   batch:
     jdbc:
       initialize-schema: always
+    job:
+      enabled: false
   h2:
     console:
       enabled: true

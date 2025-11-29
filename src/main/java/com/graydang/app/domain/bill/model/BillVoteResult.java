@@ -47,7 +47,10 @@ public class BillVoteResult extends BaseEntity {
     private String status;
 
     // 외래키 매핑
-    @OneToOne(fetch = FetchType.LAZY)
+//    @OneToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "bill_id", nullable = false)
+//    private Bill bill;
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bill_id", nullable = false)
     private Bill bill;
 

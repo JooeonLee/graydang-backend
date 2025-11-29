@@ -42,7 +42,7 @@ public class CommitteeUpdateJobConfig {
     private final BillStepLoggingListener loggingListener;
     private final JobCompletionNotificationListener jobLoggingListener;
 
-    private static final int CHUNK_SIZE = 100;
+    private static final int CHUNK_SIZE = 10;
     private static final int THREAD_POOL_SIZE = 10;
 
     // 1. Job 정의
@@ -67,6 +67,7 @@ public class CommitteeUpdateJobConfig {
                 .processor(itemProcessor)
                 .writer(itemWriter)
                 .taskExecutor(committeeUpdateTaskExecutor)
+                .throttleLimit(THREAD_POOL_SIZE)
                 .listener(loggingListener)
                 .build();
     }
