@@ -39,6 +39,29 @@ public class SlackBotNotifier implements SlackNotifier {
 
     System.out.println("[Slack Response] " + res);
   }
+
+    @Override
+    public void send(String channel, SlackPayload payload) {
+      String targetChannel = (channel != null && !channel.isBlank()) ? channel : CHANNEL_ID;
+
+      Map<String, Object> body = new HashMap<>();
+      body.put("channel", targetChannel);
+
+      if (payload.text() != null && !payload.text().isBlank()) {
+          body.put("text", payload.text());
+      }
+
+      var res = client.post()
+              .uri("/chat.postMessage")
+              .contentType(MediaType.APPLICATION_JSON)
+              .bodyValue(body)
+              .retrieve()
+              .onStatus(s -> s.value() == 429, resp -> resp.createException()) // 간단 처리
+              .bodyToMono(String.class)
+              .block(TIMEOUT); // ✅ 실제 전송 트리거
+
+        System.out.println("[Slack Response] " + res);
+    }
 }
 
 
