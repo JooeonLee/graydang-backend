@@ -5,9 +5,12 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "bill")
@@ -76,8 +79,13 @@ public class Bill extends BaseEntity {
     private String status;
 
     // 연관관계 Mapping
-    @OneToOne(mappedBy = "bill", cascade = CascadeType.ALL)
-    private BillVoteResult billVoteResult; // nullable 허용
+    //@OneToOne(mappedBy = "bill", cascade = CascadeType.ALL)
+    //private BillVoteResult billVoteResult; // nullable 허용
+
+    @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude // 롬복 무한루프 방지
+    @NotAudited
+    private List<BillVoteResult> billVoteResults = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
@@ -147,5 +155,13 @@ public class Bill extends BaseEntity {
         if (billStatus != null && !billStatus.isBlank()) {
             this.billStatus = billStatus;
         }
+    }
+
+    // 기존 코드를 깨뜨리지 않기 위한 헬퍼 메소드(OneToOne 에서 OneToMany 로 변경에 따라)
+    public BillVoteResult getBillVoteResult() {
+        if (billVoteResults == null || billVoteResults.isEmpty()) {
+            return null;
+        }
+        return billVoteResults.get(0);
     }
 }
