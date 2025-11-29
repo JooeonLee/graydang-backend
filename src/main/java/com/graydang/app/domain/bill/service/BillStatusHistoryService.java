@@ -8,6 +8,7 @@ import com.graydang.app.domain.bill.model.Bill;
 import com.graydang.app.domain.bill.model.BillStatusHistory;
 import com.graydang.app.domain.bill.repository.BillRepository;
 import com.graydang.app.domain.bill.repository.BillStatusHistoryRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -230,5 +231,38 @@ public class BillStatusHistoryService {
 
         billStatusHistoryRepository.save(history);
         log.info("위원회 '심사 중' 이력 신규 저장 완료 - billId: {}, date: {}", bill.getBillId(), item.getSubmitDt());
+    }
+
+    /**
+     * [Job 2: 심사 중 -> 심사 완료] 배치를 위한 전용 메서드.
+     * API 응답에 '처리 결과'(procResultCd)가 존재하면, 기존 이력을 업데이트합니다.
+     */
+    @Transactional
+    public void updateCommitteeExaminationResult(Bill bill, BillCommissionResponseDto.JurisdictionExaminationItem item) {
+        // 1. 처리 결과(procResultCd) 확인
+        String procResult = item.getProcResultCd();
+
+        // 2. 처리 결과가 없으면 아직 '심사 중'인 것이므로 변경사항 없음 -> 종료
+        if (procResult == null || procResult.isBlank()) {
+            // (로그 레벨은 info)
+            log.debug("아직 심사 중입니다. 업데이트를 건너뜁니다. - billId: {}", bill.getBillId());
+            return;
+        }
+
+        // 3. 기존 이력 조회 ('소관위 회부' 단계)
+        // Reader가 '심사 중'인 데이터를 가져왔으므로 데이터는 반드시 존재해야 함
+        BillStatusHistory history = billStatusHistoryRepository.findByBillAndStepName(bill, "위원회 회부")
+                .orElseThrow(() -> new EntityNotFoundException("이력 데이터 불일치: " + bill.getBillId()));
+
+        // 4. 상태 업데이트 (처리일, 처리결과)
+        LocalDate procDate = parseDate(item.getProcDt()); // 처리일 (없으면 회부일 유지 등의 로직 필요 시 추가)
+
+        // 업데이트 실행 (Dirty Checking)
+        history.update(procDate, procResult, "ACTIVE");
+
+        // (선택) Bill 테이블의 bill_status도 업데이트가 필요하다면 수행
+        bill.updateBillStatus(procResult);
+
+        log.info("✅ 소관위 심사 완료 업데이트 - billId: {}, 결과: {}", bill.getBillId(), procResult);
     }
 }
