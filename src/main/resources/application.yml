@@ -17,8 +17,10 @@ spring:
 #      name: billStatusUpdateJob
 #      name: collectRecentBillsJob
 #      name: summarizeBillJob
-      name: billStatusHistoryCommitteeUpdateJob
-      enabled: false
+#      name: billStatusHistoryCommitteeUpdateJob
+#      name: billStatusHistoryCommitteeCompletionAsyncJob
+      name: billStatusHistoryCommitteeUpdateAsyncJob
+      enabled: true
   profiles:
     active: local
   config:
@@ -73,7 +75,7 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
-        format_sql: false
+        format_sql: true
       org:
         hibernate:
           envers:
