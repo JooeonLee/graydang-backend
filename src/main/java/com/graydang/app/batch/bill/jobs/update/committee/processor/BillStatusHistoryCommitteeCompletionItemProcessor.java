@@ -4,7 +4,6 @@ import com.graydang.app.batch.bill.client.BillApiClient;
 import com.graydang.app.batch.bill.dto.BillCommissionResponseDto;
 import com.graydang.app.batch.bill.jobs.update.committee.dto.BillStatusHistoryCommitteeUpdateDto;
 import com.graydang.app.domain.bill.model.Bill;
-import com.graydang.app.domain.bill.model.BillStatusHistory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.StepExecution;
@@ -17,16 +16,16 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
-@Component // (1) Spring 빈으로 등록
+@Component
 @RequiredArgsConstructor
-public class BillStatusHistoryCommitteeItemProcessor implements ItemProcessor<Bill, BillStatusHistoryCommitteeUpdateDto> {
+public class BillStatusHistoryCommitteeCompletionItemProcessor implements ItemProcessor<Bill, BillStatusHistoryCommitteeUpdateDto> {
 
     private final BillApiClient billApiClient;
 
     // 멀티스레드 환경에서도 안전하게 숫자를 세는 카운터
     private final AtomicLong asyncFilterCount = new AtomicLong(0);
 
-    // (2) Tasklet에 있던 API 스로틀링(속도 제어) 로직
+    // API 스로틀링 로직
     private static final int SLEEP_MS = 50;
 
     /**
@@ -37,38 +36,54 @@ public class BillStatusHistoryCommitteeItemProcessor implements ItemProcessor<Bi
      */
     @Override
     public BillStatusHistoryCommitteeUpdateDto process(Bill bill) throws Exception {
+
+        // billId 방어 로직
+        if (bill.getBillId() == null) {
+            asyncFilterCount.incrementAndGet();
+            return null;
+        }
+
         try {
-            // (3) Tasklet의 Thread.sleep() 로직
+            // Tasklet의 Thread.sleep() 로직
             // 멀티스레드 환경에서도 각 스레드(Processor)가 API 호출 속도를 조절합니다.
             // Thread.sleep(SLEEP_MS);
 
-            // (4) Tasklet의 API 호출 로직 (bill.getBillId() 사용)
+            // Tasklet의 API 호출 로직 (bill.getBillId() 사용)
             Optional<BillCommissionResponseDto> responseOpt = billApiClient.getBillCommissionInfo(bill.getBillId());
 
             if (responseOpt.isPresent()) {
-                // (5) Tasklet의 파싱 및 유효성 검증 로직
-                List<BillCommissionResponseDto.JurisdictionExaminationItem> items =
-                        responseOpt.get().getBody().getJurisdictionExamination();
+                BillCommissionResponseDto.BodyDto body = responseOpt.get().getBody();
+                if (body != null) {
+                    List<BillCommissionResponseDto.JurisdictionExaminationItem> items = body.getJurisdictionExamination();
 
-                if (items != null && !items.isEmpty()) {
-                    BillCommissionResponseDto.JurisdictionExaminationItem item = items.get(0);
+                    if (items != null && !items.isEmpty()) {
+                        BillCommissionResponseDto.JurisdictionExaminationItem item = items.get(0);
 
-                    // (6) [핵심] 유효한 데이터를 Writer로 전달
-                    // Tasklet과 달리 DB 저장을 하지 않고, DTO를 생성하여 반환합니다.
-                    // Writer가 Bill PK (bill.getId())와 API 결과(item)를 모두 쓸 수 있게 전달합니다.
-                    return new BillStatusHistoryCommitteeUpdateDto(bill.getId(), bill.getBillId(), item);
+                        // Job 2는 '처리 결과(procResultCd)'가 있어야만 통과시킵니다.
+                        String procResult = item.getProcResultCd();
+
+                        if (procResult != null && !procResult.isBlank()) {
+                            // 처리 결과가 확인된 건만 Writer로 전달 (UPDATE 대상)
+                            return new BillStatusHistoryCommitteeUpdateDto(bill.getId(), bill.getBillId(), item);
+                        } else {
+                            // 아직 '심사 중'인 경우 -> 필터링 (null 반환)
+                            // (Writer로 넘어가지 않고 FilterCount가 증가함)
+                            asyncFilterCount.incrementAndGet();
+                            return null;
+                        }
+                    }
                 }
             }
-
-            // (7) API를 호출했으나 '소관위 회부' 정보가 없는 경우 (아직 발의 상태)
+            // API를 호출했으나 '소관위 회부' 정보가 없는 경우 (아직 발의 상태)
             // null을 반환하여 Writer로 전달되지 않도록 필터링합니다.
             asyncFilterCount.incrementAndGet();
             return null;
 
         //} catch (InterruptedException ie) {
-        //    // 멀티스레드 중단 시
+            // 멀티스레드 중단 시
         //    log.warn("Processor Interrupted - billId: {}", bill.getBillId());
         //    Thread.currentThread().interrupt(); // 인터럽트 상태 복원
+        //    asyncFilterCount.incrementAndGet();
         //    return null;
         } catch (Exception e) {
             // (8) Tasklet의 예외 처리 로직 (API 호출 오류 등)
@@ -82,15 +97,7 @@ public class BillStatusHistoryCommitteeItemProcessor implements ItemProcessor<Bi
 
     @AfterStep
     public void afterStep(StepExecution stepExecution) {
-        long finalFilterCount = asyncFilterCount.get();
-
-        // 1. FilterCount 증가
         stepExecution.setFilterCount(stepExecution.getFilterCount() + asyncFilterCount.get());
-
-        // 2. WriteCount 감소 (WriteCount = 기존 WriteCount - 카운트한 FilterCount)
-        // 설명: AsyncWriter가 Future를 받아 일단 Write로 셌던 것들 중, 실제로는 빈 상자였던 개수만큼 뺀다.
-        stepExecution.setWriteCount(stepExecution.getWriteCount() - finalFilterCount);
-
         asyncFilterCount.set(0);
     }
 }
