@@ -19,8 +19,9 @@ spring:
 #      name: summarizeBillJob
 #      name: billStatusHistoryCommitteeUpdateJob
 #      name: billStatusHistoryCommitteeCompletionAsyncJob
-      name: billStatusHistoryCommitteeUpdateAsyncJob
-      enabled: true
+#      name: billStatusHistoryCommitteeUpdateAsyncJob
+#      name: billStatusHistoryPlenaryInProgressAsyncJob
+      enabled: false
   profiles:
     active: local
   config:
@@ -76,6 +77,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        jdbc:
+          batch_size: 100
+          order_inserts: true
+          order_updates: true
       org:
         hibernate:
           envers:

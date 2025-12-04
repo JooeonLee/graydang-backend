@@ -265,4 +265,49 @@ public class BillStatusHistoryService {
 
         log.info("✅ 소관위 심사 완료 업데이트 - billId: {}, 결과: {}", bill.getBillId(), procResult);
     }
+
+    /**
+     * [Job 1: 위원회 회부 -> 본회의 심의] 배치를 위한 전용 메서드.
+     * '처리일'(procDt)이 확인되면 '본회의 심의' 이력을 신규 생성(INSERT)합니다.
+     *
+     * @param bill  Writer가 조회한 Bill 엔티티
+     * @param item  API 응답 (본회의 심의 정보)
+     */
+    @Transactional
+    public void saveNewPlenaryReferral(Bill bill, BillDeliverateInfoResponseDto.PlenarySessionExaminationItem item) {
+        if (item == null) {
+            log.warn("본회의 심의 item이 null 입니다. - billId: {}", bill.getBillId());
+            return;
+        }
+
+        // (1) '처리일'(procDt)을 기준 날짜로 사용합니다.
+        LocalDate stepDate = parseDate(item.getProcDt());
+
+        // (2) '처리일'이 없으면 '본회의 심의'가 아니므로 저장 생략
+        if (stepDate == null) {
+            log.info("핵심 정보인 '처리일'(procDt)이 없어 저장 생략 - billId: {}", bill.getBillId());
+            return;
+        }
+
+        // (3) api 응답값 확인
+        String apiProcResult = item.getProcResultCd();
+
+        // (4) api 결과가 없으면 "심사 중"을 기본값으로 설정
+        String finalStepResult = (apiProcResult == null || apiProcResult.isBlank()) ? "심사 중" : apiProcResult;
+
+        // (3) [중요] 이 메서드는 Job 1(신규) 전용이므로, existingOpt 검사를 *하지 않습니다.*
+        // Reader가 (WHERE NOT EXISTS)로 신규 의안만 가져왔다고 신뢰합니다.
+
+        BillStatusHistory history = BillStatusHistory.builder()
+                .bill(bill)
+                .stepOrder(1)
+                .stepName("본회의 심의")     // "소관위 회부"
+                .stepDate(stepDate)      // ★ 회부일
+                .stepResult(finalStepResult)
+                .status(STATUS_ACTIVE)
+                .build();
+
+        billStatusHistoryRepository.save(history);
+        log.info("본회의 심의 이력 신규 저장 완료 - billId: {}, date: {}", bill.getBillId(), item.getProcDt());
+    }
 }

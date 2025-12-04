@@ -23,6 +23,7 @@ public class BillStatusHistoryBatchController {
     private final Job billStatusHistoryCommitteeCompletionJob;
     private final Job billStatusHistoryCommitteeUpdateAsyncJob;
     private final Job billStatusHistoryCommitteeCompletionAsyncJob;
+    private final Job billStatusHistoryPlenaryInProgressAsyncJob;
 
     @PostMapping("/run-committee-in-progress-job")
     public ResponseEntity<BaseResponse<String>> runCommitteeInProgressJob() {
@@ -104,6 +105,28 @@ public class BillStatusHistoryBatchController {
 
             // (5) Job이 시작되었다고 즉시 응답
             return ResponseEntity.ok(new BaseResponse<>("Batch job 'billStatusHistoryCommitteeCompletionAsyncJob' 이 비동기로 시작되었습니다."));
+
+        } catch (Exception e) {
+            log.error("배치 Job 실행 중 오류 발생", e);
+            return ResponseEntity.status(500)
+                    .body(new BaseResponse<>("Job 실행 실패: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/run-plenary-session-in-progress-async-job")
+    public ResponseEntity<BaseResponse<String>> runPlenaryInProgressAsyncJob() {
+        try {
+            JobParameters jobParameters = new JobParametersBuilder()
+                    .addString("triggerTime", String.valueOf(System.currentTimeMillis()))
+                    .toJobParameters();
+
+            log.info("API 요청으로 'billStatusHistoryPlenaryInProgressAsyncJob' 배치를 시작합니다...");
+
+            // 비동기 JobLauncher로 실행
+            asyncJobLauncher.run(billStatusHistoryPlenaryInProgressAsyncJob, jobParameters);
+
+            // Job이 시작되었다고 즉시 응답
+            return ResponseEntity.ok(new BaseResponse<>("Batch job 'billStatusHistoryPlenaryInProgressAsyncJob' 이 비동기로 시작되었습니다."));
 
         } catch (Exception e) {
             log.error("배치 Job 실행 중 오류 발생", e);
