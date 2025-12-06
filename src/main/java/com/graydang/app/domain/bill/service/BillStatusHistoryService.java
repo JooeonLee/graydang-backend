@@ -308,6 +308,53 @@ public class BillStatusHistoryService {
                 .build();
 
         billStatusHistoryRepository.save(history);
+
+        bill.updateBillStatus(finalStepResult);
+
         log.info("본회의 심의 이력 신규 저장 완료 - billId: {}, date: {}", bill.getBillId(), item.getProcDt());
+    }
+
+    /**
+     * [Job 1: 본회의 심의 -> 정부 이송] 배치를 위한 전용 메서드.
+     * '이송일'(transDt)이 확인되면 '정부 이송' 이력을 신규 생성(INSERT)합니다.
+     *
+     * @param bill  Writer가 조회한 Bill 엔티티
+     * @param item  API 응답 (정부 이송 정보)
+     */
+    @Transactional
+    public void saveNewGovTransferReferral(Bill bill, BillTransferredInfoResponseDto.TransferredItem item) {
+        if (item == null) {
+            log.warn("본회의 심의 item이 null 입니다. - billId: {}", bill.getBillId());
+            return;
+        }
+
+        // (1) '이송일'(transDt)을 기준 날짜로 사용합니다.
+        LocalDate stepDate = parseDate(item.getTransDt());
+
+        // (2) '이송일'이 없으면 '정부 이송'이 아니므로 저장 생략
+        if (stepDate == null) {
+            log.info("핵심 정보인 '이송일'(transDt)이 없어 저장 생략 - billId: {}", bill.getBillId());
+            return;
+        }
+
+        // (3) [중요] 이 메서드는 Job 1(신규) 전용이므로, existingOpt 검사를 *하지 않습니다.*
+        // Reader가 (WHERE NOT EXISTS)로 신규 의안만 가져왔다고 신뢰합니다.
+
+        String transferResult = "정부 이송";
+
+        BillStatusHistory history = BillStatusHistory.builder()
+                .bill(bill)
+                .stepOrder(1)
+                .stepName("정부 이송")     // "정부 이송"
+                .stepDate(stepDate)      // ★ 회부일
+                .stepResult(transferResult)
+                .status(STATUS_ACTIVE)
+                .build();
+
+        billStatusHistoryRepository.save(history);
+
+        bill.updateBillStatus(transferResult);
+
+        log.info("정부 이송 이력 신규 저장 완료 - billId: {}, date: {}", bill.getBillId(), item.getTransDt());
     }
 }
