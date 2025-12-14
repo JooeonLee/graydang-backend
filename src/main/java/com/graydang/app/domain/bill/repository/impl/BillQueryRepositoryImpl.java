@@ -154,7 +154,9 @@ public class BillQueryRepositoryImpl implements BillQueryRepository {
                                                         history.status.eq("ACTIVE")
                                                 )
                                 )
-                        ),
+                        )
+                        .orderBy(history.stepOrder.desc())
+                        .limit(1),
                 Expressions.constant("발의")
         );
 
