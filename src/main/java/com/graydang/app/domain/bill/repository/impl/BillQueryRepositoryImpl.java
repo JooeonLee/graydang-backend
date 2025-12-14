@@ -33,6 +33,9 @@ public class BillQueryRepositoryImpl implements BillQueryRepository {
     public Slice<BillSimpleResponseDto> findBillSimpleProjectionByCommittees(Set<String> committeeLabels, Long userId, Pageable pageable, String sortBy) {
         QBill bill = QBill.bill;
         QBillStatusHistory history = QBillStatusHistory.billStatusHistory;
+        QBillStatusHistory historyTie = new QBillStatusHistory("historyTie");
+        QBillStatusHistory historyStep = new QBillStatusHistory("historyStep");
+
         QBillReaction reaction = QBillReaction.billReaction;
         QComment comment = QComment.comment;
         QBillScrape scrape = QBillScrape.billScrape;
@@ -50,17 +53,23 @@ public class BillQueryRepositoryImpl implements BillQueryRepository {
 
         Expression<String> billHistoryStatusExpr = Expressions.stringTemplate(
                 "coalesce({0}, {1})",
-                JPAExpressions.select(history.stepName)
-                        .from(history)
+                JPAExpressions.select(historyTie.stepName)
+                        .from(historyTie)
                         .where(
-                                history.bill.eq(bill),
-                                history.status.eq("ACTIVE"),
-                                history.stepOrder.eq(
-                                        JPAExpressions.select(history.stepOrder.max())
-                                                .from(history)
+                                historyTie.id.eq(
+                                        JPAExpressions.select(historyTie.id.max())
+                                                .from(historyTie)
                                                 .where(
-                                                        history.bill.eq(bill),
-                                                        history.status.eq("ACTIVE")
+                                                        historyTie.bill.eq(bill),
+                                                        historyTie.status.eq("ACTIVE"),
+                                                        historyTie.stepOrder.eq(
+                                                                JPAExpressions.select(historyStep.stepOrder.max())
+                                                                        .from(historyStep)
+                                                                        .where(
+                                                                                historyStep.bill.eq(bill),
+                                                                                historyStep.status.eq("ACTIVE")
+                                                                        )
+                                                        )
                                                 )
                                 )
                         ),
@@ -104,6 +113,7 @@ public class BillQueryRepositoryImpl implements BillQueryRepository {
                 ))
                 .from(bill)
                 .where(bill.committeeName.in(committeeLabels), bill.status.eq("ACTIVE"))
+                .where(bill.aiTitle.isNotNull())
                 .orderBy(getSortOrder(sortBy))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
