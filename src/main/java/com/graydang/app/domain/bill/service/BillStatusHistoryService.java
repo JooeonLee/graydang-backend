@@ -300,8 +300,8 @@ public class BillStatusHistoryService {
 
         BillStatusHistory history = BillStatusHistory.builder()
                 .bill(bill)
-                .stepOrder(1)
-                .stepName("본회의 심의")     // "소관위 회부"
+                .stepOrder(2)
+                .stepName("본회의 심의")     // "본회의 심의"
                 .stepDate(stepDate)      // ★ 회부일
                 .stepResult(finalStepResult)
                 .status(STATUS_ACTIVE)
@@ -322,7 +322,8 @@ public class BillStatusHistoryService {
      * @param item  API 응답 (정부 이송 정보)
      */
     @Transactional
-    public void saveNewGovTransferReferral(Bill bill, BillTransferredInfoResponseDto.TransferredItem item) {
+    public void
+    saveNewGovTransferReferral(Bill bill, BillTransferredInfoResponseDto.TransferredItem item) {
         if (item == null) {
             log.warn("본회의 심의 item이 null 입니다. - billId: {}", bill.getBillId());
             return;
@@ -344,7 +345,7 @@ public class BillStatusHistoryService {
 
         BillStatusHistory history = BillStatusHistory.builder()
                 .bill(bill)
-                .stepOrder(1)
+                .stepOrder(3)
                 .stepName("정부 이송")     // "정부 이송"
                 .stepDate(stepDate)      // ★ 회부일
                 .stepResult(transferResult)
@@ -356,5 +357,49 @@ public class BillStatusHistoryService {
         bill.updateBillStatus(transferResult);
 
         log.info("정부 이송 이력 신규 저장 완료 - billId: {}, date: {}", bill.getBillId(), item.getTransDt());
+    }
+
+    /**
+     * [Job 1: 본회의 심의 -> 정부 이송] 배치를 위한 전용 메서드.
+     * '이송일'(transDt)이 확인되면 '정부 이송' 이력을 신규 생성(INSERT)합니다.
+     *
+     * @param bill  Writer가 조회한 Bill 엔티티
+     * @param item  API 응답 (정부 이송 정보)
+     */
+    @Transactional
+    public void
+    saveNewPromulgationReferral(Bill bill, BillPromulgationInfoResponseDto.PromulgationItem item) {
+        if (item == null) {
+            log.warn("공포 item이 null 입니다. - billId: {}", bill.getBillId());
+            return;
+        }
+
+        // (1) '공포일'(anounceDt)을 기준 날짜로 사용합니다.
+        LocalDate stepDate = parseDate(item.getAnounceDt());
+        String lawTitle = item.getLawTitle();
+
+        // (2) '이송일'이 없으면 '정부 이송'이 아니므로 저장 생략
+        if (stepDate == null || lawTitle == null) {
+            log.info("핵심 정보인 '공포일'(anounceDt) 혹은 의안 제목이 없어 저장 생략 - billId: {}", bill.getBillId());
+            return;
+        }
+
+        // (3) [중요] 이 메서드는 Job 1(신규) 전용이므로, existingOpt 검사를 *하지 않습니다.*
+        // Reader가 (WHERE NOT EXISTS)로 신규 의안만 가져왔다고 신뢰합니다.
+
+        BillStatusHistory history = BillStatusHistory.builder()
+                .bill(bill)
+                .stepOrder(4)
+                .stepName("공포")     // "공포"
+                .stepDate(stepDate)      // ★ 회부일
+                .stepResult(lawTitle)
+                .status(STATUS_ACTIVE)
+                .build();
+
+        billStatusHistoryRepository.save(history);
+
+        bill.updateBillStatus(lawTitle);
+
+        log.info("공포 이력 신규 저장 완료 - billId: {}, date: {}", bill.getBillId(), item.getAnounceDt());
     }
 }
