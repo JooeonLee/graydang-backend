@@ -21,6 +21,7 @@ spring:
 #      name: billStatusHistoryCommitteeCompletionAsyncJob
 #      name: billStatusHistoryCommitteeUpdateAsyncJob
 #      name: billStatusHistoryPlenaryInProgressAsyncJob
+#      name: billStatusHistoryPromulgationInProgressAsyncJob
       enabled: false
   profiles:
     active: local
