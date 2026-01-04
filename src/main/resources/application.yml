@@ -28,6 +28,11 @@ spring:
   config:
     import: application-oauth.yml
 
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
 jwt:
   secret: ${JWT_SECRET:mySecretKeyForJWTForProduction}
   access-token-validity: ${ACCESS_TOKEN_EXPIRED_IN:604800000} # 7 days

@@ -5,6 +5,11 @@ spring:
     username: ${DATASOURCE_USERNAME_LOCAL}
     password: ${DATASOURCE_PASSWORD_LOCAL}
 
+  kafka:
+    # EC2 퍼블릭 IP (외부 접속용) + 9094 포트
+    # 예: 3.34.123.45:9094
+    bootstrap-servers: ${KAFKA_HOST:localhost}:9094
+
 BASE_URL:
   http://localhost:8080
 
@@ -12,3 +17,7 @@ logging:
   custom:
     enabled: true
     http-request: true
+
+app:
+  topic:
+    bill-notification: bill-notification-local
