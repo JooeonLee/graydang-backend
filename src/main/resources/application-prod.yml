@@ -25,7 +25,16 @@ spring:
     jdbc:
       initialize-schema: always
 
+  kafka:
+    # 9092 포트는 고정(내부 통신 표준)이지만, IP는 주입받습니다.
+    # 만약 KAFKA_HOST 값이 없으면 에러가 나도록 설정합니다.
+    bootstrap-servers: ${KAFKA_HOST}:9092
+
 logging:
   custom:
     enabled: true
     http-request: false
+
+app:
+  topic:
+    bill-notification: bill-notification-prod

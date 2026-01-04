@@ -84,6 +84,9 @@ dependencies {
 
     // Hibernate Envers
     implementation 'org.springframework.data:spring-data-envers'
+
+    // Kafka
+    implementation 'org.springframework.kafka:spring-kafka'
 }
 
 def querydslDir = file("build/generated/querydsl")
