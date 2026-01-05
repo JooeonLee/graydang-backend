@@ -81,6 +81,7 @@ jobs:
             echo "SPRING_REDIS_HOST=${{ secrets.SPRING_REDIS_HOST }}" >> .env
             echo "SPRING_REDIS_PORT=${{ secrets.SPRING_REDIS_PORT }}" >> .env
             echo "SLACK_BOT_TOKEN=${{ secrets.SLACK_BOT_TOKEN }}" >> .env
+            echo "KAFKA_HOST=${{ secrets.KAFKA_HOST }}" >> .env
 
             # deploy.sh 스크립트에 실행 권한 부여
             chmod +x ./deploy.sh
