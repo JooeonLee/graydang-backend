@@ -1,17 +1,21 @@
-## 서비스명
+## 🏷️ 서비스명
 의안 조회 및 진행 상태 알림 서비스
 , 그레이픽(Gray-Pick)
 
-## 서비스 소개
+## 📝 서비스 소개
 <img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/545be29b-ac15-4363-baae-4f2eebe5a7b8" />
 
 > **그레이픽(gray-pick)은 여러분이 쉽고 빠르게 관심 의안을 확인하고 팔로우할 수 있는 의안 알림 서비스입니다.**
 <img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/b447a85c-215c-4c4d-a401-6b083db70e33" />
 
-## System Architecture
+## 🏗️ System Architecture
 <img width="1031" height="741" alt="Image" src="https://github.com/user-attachments/assets/f4eaf825-2c47-438e-8cd6-114855972185" />
 
-## Tech Stack
+## 🗄️ ERD
+<img width="3190" height="1712" alt="Image" src="https://github.com/user-attachments/assets/f0443881-97af-4e32-8352-e28ebfd27434" />
+
+## 🛠️ Tech Stack
+### Backend
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-%6DB33F?logo=springboot&logoColor=white)
 ![Spring Security](https://img.shields.io/badge/Spring%20Security-%6DB33F?logo=springsecurity&logoColor=white)
 ![Spring JPA](https://img.shields.io/badge/Spring%20JPA-%6DB33F?logo=&logoColor=white)
@@ -23,7 +27,14 @@
 ![QueryDSL](https://img.shields.io/badge/QueryDSL-00465B?logo=&logoColor=white)
 ![JWT](https://img.shields.io/badge/JWT-512BD4?logo=&logoColor=white) <br>
 
-## 기술 스택 선정 이유
+### Co-Work Tool
+![Jira](https://img.shields.io/badge/Jira-0052CC?logo=jira&logoColor=white)
+![Github](https://img.shields.io/badge/Github-181717?logo=github&logoColor=white)
+![Slack](https://img.shields.io/badge/Slack-4A154B?logo=slack&logoColor=white)
+![figma](https://img.shields.io/badge/Figma-F24E1E?logo=figma&logoColor=white)
+![notion](https://img.shields.io/badge/Notion-000000?logo=notion&logoColor=white)
+
+## 💡 기술 스택 선정 이유
 - **Spring Boot**
   - 스프링 프레임워크를 기반으로 자동 설정과 스타터 종속성을 제공하여 웹 애플리케이션 개발과 배포를 신속하게 수행할 수 있도록 돕습니다.
 
@@ -63,3 +74,43 @@
 
 - **Jsoup**
   - HTML에서 데이터를 파싱하고 조작하는 자바 라이브러리로, 정적 웹 크롤링 및 데이터 추출 작업에 유용합니다.
+
+## 📌 Convention
+### Naming Convention
+- 파일 : CamelCase + SnakeCase
+- 클래스명 : PascalCase
+- 함수/변수명 : CamelCase
+
+### Branch Naming Convention
+- main
+- develop
+- feature/
+- hotfix/
+- refactor/
+
+### Commit Convention
+
+| Tag      | Description                                         |
+|----------|-----------------------------------------------------|
+| `feat`   | Commits that add a new feature.                     |
+| `fix`    | Commits that fix a bug.                             |
+| `hotfix` | Fix an urgent bug in issue or QA.                   |
+| `build`  | Commits that affect build components.               |
+| `chore`  | Miscellaneous commits.                              |
+| `style`  | Commits for code styling or format.                 |
+| `docs`   | Commits that affect documentation only.             |
+| `test`   | Commits that add missing tests or correcting existing tests. |
+| `refactor`| Commits for code refactoring.                      |
+
+### Coding Convention
+> 코드를 작성한 의도와 목적을 명확하게 드러냅니다.
+- **Variables** : 축약어를 사용하지 않습니다. 변수 명에 자료구조를 포함하지 않습니다. (e.g., `CarList.java` ❌) <br>
+- **Methods**: `lowerCamelCase`를 사용합니다. 메소드 명은 동사 및 전치사로 시작합니다. (e.g., `getUserInfo()`) <br>
+- **Database Columns**: `snake_case`를 사용합니다. (e.g., `member_id`) <br>
+- **End Points**: REST API를 준수합니다. (e.g., `GET` www.example.com/users/1)
+
+## 🌿 Branch Flow
+- GitHub Flow 기반으로, `develop` 통합 브랜치를 둔 변형(variant)으로 운영
+- 초기 개발 단계에서는 `develop`을 중심으로 기능 개발(feature/*, refactor/*) → PR merge 방식으로 운영
+릴리즈(배포) 시점부터 `main`을 추가하여 배포 브랜치로 고정
+- 릴리즈 절차: `develop`에서 안정화 → `main`에 merge(또는 tag) → 배포
