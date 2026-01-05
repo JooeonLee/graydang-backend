@@ -36,6 +36,7 @@ services:
       REFRESH_TOKEN_EXPIRED_IN: ${REFRESH_TOKEN_EXPIRED_IN}
       SPRING_REDIS_HOST: ${SPRING_REDIS_HOST}
       SPRING_REDIS_PORT: ${SPRING_REDIS_PORT}
+      KAFKA_HOST: ${KAFKA_HOST}
     volumes:
       - ./logs:/app/logs
     restart: always
@@ -75,6 +76,7 @@ services:
       REFRESH_TOKEN_EXPIRED_IN: ${REFRESH_TOKEN_EXPIRED_IN}
       SPRING_REDIS_HOST: ${SPRING_REDIS_HOST}
       SPRING_REDIS_PORT: ${SPRING_REDIS_PORT}
+      KAFKA_HOST: ${KAFKA_HOST}
     volumes:
       - ./logs:/app/logs
     restart: always
