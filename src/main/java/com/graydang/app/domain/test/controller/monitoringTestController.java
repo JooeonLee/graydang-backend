@@ -26,4 +26,9 @@ public class monitoringTestController {
       throw e; // 그냥 다시 던져서 @ControllerAdvice / @RestControllerAdvice 에서 처리
     }
   }
+
+  @GetMapping(value = "/500")
+  public ResponseEntity<Object> test500Error() {
+    throw new RuntimeException("test 500 error");
+  }
 }
