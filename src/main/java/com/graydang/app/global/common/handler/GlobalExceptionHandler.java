@@ -7,9 +7,11 @@ import com.graydang.app.global.common.model.dto.BaseResponse;
 import com.graydang.app.monitoring.SlackBotNotifier;
 import com.graydang.app.monitoring.SlackNotifier;
 import com.graydang.app.monitoring.SlackPayload;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
+import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -84,6 +87,27 @@ public class GlobalExceptionHandler {
         JSONObject result = new JSONObject();
         result.put(e.getMethod(), e.getMessage());
         return new BaseResponse<>(HTTP_METHOD_TYPE_MISMATCH, result);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ExceptionResponse> handleUnexpectedException(Exception e, HttpServletRequest request) {
+        String location = Arrays.stream(e.getStackTrace())
+            .filter(el -> el.getClassName().startsWith("com.graydang.app"))
+            .findFirst()
+            .map(el -> String.format("%s.%s():%d", el.getClassName(), el.getMethodName(), el.getLineNumber()))
+            .orElse("Unknown");
+
+        String requestUUID = MDC.get("requestUUID");
+
+        log.error("[500 ERROR] requestUUID={} message={} location={}", requestUUID, e.getMessage(), location, e);
+
+        slack.send(new SlackPayload(
+            String.format("[500 ERROR]\nrequestUUID: %s\nuri: %s\nmessage: %s\nlocation: %s",
+                requestUUID, request.getRequestURI(), e.getMessage(), location),
+            "#monitoring", null));
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(ExceptionResponse.of("INTERNAL_SERVER_ERROR", "서버 내부 오류가 발생했습니다."));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
