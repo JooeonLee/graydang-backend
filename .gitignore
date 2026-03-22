@@ -38,3 +38,13 @@ out/
 
 ### ENV file ###
 .env
+
+### load-test ###
+.claude/worktrees/
+load-test/
+repomix-output.xml
+src/main/java/com/graydang/app/global/common/model/dto/CursorRequest.java
+src/test/node_modules/
+src/test/package-lock.json
+src/test/package.json
+src/test/performance/
